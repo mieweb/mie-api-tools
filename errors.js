@@ -1,4 +1,4 @@
-class customError extends Error{
+class customError extends Error {
 
     constructor(code, message){
         super(message);
@@ -10,7 +10,9 @@ class customError extends Error{
 }
 
 const ERRORS = {
-    AUTHENTICATION_FAILURE: 'AUTHENTICATION_FAILURE'
+    AUTHENTICATION_FAILURE: 'AUTHENTICATION_FAILURE',
+    INVALID_COOKIE: 'INVALID_COOKIE',
+    BAD_REQUEST: 'BAD_REQUEST'
 };
 
 module.exports = {ERRORS, customError};
