@@ -10,8 +10,6 @@ function makeGETRequest(endpoint, queryby){
 
     let cookie = '';
 
-    console.log("Initializing API Session via Node.js");
-
     const encode_login_parms = {
         'login_user': username.value,
         'login_passwd': password.value
@@ -36,10 +34,6 @@ function makeGETRequest(endpoint, queryby){
         const attribute = processObject(queryby);
         const apirequest = `GET/db/${endpoint}/LIKE_${attribute}=${queryby[attribute]}`;
         const buffer = Buffer.from(apirequest, 'utf8');
-
-        console.log("Querying the Request....");
-
-        console.log(request);
 
         //request parameters
         const data_request_params = {

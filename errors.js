@@ -12,7 +12,8 @@ class customError extends Error {
 const ERRORS = {
     AUTHENTICATION_FAILURE: 'AUTHENTICATION_FAILURE',
     INVALID_COOKIE: 'INVALID_COOKIE',
-    BAD_REQUEST: 'BAD_REQUEST'
+    BAD_REQUEST: 'BAD_REQUEST',
+    EMPTY_PARAMETER: 'EMPTY_PARAMETER'
 };
 
-module.exports = {ERRORS, customError};
+module.exports = { ERRORS, customError };
