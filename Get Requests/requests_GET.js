@@ -1,7 +1,7 @@
 const request = require('sync-request');
 const querystring = require('querystring');
-const error = require('./errors');
-const { URL, username, password } = require('./variables');
+const error = require('../errors');
+const { URL, username, password } = require('../variables');
 
 //makes the GET request
 function makeGETRequest(endpoint, queryby){
