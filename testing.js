@@ -7,5 +7,5 @@ URL.value = "https://maxprac.webchartnow.com/webchart.cgi";
 username.value = process.env.USERNAME;
 password.value = process.env.PASSWORD;
 
-
-console.log(queryData.accessData("ssn", "patients", { }));
+//console.log(queryData.accessData( [], "patients", { }));
+console.log(queryData.retrieveData( "patients", [], {}));

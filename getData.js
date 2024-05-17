@@ -4,46 +4,57 @@ const error = require('./errors');
 require('dotenv').config();
 
 //Patients Endpoint (Basic Demographics)
-function accessData(field, endpoint, options){
+function retrieveData(endpoint,fields, options){
     if (endpoint != ""){
         JSON = makeRequest.makeGETRequest(endpoint, options);
-        try {
-            if (field != "" && Object.keys(options).length != 0){
-                return JSON['db'][0][field];
-            } else if (field != "" && Object.keys(options).length == 0) {
-                if (JSON['db'][0][field]){
+        
+        //fields and options
+        if (fields.length > 0){
 
-                    blank_JSON = {}
-                    index = 0;
+            blank_JSON = {}
+            json_index = 0
+            raw_JSON_index = JSON['db'].length;
 
-                    //return all for that field
-                    for (const patient of JSON['db']){
+            if (raw_JSON_index != 0){
+
+                for ( json_index; json_index < raw_JSON_index; json_index++ ){
             
-                        if (!blank_JSON[index]){
-                            blank_JSON[index] = {};
-                            blank_JSON[index]["pat_id"] = patient["pat_id"];
-                            blank_JSON[index][field] = patient[field];
+                    const patient = JSON['db'][json_index];
+                    
+                    if (!blank_JSON[json_index]){
+    
+                        blank_JSON[json_index] = {};
+                        blank_JSON[json_index]["pat_id"] = patient["pat_id"];
+    
+                        index = 0;
+    
+                        for ( index; index < fields.length; index++){
+                            
+                            if (patient[fields[index]] || patient[fields[index]] == ''){
+                                blank_JSON[json_index][fields[index]] = patient[fields[index]];
+                            } else {
+                                throw new error.customError(error.ERRORS.INVALID_FIELD, `The field ${fields[index]} does not exist in this table.`); //field does not exist
+                            }
                         }
-                        index++;
                     }
+                }
+    
+                return blank_JSON;
 
-                    return blank_JSON;
-
-                } else {
-                    return JSON;
-                }   
             } else {
                 return JSON;
             }
-            
-        } catch (e) {
+
+
+        } else {
             return JSON;
-        }
+        }   
+    
     } else {
         throw new error.customError(error.ERRORS.EMPTY_PARAMETER, "\"endpoint\" parameter cannot be empty.")
     }
     
 }
 
-module.exports = { accessData }
+module.exports = { retrieveData }
 

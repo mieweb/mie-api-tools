@@ -30,9 +30,7 @@ function makeGETRequest(endpoint, queryby){
 
     if (cookie != ""){
         
-
-        const attribute = processObject(queryby);
-        const apirequest = `GET/db/${endpoint}/LIKE_${attribute}=${queryby[attribute]}`;
+        const apirequest = craft_API_request(endpoint, queryby);
         const buffer = Buffer.from(apirequest, 'utf8');
 
         //request parameters
@@ -61,8 +59,41 @@ function makeGETRequest(endpoint, queryby){
 }
 
 //identifies only the first key
-function processObject(obj){
-    return (Object.keys(obj))[0];
+function processObject(obj, index){
+    return (Object.keys(obj))[index];
+}
+
+//crafts the API Request, concatenating options (filters) as needed
+function craft_API_request(endpoint, options){
+    
+    //const apirequest = `GET/db/${endpoint}/LIKE_${attribute}=${queryby[attribute]}`;
+    if (Object.keys(options).length == 0) {
+        return `GET/db/${endpoint}/`;
+    } else if (Object.keys(options).length == 1) {
+        const attribute = processObject(options, 0);
+        return `GET/db/${endpoint}/LIKE_${attribute}=${options[attribute]}`;
+    } else {
+        
+        let request = `GET/db/${endpoint}/`;
+        for (index = 0; index < Object.keys(options).length; index++){
+            
+            const attribute = processObject(options, index);
+
+            if (index == 0){
+                request += `LIKE_${attribute}=${options[attribute]}&`;
+            } else {
+                if (index + 1 != Object.keys(options).length){
+                    request += `${attribute}=${options[attribute]}&`;
+                } else {
+                    request += `${attribute}=${options[attribute]}`;
+                }
+            }
+        }
+
+        return request;
+
+    }
+
 }
 
 module.exports = { makeGETRequest }; 
