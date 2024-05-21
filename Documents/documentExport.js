@@ -2,10 +2,10 @@ const session = require('../Session Management/getCookie');
 const makeQuery = require('../Get Requests/tools');
 const queryData = require('../Get Requests/getData.js');
 const fs = require('fs');
-// const request = require('sync-request');
+const request = require('request');
 // const querystring = require('querystring');
-// const error = require('../errors');
-// const { URL } = require('../variables');
+ const error = require('../errors');
+ const { URL } = require('../variables');
 
 function exportSingleDoc(documentID){
 
@@ -36,7 +36,7 @@ function exportSingleDoc(documentID){
 
 
             console.log("Downloading Document: " + documentID);
-            downloadDocument(doc_id, last_name + "_" + doc_id + ".xml");
+            downloadDocument(cookie, documentID, last_name + "_" + documentID + ".png");
 
 
         } else {
@@ -46,10 +46,33 @@ function exportSingleDoc(documentID){
     }
 }
 
-function downloadDocument(doc_id, filename){
+function downloadDocument(cookie, doc_id, filename){
     
+    const data_request_params = {
+        'f': "stream",
+        "doc_id": doc_id,
+        "session_id": cookie,
+        "rawdata": '1'
+    }
 
+    const requestURL = URL.value;
 
+    request.post({url: requestURL, form: data_request_params, encoding: null}, (error, response, body) => {
+        if (error){
+            console.error(error);
+        } else if (response.statusCode == 200) {
+            fs.writeFile(filename, body, (error) => {
+                if (error){
+                    console.error(error);
+                } else {
+                    console.log("File saved!");
+                }
+            });
+            
+        } else {
+            throw new error.customError(error.ERRORS.STATUS_CODE_ERROR, `Expected a 200 response but instead received a ${response.statusCode} response.`);
+        }
+    });
 
 }
 
