@@ -1,0 +1,35 @@
+const { URL, username, password } = require('../variables');
+const querystring = require('querystring');
+const error = require('../errors');
+const request = require('sync-request');
+
+//initializes user session and returns the cookie
+function getCookie(){
+
+    process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+
+    let cookie = '';
+
+    const encode_login_parms = {
+        'login_user': username.value,
+        'login_passwd': password.value
+    }
+    const encodedLoginParms = querystring.stringify(encode_login_parms);
+    let fullURL = `${URL.value}?${encodedLoginParms}`
+
+    //making the request
+    let res = request('GET', fullURL);
+    if (res.statusCode != 200){
+        throw new error.customError(error.ERRORS.AUTHENTICATION_FAILURE, 'Unable to login into your WebChart account. Make sure the credentials you provided are correct.');
+    }
+
+    //get Cookie
+    let raw = res.headers['set-cookie'];
+    raw = querystring.stringify(raw);
+    cookie = raw.substring(raw.indexOf('id%') + 5, raw.indexOf('%3B')); //set cookie
+
+    return cookie;
+
+}
+
+module.exports = { getCookie };

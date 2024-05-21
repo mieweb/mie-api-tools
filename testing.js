@@ -1,14 +1,20 @@
 require('dotenv').config();
 const fs = require('fs');
+const documentImport = require('./Documents/documentExport')
 
 const { URL, username, password } = require('./variables.js');
 const queryData = require('./Get Requests/getData.js');
 
-URL.value = "https://maxprac.webchartnow.com/webchart.cgi";
+URL.value = "https://mieinternprac.webchartnow.com/webchart.cgi";
 username.value = process.env.USERNAME;
 password.value = process.env.PASSWORD;
 
-console.log(queryData.retrieveData("", [], {  }));
+// const results = queryData.retrieveData("documents", [], { doc_id: 29 });
+// console.log(results);
+// const jsonString = JSON.stringify(results);
+// fs.appendFileSync('output.txt', jsonString);
+
+documentImport.exportSingleDoc(29);
 
 //console.log(queryData.retrieveData( "patients", ["first_name", "last_name", "ssn", "home_phone", "sex", "birth_date"], { first_name: "E"}));
 // endpoints = [ 
