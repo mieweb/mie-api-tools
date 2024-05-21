@@ -9,12 +9,13 @@ URL.value = "https://mieinternprac.webchartnow.com/webchart.cgi";
 username.value = process.env.USERNAME;
 password.value = process.env.PASSWORD;
 
-// const results = queryData.retrieveData("documents", [], { doc_id: 29 });
+// const results = queryData.retrieveData("documents", ["storage_type", "doc_id", "pat_id"], { pat_id: 14 });
 // console.log(results);
 // const jsonString = JSON.stringify(results);
 // fs.appendFileSync('output.txt', jsonString);
 
-documentImport.exportSingleDoc(29, "output_files");
+//documentImport.exportSingleDoc(145, "output_files");
+documentImport.exportDocs({ pat_id: 14 }, "output/new_files");
 
 //console.log(queryData.retrieveData( "patients", ["first_name", "last_name", "ssn", "home_phone", "sex", "birth_date"], { first_name: "E"}));
 // endpoints = [ 
