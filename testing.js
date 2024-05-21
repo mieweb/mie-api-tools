@@ -14,7 +14,7 @@ password.value = process.env.PASSWORD;
 // const jsonString = JSON.stringify(results);
 // fs.appendFileSync('output.txt', jsonString);
 
-documentImport.exportSingleDoc(29);
+documentImport.exportSingleDoc(29, "output_files");
 
 //console.log(queryData.retrieveData( "patients", ["first_name", "last_name", "ssn", "home_phone", "sex", "birth_date"], { first_name: "E"}));
 // endpoints = [ 

@@ -3,11 +3,12 @@ const makeQuery = require('../Get Requests/tools');
 const queryData = require('../Get Requests/getData.js');
 const fs = require('fs');
 const request = require('request');
+const path = require('path');
 // const querystring = require('querystring');
- const error = require('../errors');
- const { URL } = require('../variables');
+const error = require('../errors');
+const { URL } = require('../variables');
 
-function exportSingleDoc(documentID){
+function exportSingleDoc(documentID, directory){
 
     cookie = session.getCookie();
 
@@ -34,10 +35,25 @@ function exportSingleDoc(documentID){
                 }
             };
 
-
             console.log("Downloading Document: " + documentID);
-            downloadDocument(cookie, documentID, last_name + "_" + documentID + ".png");
+            
+            const filename = `${last_name}_${documentID}.png`;
+            
+            if (directory == ""){
+                directory = "./";
+            }
 
+            const fileFullPath = path.join(directory, filename);
+            const fileDirPath = path.dirname(fileFullPath);
+
+            //make directory if one doesn't already exist
+            if (!fs.existsSync(fileDirPath)){
+                fs.mkdirSync(fileDirPath, { recursive: true} )
+            }
+
+            if (!fs.existsSync(fileFullPath)) {
+                downloadDocument(cookie, documentID, fileFullPath);
+            }
 
         } else {
             throw new error.customError(error.ERRORS.BAD_PARAMETER, '\"DocumentID\" must be of type int.');
@@ -47,7 +63,7 @@ function exportSingleDoc(documentID){
 }
 
 function downloadDocument(cookie, doc_id, filename){
-    
+
     const data_request_params = {
         'f': "stream",
         "doc_id": doc_id,
