@@ -13,12 +13,14 @@ password.value = process.env.PASSWORD;
 // const jsonString = JSON.stringify(results);
 // fs.appendFileSync('output.txt', jsonString);
 
-//documentExport.exportSingleDoc(568, "output_files");
+//documentExport.exportSingleDoc(719, "output_files");
 //documentImport.exportDocs({ pat_id: 14 }, "output/new_files");
 
-documentImport.importSingleDocument("Hart_568.html", 4, "AUDIO", 18);
+// documentImport.importSingleDocument("Hart_667.pdf", 17, "PATH", 18);
+documentImport.importDocs("filesToUpload.csv");
 
-//console.log(queryData.retrieveData("documents", ["revision_date", "doc_type", "doc_id", "storage_type"], { pat_id: 18 }));
+//console.log(queryData.retrieveData("documents", ["revision_date", "doc_type", "doc_id", "storage_type"], { pat_id: 14}));
+//console.log(queryData.retrieveData("documents", [], { storage_type: 17 }));
 
 //console.log(queryData.retrieveData( "patients", ["first_name", "last_name", "ssn", "home_phone", "sex", "birth_date"], { first_name: "E"}));
 // endpoints = [ 
