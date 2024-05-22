@@ -5,24 +5,35 @@ const documentExport = require('./Documents/documentExport');
 
 const { URL, username, password } = require('./variables.js');
 const queryData = require('./Get Requests/getData.js');
+const updateData = require('./Put Requests/requests_PUT');
 
 URL.value = "https://mieinternprac.webchartnow.com/webchart.cgi";
 username.value = process.env.USERNAME;
 password.value = process.env.PASSWORD;
 
+
+
+const json_data = {
+    "first_name": "Williams",
+    "last_name": "R"
+}
+  
+
+updateData.makePUTRequest("patients", 18, json_data);
+
 // const jsonString = JSON.stringify(results);
 // fs.appendFileSync('output.txt', jsonString);
 
-//documentExport.exportSingleDoc(719, "output_files");
-//documentImport.exportDocs({ pat_id: 14 }, "output/new_files");
+//documentExport.retrieveSingleDoc(719, "output_files");
+//documentImport.retrieveDocs({ pat_id: 14 }, "output/new_files");
 
-// documentImport.importSingleDocument("Hart_667.pdf", 17, "PATH", 18);
-documentImport.importDocs("filesToUpload.csv");
+// documentImport.uploadSingleDocument("Hart_667.pdf", 17, "PATH", 18);
+//documentImport.uploadDocs("filesToUpload.csv");
 
 //console.log(queryData.retrieveData("documents", ["revision_date", "doc_type", "doc_id", "storage_type"], { pat_id: 14}));
 //console.log(queryData.retrieveData("documents", [], { storage_type: 17 }));
 
-//console.log(queryData.retrieveData( "patients", ["first_name", "last_name", "ssn", "home_phone", "sex", "birth_date"], { first_name: "E"}));
+//console.log(queryData.retrieveData( "patients", [], { pat_id: 18 }));
 // endpoints = [ 
 
 // ];

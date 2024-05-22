@@ -39,7 +39,7 @@ const storageMap = {
 }
 
 //exports a single document to specified directory
-function exportSingleDoc(documentID, directory){
+function retrieveSingleDoc(documentID, directory){
 
     cookie = session.getCookie();
 
@@ -91,7 +91,7 @@ function exportSingleDoc(documentID, directory){
 }
 
 //exports multiple documents to specified directory
-function exportDocs(queryString, directory){
+function retrieveDocs(queryString, directory){
 
     cookie = session.getCookie();
 
@@ -108,7 +108,7 @@ function exportDocs(queryString, directory){
         }
 
         for (j = 0; j < length; j++){
-            exportSingleDoc(parseInt(documentIDArray[j]), directory);
+            retrieveSingleDoc(parseInt(documentIDArray[j]), directory);
         }
 
     } else {
@@ -150,4 +150,4 @@ function getFileExtension(data){
 }
 
 
-module.exports = { exportSingleDoc, exportDocs };
+module.exports = { retrieveSingleDoc, retrieveDocs };

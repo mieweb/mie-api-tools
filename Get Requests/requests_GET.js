@@ -19,10 +19,10 @@ function makeGETRequest(endpoint, queryby){
             'apistring': buffer.toString('base64'),
             'session_id': cookie,
             'f': 'json'
-        }
+        };
 
         const encodedRequestParams = querystring.stringify(data_request_params);
-        fullURL = `${URL.value}?${encodedRequestParams}`;
+        let fullURL = `${URL.value}?${encodedRequestParams}`;
 
         try {
             res = request('GET', fullURL);

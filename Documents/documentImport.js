@@ -9,7 +9,7 @@ const { URL } = require('../variables');
 const { parse } = require('csv-parse/sync');
 
 //function for importing a single document
-function importSingleDocument(filename, storageType, docType, patID){
+function uploadSingleDocument(filename, storageType, docType, patID){
 
     cookie = session.getCookie();
 
@@ -25,7 +25,8 @@ function importSingleDocument(filename, storageType, docType, patID){
             'file': fs.readFileSync(filename),
             'pat_id': patID,
             'mrnumber': mrnumber,
-            'session_id': cookie
+            'session_id': cookie,
+            'interface': 'WC_DATA_IMPORT'
         }
 
         request.post({url: URL.value, form: data_request_params, encoding: null}, (error, response, body) => {
@@ -48,14 +49,14 @@ function importSingleDocument(filename, storageType, docType, patID){
 }
 
 //import multiple documents through a CSV file
-function importDocs(csv_file){
+function uploadDocs(csv_file){
 
     csv_data_parsed = parseCSV(csv_file);
     const length = csv_data_parsed.length;
 
     //iterate over each document to upload
     for (i = 0; i < length; i++){
-        importSingleDocument(csv_data_parsed[i]['document_name'], csv_data_parsed[i]['storage_type'], csv_data_parsed[i]['doc_type'], csv_data_parsed[i]['pat_id']);
+        uploadSingleDocument(csv_data_parsed[i]['document_name'], csv_data_parsed[i]['storage_type'], csv_data_parsed[i]['doc_type'], csv_data_parsed[i]['pat_id']);
     }
 
 }
@@ -82,4 +83,4 @@ function parseCSV(csv_file) {
 
 }
 
-module.exports = { importSingleDocument, importDocs };
+module.exports = { uploadSingleDocument, uploadDocs };
