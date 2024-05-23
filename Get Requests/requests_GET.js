@@ -3,7 +3,6 @@ const axios = require('axios');
 const error = require('../errors');
 const { URL, practice } = require('../variables');
 const session = require('../Session Management/getCookie');
-const querystring = require('querystring');
 
 //makes the GET request
 function makeGETRequest(endpoint, queryby){
@@ -16,7 +15,6 @@ function makeGETRequest(endpoint, queryby){
         const buffer = Buffer.from(apirequest, 'utf8');
 
         let fullURL = `${URL.value}/json/${buffer.toString('base64')}`;
-        console.log(fullURL);
 
         return axios.get(fullURL, { headers: {
             'cookie': `wc_miehr_${practice.value}_session_id=${cookie}`

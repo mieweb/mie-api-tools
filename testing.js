@@ -1,12 +1,12 @@
 require('dotenv').config();
-const axios = require('axios');
 const fs = require('fs');
-const documentImport = require('./Documents/documentImport')
-const documentExport = require('./Documents/documentExport');
+const documentImport = require('./Documents/documentUpload')
+const documentExport = require('./Documents/documentRetrieve');
 
 const { URL, practice, username, password } = require('./variables.js');
 const queryData = require('./Get Requests/getData.js');
 const updateData = require('./Put Requests/requests_PUT');
+
 
 URL.value = "https://mieinternprac.webchartnow.com/webchart.cgi";
 practice.value = "mieinternprac";
@@ -33,11 +33,15 @@ const json_data = {
 //documentImport.uploadDocs("filesToUpload.csv");
 
 async function runnerFunction() {
-    const data = await queryData.retrieveData("patieddnts", ["first_name"], { pat_id: 18 });
-    console.log(data); // This will now print the actual data
+    // console.log(await queryData.retrieveData("documents", [], { doc_id: 719 }));
+    // console.log(await queryData.retrieveData("patients", [], { pat_id: 14 }));
+    await documentExport.retrieveDocs({ pat_id: 14 }, "output");
 }
 
 runnerFunction();
+
+// console.log("here!");
+
 // result = await queryData.retrieveData("patients", [], { pat_id: 18 });
 // console.log(result);
 

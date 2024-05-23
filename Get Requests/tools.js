@@ -51,8 +51,7 @@ async function parseJSON(data, fields){
 //makes Query
 async function makeQuery(endpoint, fields, options){
 
-    response = await makeRequest.makeGETRequest(endpoint, options);
-
+    response = await makeRequest.makeGETRequest(endpoint, options); 
     if (!response['db']){
         throw new error.customError(error.ERRORS.BAD_REQUEST,  "You made an Invalid GET Request to the server.");
     }

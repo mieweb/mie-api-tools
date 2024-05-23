@@ -2,10 +2,10 @@ const session = require('../Session Management/getCookie');
 const makeQuery = require('../Get Requests/tools');
 const queryData = require('../Get Requests/getData.js');
 const fs = require('fs');
-const request = require('request');
 const path = require('path');
 const error = require('../errors');
-const { URL } = require('../variables');
+const axios = require('axios');
+const { URL, practice } = require('../variables');
 
 const storageMap = {
     '0': 'txt',
@@ -39,15 +39,15 @@ const storageMap = {
 }
 
 //exports a single document to specified directory
-function retrieveSingleDoc(documentID, directory){
+async function retrieveSingleDoc(documentID, directory){
 
     cookie = session.getCookie();
 
     if (cookie != ""){
 
         if (Number.isInteger(documentID)){
-
-            data = makeQuery("documents", [], { doc_id: documentID });
+            data = await makeQuery("documents", [], { doc_id: documentID });
+            
             const length = data["db"].length;
             let last_name = "";
             let pat_id = null;
@@ -59,7 +59,7 @@ function retrieveSingleDoc(documentID, directory){
                     data = data["db"][i];
                     storage_type = getFileExtension(data);    
                     pat_id = data["pat_id"];
-                    last_name_data = queryData.retrieveData("patients", ["last_name"], { pat_id: pat_id});
+                    last_name_data = await queryData.retrieveData("patients", ["last_name"], { pat_id: pat_id});
                     last_name = last_name_data['0']["last_name"];
                     break;
                 }
@@ -91,13 +91,13 @@ function retrieveSingleDoc(documentID, directory){
 }
 
 //exports multiple documents to specified directory
-function retrieveDocs(queryString, directory){
+async function retrieveDocs(queryString, directory){
 
     cookie = session.getCookie();
 
     if (cookie != ""){
 
-        data = makeQuery("documents", [], queryString);
+        data = await makeQuery("documents", [], queryString);
         const length = data["db"].length;
 
         documentIDArray = [];
@@ -121,27 +121,32 @@ function downloadDocument(cookie, doc_id, filename){
 
     const data_request_params = {
         'f': "stream",
-        "doc_id": doc_id,
-        "session_id": cookie,
-        "rawdata": '1'
+        "doc_id": doc_id
     }
 
-    const requestURL = URL.value;
-
-    request.post({url: requestURL, form: data_request_params, encoding: null}, (error, response, body) => {
-        if (error){
-            throw new error.customError(error.BAD_REQUEST, `There was a bad request while trying to retrieve document ${doc_id}.`);
-        } else if (response.statusCode == 200) {
-            fs.writeFile(filename, body, (error) => {
-                if (error){
-                    throw new error.customError(error.WRITE_ERROR, `There was an issue writing to ${filename}.`);
-                }
-            });
-            
+    //dowenloads the appropriate document from the server
+    axios.post(URL.value, data_request_params, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded', //form encoded data
+          'cookie': `wc_miehr_${practice.value}_session_id=${cookie}`
+        },
+        responseType: 'arraybuffer' // Handles binary data
+      })
+      .then(response => {
+        if (response.status === 200) {
+          fs.writeFile(filename, response.data, (error) => {
+            if (error) {
+              throw new Error(`There was an issue writing to ${filename}: ${error.message}`);
+            }
+            console.log(`File saved as ${filename}`);
+          });
         } else {
-            throw new error.customError(error.ERRORS.STATUS_CODE_ERROR, `Expected a 200 response but instead received a ${response.statusCode} response.`);
+          throw new Error(`Expected a 200 response but instead received a ${response.status}`);
         }
-    });
+      })
+      .catch(err => {
+        throw new Error(`There was a bad request while trying to retrieve document ${doc_id}: ${err.message}`);
+      });
 
 }
 
