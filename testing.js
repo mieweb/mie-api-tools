@@ -1,4 +1,5 @@
 require('dotenv').config();
+const axios = require('axios');
 const fs = require('fs');
 const documentImport = require('./Documents/documentImport')
 const documentExport = require('./Documents/documentExport');
@@ -19,7 +20,7 @@ const json_data = {
     "last_name": "Klema"
 }
 
-updateData.makePUTRequest("patients", 18, json_data);
+//updateData.makePUTRequest("patients", 18, json_data);
 //updateData.test();
 
 // const jsonString = JSON.stringify(results);
@@ -31,7 +32,16 @@ updateData.makePUTRequest("patients", 18, json_data);
 // documentImport.uploadSingleDocument("Hart_667.pdf", 17, "PATH", 18);
 //documentImport.uploadDocs("filesToUpload.csv");
 
-//console.log(queryData.retrieveData("observations", ["obs_result"], { }));
+async function runnerFunction() {
+    const data = await queryData.retrieveData("patieddnts", ["first_name"], { pat_id: 18 });
+    console.log(data); // This will now print the actual data
+}
+
+runnerFunction();
+// result = await queryData.retrieveData("patients", [], { pat_id: 18 });
+// console.log(result);
+
+
 //console.log(queryData.retrieveData("documents", [], { storage_type: 17 }));
 
 //console.log(queryData.retrieveData( "patient_partitions", [], { id: 35 }));
@@ -39,6 +49,27 @@ updateData.makePUTRequest("patients", 18, json_data);
 
 // ];
 
+//https://mieinternprac.webchartnow.com/webchart.cgi?apistring=R0VUL2RiL2RvY3VtZW50cy9MSUtFX3N0b3JhZ2VfdHlwZT0xNw%3D%3D&session_id=ff3ed316-8d7f-4716-b08c-69fbd0e3ac83&f=json
+
+// fetch()
+// .then( res => {
+//     console.log(res);
+// })
+// .catch( err => {
+//     console.error(err);
+// });
+
+// axios.get("https://mieinternprac.webchartnow.com/webchart.cgi?apistring=R0VUL2RiL2RvY3VtZW50cy9MSUtFX3N0b3JhZ2VfdHlwZT0xNw%3D%3D&session_id=ff3ed316-8d7f-4716-b08c-69fbd0e3ac83&f=json")
+//   .then((response) => {
+//     console.log("here??");
+//     console.log(response.data); // Access data here
+//     // Rest of your code that relies on the response data
+//   })
+//   .catch((error) => {
+//     // Handle errors here
+//   });
+
+// console.log("Hello!");
 
 // for (i = 0; i < endpoints.length; i++){
 //     fs.appendFileSync('output.txt', endpoints[i]);

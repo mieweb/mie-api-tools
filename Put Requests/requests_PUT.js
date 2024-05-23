@@ -46,7 +46,6 @@ function makePUTRequest(endpoint, pat_id, json_options){
             throw new error.customError(error.ERRORS.BAD_REQUEST, `Something went wrong when making a POST request: ${err}`);
           });
 
-
     } else {
         throw new error.customError(error.ERRORS.INVALID_COOKIE, 'Your Session Cookie was Invalid.');
     }

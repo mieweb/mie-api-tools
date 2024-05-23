@@ -2,7 +2,7 @@ const makeRequest = require('./requests_GET');
 const error = require('../errors');
 
 //filters (parses) the JSON data
-function parseJSON(data, fields){
+async function parseJSON(data, fields){
     
     if (fields.length > 0){
 
@@ -49,9 +49,9 @@ function parseJSON(data, fields){
 }
 
 //makes Query
-function makeQuery(endpoint, fields, options){
+async function makeQuery(endpoint, fields, options){
 
-    data = makeRequest.makeGETRequest(endpoint, options);
+    data = await makeRequest.makeGETRequest(endpoint, options);
     return parseJSON(data, fields);
 
 }
