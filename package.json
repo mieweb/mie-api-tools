@@ -9,6 +9,10 @@
     "request": "^2.88.2",
     "sync-request": "^6.1.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maxklema/mie-api.git"
+  },
   "name": "mie-api",
   "version": "1.0.0",
   "description": "A package designed to interact with the MIE (Medical Informatics Engineering) API seamlessly in NPM environments.",
