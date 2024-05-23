@@ -1,63 +1,50 @@
-const request = require('sync-request');
-const async_request = require('request');
-const querystring = require('querystring');
+const axios = require('axios');
 const error = require('../errors');
-const { URL } = require('../variables');
+const { URL, practice } = require('../variables');
 const session = require('../Session Management/getCookie');
 
 //make the PUT Request
 function makePUTRequest(endpoint, pat_id, json_options){
 
-    cookie = session.getCookie();
+    //MaxisAwesome
+    let cookie = session.getCookie();
 
     if (cookie != ""){
 
+        //craft full URL
         const apiRequest = `PUT/db/${endpoint}`;
         const buffer = Buffer.from(apiRequest, 'utf8');
 
+        let fullURL = `${URL.value}/json/${buffer.toString('base64')}`;
+
         json_options = craft_json(pat_id, json_options);
-
-        const data_request_params = {
-            'apistring': buffer.toString('base64'),
-            'session_id': cookie,
-            'f': 'json'
-        };
-
-        const encodedRequestParams = querystring.stringify(data_request_params);
-        let fullURL = `${URL.value}?${encodedRequestParams}`;
-        console.log(fullURL);
-
-        data = {
-            "db": {
-              "first_name": "Williams",
-              "last_name": "R"
-            }
+ 
+        const headers = {
+            'Content-Type': 'application/json; charset=UTF-8',
+            'cookie': `wc_miehr_${practice.value}_session_id=${cookie}`
         }
 
-        const jsonData = JSON.stringify(data);
+        //Make PUT request
+        axios.post(fullURL, json_options, { headers })
+          .then(function (response) {
 
-        //make PUT request
-        const options = {
-            url: fullURL,
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: jsonData
-        }
-        
-        console.log(buffer.toString('base64'));
-        console.log(cookie);
-        console.log(json_options);
+            let status = (response.status).toString(); //get response status
+            console.log(response.data);
 
-        async_request(options, (error, response, body) => {
-            if (error){
-                console.error("Error: " + error);
+            //check if status code is 2** and it is valid JSON
+            if (status.startsWith("2") && isValidJSON(response.data)){
+                if (!(response.data)["meta"]["status"].startsWith('2')){
+                    throw new error.customError(error.ERRORS.BAD_REQUEST, `Your request to update records was not successful. Make sure your JSON and record identifier are correct`);
+                } else {
+                    console.log("Record updated successfully!");
+                }
             } else {
-                console.log(response.statusCode);
-                console.log(body);
-            }
-        });
+                throw new error.customError(error.ERRORS.BAD_REQUEST, `Something went wrong when making a POST request. The response did not return valid JSON.`);
+            }    
+          })
+          .catch(function (err) {
+            throw new error.customError(error.ERRORS.BAD_REQUEST, `Something went wrong when making a POST request: ${err}`);
+          });
 
 
     } else {
@@ -86,8 +73,19 @@ function craft_json(pat_id, json_options){
         new_json["db"]["pat_id"] = pat_id;
     }
 
+    //stringify JSON object
     return JSON.stringify(new_json);
 
+}
+
+function isValidJSON(responseObj){
+    try {
+        if(responseObj["meta"]["status"])
+            return true;
+    } catch (e) {
+        console.error(e);
+        return false;
+    }
 }
 
 module.exports = { makePUTRequest };
