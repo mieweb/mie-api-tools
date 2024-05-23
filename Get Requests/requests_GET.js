@@ -1,9 +1,9 @@
 //const request = require('sync-request');
-const querystring = require('querystring');
 const axios = require('axios');
 const error = require('../errors');
-const { URL } = require('../variables');
+const { URL, practice } = require('../variables');
 const session = require('../Session Management/getCookie');
+const querystring = require('querystring');
 
 //makes the GET request
 function makeGETRequest(endpoint, queryby){
@@ -15,25 +15,17 @@ function makeGETRequest(endpoint, queryby){
         const apirequest = craft_API_request(endpoint, queryby);
         const buffer = Buffer.from(apirequest, 'utf8');
 
-        console.log(apirequest);
-
-        //request parameters
-        const data_request_params = {
-            'apistring': buffer.toString('base64'),
-            'session_id': cookie,
-            'f': 'json'
-        };
-
-        const encodedRequestParams = querystring.stringify(data_request_params);
-        let fullURL = `${URL.value}?d${encodedRequestParams}`;
+        let fullURL = `${URL.value}/json/${buffer.toString('base64')}`;
         console.log(fullURL);
 
-        return axios.get(fullURL)
+        return axios.get(fullURL, { headers: {
+            'cookie': `wc_miehr_${practice.value}_session_id=${cookie}`
+        }})
         .then( (response) => response.data)
         .catch(function (err) {
             throw new error.customError(error.ERRORS.BAD_REQUEST,  "You made an Invalid GET Request to the server. Error: " + err);
         });
-    
+
 
     } else {
         throw new error.customError(error.ERRORS.INVALID_COOKIE, 'Your Session Cookie was Invalid.');
