@@ -1,7 +1,7 @@
 require('dotenv').config();
 const fs = require('fs');
 const documentImport = require('./Documents/documentUpload')
-const documentExport = require('./Documents/documentRetrieve');
+const documentExport = require('./Documents/documentDownload');
 
 const { URL, practice, username, password } = require('./variables.js');
 const queryData = require('./Get Requests/getData.js');
@@ -16,11 +16,10 @@ password.value = process.env.PASSWORD;
 
 
 const json_data = {
-    "first_name": "Maxwell",
-    "last_name": "Klema"
+    "first_name": "Williamz"
 }
 
-//updateData.makePUTRequest("patients", 18, json_data);
+updateData.makePUTRequest("patients", { pat_id: 18}, json_data);
 //updateData.test();
 
 // const jsonString = JSON.stringify(results);
@@ -33,7 +32,7 @@ const json_data = {
 //documentImport.uploadDocs("filesToUpload.csv");
 
 async function runnerFunction() {
-    //console.log(await queryData.retrieveData("documents", [], { doc_id: 692 }));
+    //console.log(await queryData.retrieveData("$rxdb$.MIPSDeciles", ["points"], {  }));
     // console.log(await queryData.retrieveData("patients", [], { pat_id: 14 }));
 }
 
