@@ -44,7 +44,7 @@ function craft_API_request(endpoint, options){
         return `GET/db/${endpoint}/`;
     } else if (Object.keys(options).length == 1) {
         const attribute = processObject(options, 0);
-        return `GET/db/${endpoint}/LIKE_${attribute}=${options[attribute]}`;
+        return `GET/db/${endpoint}/${attribute}=${options[attribute]}`;
     } else {
         
         let request = `GET/db/${endpoint}/`;
@@ -53,7 +53,7 @@ function craft_API_request(endpoint, options){
             const attribute = processObject(options, index);
 
             if (index == 0){
-                request += `LIKE_${attribute}=${options[attribute]}&`;
+                request += `${attribute}=${options[attribute]}&`;
             } else {
                 if (index + 1 != Object.keys(options).length){
                     request += `${attribute}=${options[attribute]}&`;
@@ -70,4 +70,3 @@ function craft_API_request(endpoint, options){
 }
 
 module.exports = { makeGETRequest }; 
-

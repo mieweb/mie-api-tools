@@ -19,7 +19,7 @@ const json_data = {
     "first_name": "Williamz"
 }
 
-updateData.makePUTRequest("patients", { pat_id: 18}, json_data);
+//updateData.makePUTRequest("patients", { pat_id: 18}, json_data);
 //updateData.test();
 
 // const jsonString = JSON.stringify(results);
@@ -28,12 +28,13 @@ updateData.makePUTRequest("patients", { pat_id: 18}, json_data);
 //documentExport.retrieveSingleDoc(719, "output_files");
 //documentImport.retrieveDocs({ pat_id: 14 }, "output/new_files");
 
-// documentImport.uploadSingleDocument("Hart_667.pdf", 17, "PATH", 18);
+//documentImport.uploadSingleDocument("Hart_667.pdf", 17, "PATH", 18);
 //documentImport.uploadDocs("filesToUpload.csv");
 
 async function runnerFunction() {
-    //console.log(await queryData.retrieveData("$rxdb$.MIPSDeciles", ["points"], {  }));
+    //console.log(await queryData.retrieveData("documents", ["doc_id"], { doc_id: 14}));
     // console.log(await queryData.retrieveData("patients", [], { pat_id: 14 }));
+    await documentExport.retrieveDocs({ pat_id: 6 }, "output");
 }
 
 runnerFunction();

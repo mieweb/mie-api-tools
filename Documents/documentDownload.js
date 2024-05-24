@@ -46,25 +46,19 @@ async function retrieveSingleDoc(documentID, directory){
     if (cookie != ""){
 
         if (Number.isInteger(documentID)){
+            
             data = await makeQuery("documents", [], { doc_id: documentID });
             
-            const length = data["db"].length;
             let last_name = "";
             let pat_id = null;
             let storage_type = "";
 
-            //find the exact document ID
-            for (i = 0; i < length; i++){
-                if (data["db"][i]["doc_id"] == documentID){
-                    data = data["db"][i];
-                    storage_type = getFileExtension(data);    
-                    pat_id = data["pat_id"];
-                    last_name_data = await queryData.retrieveData("patients", ["last_name"], { pat_id: pat_id});
-                    last_name = last_name_data['0']["last_name"];
-                    break;
-                }
-            };
-            
+            data = data["db"]["0"];
+            storage_type = getFileExtension(data);    
+            pat_id = data["pat_id"];
+            let last_name_data = await queryData.retrieveData("patients", ["last_name"], { pat_id: pat_id});
+            last_name = last_name_data['0']["last_name"];
+
             const filename = `${last_name}_${documentID}.${storage_type}`;
             
             if (directory == ""){
@@ -98,32 +92,12 @@ async function retrieveDocs(queryString, directory){
     if (cookie != ""){
 
         data = await makeQuery("documents", [], queryString);        
-        new_data_object = {}
         let length = data["db"].length;
-        let m = 0 //object index
         documentIDArray = [];
-
-        //ensure the correct pat_id is parsed if that is a filter
-        if ('pat_id' in queryString){
-            for (i = 0; i < length; i++){
-                if (data["db"][i]["pat_id"] == queryString['pat_id']){
-                    new_data_object[m] = data["db"][i];
-                    m++;
-                }
-            }
-        } else {
-            new_data_object = data["db"];
-        }
-
-        if (m > 0){
-            length = m
-        } else {
-            length = new_data_object.length;
-        }
 
         //iterate over all the documents returned
         for (i = 0; i < length; i++){
-            documentIDArray.push(new_data_object[i]["doc_id"]);     
+            documentIDArray.push(data["db"][i]["doc_id"]);     
         }
 
         for (j = 0; j < length; j++){

@@ -195,25 +195,10 @@ const identifiers = {
 
 function verify_identifier(endpoint, identifier) {
 
-  // try {
-
-  //   const valid_identifier = identifiers[endpoint];
-  
-  //   //verify
-  //   console.log(valid_identifier, Object.keys(identifier)[0]);
-  //   if (valid_identifier != Object.keys(identifier)[0]){
-  //     console.log("here?");
-  //     throw new error.customError(error.ERRORS.INVALID_IDENTIFIER, `You used an incorrect identifier on the \"${endpoint}\" endpoint. Expected \"${identifiers[endpoint]}\" but instead got \"${Object.keys(identifier)[0]}.\"`);
-  //   }
-  // } catch {
-  //   //console.log("here?");
-  //   //assumes a user created endpoint that is not in the dictionary
-  // }
-
   if (identifiers[endpoint]){
       
       const valid_identifier = identifiers[endpoint];
-      
+
       //verify
       if (valid_identifier != Object.keys(identifier)[0]){
         throw new error.customError(error.ERRORS.INVALID_IDENTIFIER, `You used an incorrect identifier on the \"${endpoint}\" endpoint. Expected \"${identifiers[endpoint]}\" but instead got \"${Object.keys(identifier)[0]}.\"`);
