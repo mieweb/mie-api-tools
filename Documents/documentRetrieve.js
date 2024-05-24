@@ -97,14 +97,33 @@ async function retrieveDocs(queryString, directory){
 
     if (cookie != ""){
 
-        data = await makeQuery("documents", [], queryString);
-        const length = data["db"].length;
-
+        data = await makeQuery("documents", [], queryString);        
+        new_data_object = {}
+        let length = data["db"].length;
+        let m = 0 //object index
         documentIDArray = [];
+
+        //ensure the correct pat_id is parsed if that is a filter
+        if ('pat_id' in queryString){
+            for (i = 0; i < length; i++){
+                if (data["db"][i]["pat_id"] == queryString['pat_id']){
+                    new_data_object[m] = data["db"][i];
+                    m++;
+                }
+            }
+        } else {
+            new_data_object = data["db"];
+        }
+
+        if (m > 0){
+            length = m
+        } else {
+            length = new_data_object.length;
+        }
 
         //iterate over all the documents returned
         for (i = 0; i < length; i++){
-            documentIDArray.push(data["db"][i]["doc_id"]);     
+            documentIDArray.push(new_data_object[i]["doc_id"]);     
         }
 
         for (j = 0; j < length; j++){

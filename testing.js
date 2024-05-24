@@ -33,9 +33,8 @@ const json_data = {
 //documentImport.uploadDocs("filesToUpload.csv");
 
 async function runnerFunction() {
-    // console.log(await queryData.retrieveData("documents", [], { doc_id: 719 }));
+    //console.log(await queryData.retrieveData("documents", [], { doc_id: 692 }));
     // console.log(await queryData.retrieveData("patients", [], { pat_id: 14 }));
-    await documentExport.retrieveDocs({ pat_id: 14 }, "output");
 }
 
 runnerFunction();

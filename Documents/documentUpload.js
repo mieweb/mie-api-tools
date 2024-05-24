@@ -1,11 +1,8 @@
 const session = require('../Session Management/getCookie');
-const makeQuery = require('../Get Requests/tools');
-const queryData = require('../Get Requests/getData.js');
 const fs = require('fs');
-const request = require('request');
-const path = require('path');
 const error = require('../errors');
-const { URL } = require('../variables');
+const axios = require('axios');
+const { URL, practice } = require('../variables');
 const { parse } = require('csv-parse/sync');
 
 //function for importing a single document
@@ -25,21 +22,25 @@ function uploadSingleDocument(filename, storageType, docType, patID){
             'file': fs.readFileSync(filename),
             'pat_id': patID,
             'mrnumber': mrnumber,
-            'session_id': cookie,
             'interface': 'WC_DATA_IMPORT'
         }
 
-        request.post({url: URL.value, form: data_request_params, encoding: null}, (error, response, body) => {
-            if (error){
-                throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request while trying to retrieve document ${doc_id}.`);
-            } else {
-                const result = response.headers['x-status'];
-                if (result != 'success'){
-                    console.log(`File \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
-                } else {
-                    console.log(`File \"${filename}\" was uploaded: ${response.headers['x-status_desc']}`);
-                }            
+        axios.post(URL.value, data_request_params, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded', //form encoded data
+                'cookie': `wc_miehr_${practice.value}_session_id=${cookie}`
             }
+        })
+        .then(response => {
+            const result = response.headers['x-status'];
+            if (result != 'success'){
+                console.log(`File \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
+            } else {
+                console.log(`File \"${filename}\" was uploaded: ${response.headers['x-status_desc']}`);
+            } 
+        })
+        .catch(err => {
+            throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request while trying to retrieve document ${doc_id}. Error: ` + err);
         });
 
     } else {
