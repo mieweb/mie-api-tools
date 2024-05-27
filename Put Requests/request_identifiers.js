@@ -161,7 +161,6 @@ const identifiers = {
   "drug_alias": "drug_alias_id",
   "enc_vt_cpt_picklists": "id",
   "$rxdb$.Measures": "measureId",
-  "$rxdb$.MIPSDeciles": "none",
   "$rxdb$.rxnconso": "rxnconso_id",
   "abbreviations": "term_id",
   "acceptable_ips": "id",

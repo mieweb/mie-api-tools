@@ -6,7 +6,7 @@ const documentExport = require('./Documents/documentDownload');
 const { URL, practice, username, password } = require('./variables.js');
 const queryData = require('./Get Requests/getData.js');
 const updateData = require('./Put Requests/requests_PUT');
-
+const newData = require('./Post Requests/requests_POST');
 
 URL.value = "https://mieinternprac.webchartnow.com/webchart.cgi";
 practice.value = "mieinternprac";
@@ -16,8 +16,15 @@ password.value = process.env.PASSWORD;
 
 
 const json_data = {
-    "first_name": "Williamz"
+    //"first_name": "Courtney",
+    //"last_name": "K.",
+    // "middle_name": "Rogers",
+    // "ssn": "3294802394",
+    // "address": "1509 Pinetrace Street, Fort Wayne, Indiana, 46824"
+    "data": "test update!"
 }
+
+updateData.updateRecord("obs_forms", {"obs_item_id": "34"}, json_data);
 
 //updateData.makePUTRequest("patients", { pat_id: 18}, json_data);
 //updateData.test();
@@ -32,9 +39,9 @@ const json_data = {
 //documentImport.uploadDocs("filesToUpload.csv");
 
 async function runnerFunction() {
-    //console.log(await queryData.retrieveData("documents", ["doc_id"], { doc_id: 14}));
+    console.log(await queryData.retrieveData("obs_forms", [], { obs_item_id: 34 }));
     // console.log(await queryData.retrieveData("patients", [], { pat_id: 14 }));
-    await documentExport.retrieveDocs({ pat_id: 6 }, "output");
+    //await documentExport.retrieveDocs({ pat_id: 6 }, "output");
 }
 
 runnerFunction();

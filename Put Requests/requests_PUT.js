@@ -5,7 +5,7 @@ const session = require('../Session Management/getCookie');
 const verify_identifier = require("./request_identifiers");
 
 //make the PUT Request
-function makePUTRequest(endpoint, identifier, json_options){
+function updateRecord(endpoint, identifier, json_options){
 
     let cookie = session.getCookie();
 
@@ -33,7 +33,7 @@ function makePUTRequest(endpoint, identifier, json_options){
             'cookie': `wc_miehr_${practice.value}_session_id=${cookie}`
         }
 
-        //Make PUT request
+        //Make PUT (POST) request
         axios.post(fullURL, json_options, { headers })
           .then(function (response) {
 
@@ -94,4 +94,4 @@ function isValidJSON(responseObj){
     }
 }
 
-module.exports = { makePUTRequest };
+module.exports = { updateRecord, isValidJSON };
