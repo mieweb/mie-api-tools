@@ -2,7 +2,7 @@ const axios = require('axios');
 const error = require('../errors');
 const { URL, practice } = require('../variables');
 const session = require('../Session Management/getCookie');
-const isValidJSON = require("../Put Requests/requests_PUT");
+const isValidJSON = require("../Update Records/requests_PUT");
 
 //make the POST request
 function createRecord(endpoint, new_data){

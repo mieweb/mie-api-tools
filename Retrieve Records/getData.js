@@ -1,10 +1,15 @@
 const error = require('../errors');
 const makeQuery = require('./tools');
+const ledger = require('../Logging/createLedger');
+const { logging } = require('../variables');
 
 require('dotenv').config();
 
-async function retrieveData(endpoint,fields, options){
+async function retrieveRecord(endpoint,fields, options){
     
+    if (logging.value == "true"){
+        ledger.info(`This is a test Log! Endpoint: ${endpoint}`);
+    }
     const result = await makeQuery(endpoint, fields, options);
 
     if (result["meta"]){
@@ -17,5 +22,5 @@ async function retrieveData(endpoint,fields, options){
     
 }
 
-module.exports = { retrieveData }
+module.exports = { retrieveRecord }
 

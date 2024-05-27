@@ -1,6 +1,6 @@
 const session = require('../Session Management/getCookie');
-const makeQuery = require('../Get Requests/tools');
-const queryData = require('../Get Requests/getData.js');
+const makeQuery = require('../Retrieve Records/tools');
+const queryData = require('../Retrieve Records/getData.js');
 const fs = require('fs');
 const path = require('path');
 const error = require('../errors');

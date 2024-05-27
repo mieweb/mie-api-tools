@@ -3,17 +3,17 @@ const fs = require('fs');
 const documentImport = require('./Documents/documentUpload')
 const documentExport = require('./Documents/documentDownload');
 
-const { URL, practice, username, password } = require('./variables.js');
-const queryData = require('./Get Requests/getData.js');
-const updateData = require('./Put Requests/requests_PUT');
-const newData = require('./Post Requests/requests_POST');
+const { URL, practice, username, password, logging } = require('./variables.js');
+const queryData = require('./Retrieve Records/getData.js');
+const updateData = require('./Update Records/requests_PUT');
+const newData = require('./Create Records/requests_POST');
 
 URL.value = "https://mieinternprac.webchartnow.com/webchart.cgi";
 practice.value = "mieinternprac";
 username.value = process.env.USERNAME;
 password.value = process.env.PASSWORD;
 
-
+logging.value = "true";
 
 const json_data = {
     //"first_name": "Courtney",
@@ -24,7 +24,7 @@ const json_data = {
     "data": "test update!"
 }
 
-updateData.updateRecord("obs_forms", {"obs_item_id": "34"}, json_data);
+//updateData.updateRecord("obs_forms", {"obs_item_id": "34"}, json_data);
 
 //updateData.makePUTRequest("patients", { pat_id: 18}, json_data);
 //updateData.test();
@@ -39,8 +39,8 @@ updateData.updateRecord("obs_forms", {"obs_item_id": "34"}, json_data);
 //documentImport.uploadDocs("filesToUpload.csv");
 
 async function runnerFunction() {
-    console.log(await queryData.retrieveData("obs_forms", [], { obs_item_id: 34 }));
-    // console.log(await queryData.retrieveData("patients", [], { pat_id: 14 }));
+    await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 18 });
+    // console.log(await queryData.retrieveRecord("patients", [], { pat_id: 14 }));
     //await documentExport.retrieveDocs({ pat_id: 6 }, "output");
 }
 
