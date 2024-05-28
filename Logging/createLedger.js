@@ -1,28 +1,117 @@
 const { createLogger, format, transports } = require('winston');
 const {combine, timestamp, printf} = format;
-
 const error = require('../errors');
-
-//creates a Ledger (log) to be used throughout the program
+const fs = require('fs');
+const path = require('path');
 
 let ledger;
 
+//creates a Ledger (log) to be used throughout the program
 function createLedger(options) {
 
-    let levels = parseLevels(options);
+    const levels = parseLevels(options);
+    const myFormat = getFormat(options);
+    const transportOptions = createTransports(options);
 
     ledger = createLogger({
         levels: levels,
         format: combine(
             timestamp(),
-            printf(({ timestamp, message, level}) => {
-                return `${timestamp} [${level}]: ${message}`
-            })
+            myFormat
         ),
-        transports: [
-            new transports.File({ filename: 'combined.log'})
-        ]
+        transports: transportOptions
     });
+
+}
+
+function createTransports(options){
+
+    let transportOptions = [];
+
+    if (options["storage"]){
+
+        let transport = options["storage"];
+
+        if (Array.isArray(transport)){
+
+            levels = ["info", "error"];
+            
+            //info file is first, error file is second
+            if (transport.length == 2){
+                for (i = 0; i < transport.length; i++){
+                    file = verifyTransportFilePath(transport[i], levels[i]);
+                    transportOptions.push(file);
+                }
+
+            } else {
+                throw new error.customError(error.ERRORS.FIELD_ERROR, `If using an array for the \"Storage\" key, you must have two file paths. The first path is the info log and the second path is the error log. You currently have ${transport.length} file paths.`);
+            }
+
+        } else {
+            switch(transport){
+                case "console":
+                    transportOptions.push( new transports.Console() );
+                    break;
+
+                default:
+                    transportOptions.push(verifyTransportFilePath(transport), "");
+                    break;
+            } 
+        }
+
+        return transportOptions;
+
+    } else { //user wants default options
+        transportOptions.push(new transports.File({ filename: 'Logs/apiActivity.log'}));
+        return transportOptions;
+
+    }
+}
+
+function getFormat(options){
+
+    let format;
+
+    if (options["format"]){
+        const formats = options["format"];
+
+        if (formats.length < 3){
+            if (formats.length == 1 && formats[0] == "timestamps"){
+                format = printf(({ timestamp, message}) => {
+                    return `${timestamp}: ${message}`
+                })
+
+            } else if (formats.length == 1 && formats[0] == "levels"){
+                format = printf(({ level, message}) => {
+                    return `[${level}]: ${message}`
+                })
+
+            } else if (formats.includes("levels") && formats.includes("timestamps")){
+                format = printf(({ timestamp, message, level}) => {
+                    return `${timestamp} [${level}]: ${message}`
+                })
+        
+            } else {
+                format = printf(({ message }) => {
+                    return `${message}`
+                })
+            }
+
+            return format;
+
+        } else {
+            throw new error.customError(error.ERRORS.FIELD_ERROR, `You can only have at most two format options: \"timestamps\" and \"levels\". You currently have ${formats.length} levels.`);
+        }
+
+    } else { //user wants default options
+
+        format = printf(({ timestamp, message, level}) => {
+            return `${timestamp} [${level}]: ${message}`
+        })
+
+        return format;
+
+    }
 
 }
 
@@ -57,6 +146,41 @@ function parseLevels(options){
             info: 1
         }
         return levels;
+    }
+
+}
+
+function verifyTransportFilePath(filepath, level){
+
+    try {
+
+        if (!filepath.endsWith(".log") && !filepath.endsWith(".txt")){
+            throw new error.customError(error.ERRORS.FIELD_ERROR, `Your log file \"${filepath}\" must end in .log or .txt.`);
+        }
+
+        //const fileFullPath = path.join(directory, filepath);
+        const fileDirPath = path.dirname(filepath);
+
+        if (!fs.existsSync(fileDirPath)){ //make directory if one does not exist
+            fs.mkdirSync(fileDirPath, { recursive: true} );
+        }
+        
+        let transport;
+
+        switch (level){
+            case "":
+                transport = new transports.File({ filename: filepath });
+                break;
+            default:
+                transport = new transports.File({ filename: filepath, level: level });
+                break;
+        }
+        
+        return transport;
+        
+        
+    } catch (e) {
+        throw new error.customError(error.ERRORS.WRITE_ERROR, `There was an issue creating the path: \"${filepath}\". Make sure your path is valid. Error: ${e}`);
     }
 
 }

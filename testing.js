@@ -18,7 +18,8 @@ logging.value = "true";
 
 const options = {
     "levels": ["info", "error"],
-    "timestamp": "true"
+    "format": ["levels", "timestamps"],
+    "storage": ["Logs/info.log", "Logs/errors.log"]
 }
 
 ledger.createLedger(options);
