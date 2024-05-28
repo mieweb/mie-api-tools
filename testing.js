@@ -11,33 +11,41 @@ const ledger = require('./Logging/createLedger');
 
 URL.value = "https://mieinternprac.webchartnow.com/webchart.cgi";
 practice.value = "mieinternprac";
-username.value = process.env.USERNAME;
+username.value = process.env.USERNAME;//"Max"
 password.value = process.env.PASSWORD;
 
 logging.value = "true";
 
 const options = {
-    "levels": ["info", "error"],
+    "levels": ["error", "info"],
     "format": ["levels", "timestamps"],
-    "storage": ["Logs/info.log", "Logs/errors.log"]
+    "storage": ["Logs/info.log", "Logs/error.log"]
 }
 
 ledger.createLedger(options);
 
-
 const json_data = {
-    //"first_name": "Courtney",
-    //"last_name": "K.",
-    // "middle_name": "Rogers",
-    // "ssn": "3294802394",
-    // "address": "1509 Pinetrace Street, Fort Wayne, Indiana, 46824"
-    "data": "test update!"
+    "first_name": "Courtney",
+    "last_name": "K.",
+    "middle_name": "Rogers",
+    "ssn": "3294802394",
+    "address": "1509 Pinetrace Street, Fort Wayne, Indiana, 46824"
 }
 
+//newData.createRecord("patients", json_data);
 
+// data = "lorem ipsuim,"
+// fs.writeFile("Logs/error.log", data, (err) => {
+//     if (err){
+//         console.error(err);
+//     }
+// })
 
-//updateData.updateRecord("obs_forms", {"obs_item_id": "34"}, json_data);
+// function hello(){
+//     console.log("hello!");
+// }
 
+// const timeoutId = setTimeout(hello, 2354);
 
 //updateData.makePUTRequest("patients", { pat_id: 18}, json_data);
 //updateData.test();
@@ -45,17 +53,20 @@ const json_data = {
 // const jsonString = JSON.stringify(results);
 // fs.appendFileSync('output.txt', jsonString);
 
-//documentExport.retrieveSingleDoc(719, "output_files");
-//documentImport.retrieveDocs({ pat_id: 14 }, "output/new_files");
+documentExport.retrieveSingleDoc(719, "output_files");
+//ocumentExport.retrieveDocs({ pat_id: 14 }, "output/new_files");
 
 //documentImport.uploadSingleDocument("Hart_667.pdf", 17, "PATH", 18);
 //documentImport.uploadDocs("filesToUpload.csv");
 
 async function runnerFunction() {
-    await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 18 });
-    await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn", "address1", "address2", "address3"], { pat_id: 19 });
-    await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 20 });
-    await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 21 });
+    //updateData.updateRecord("obs_forms", {obs_item_id: "34"}, json_data);
+
+    //await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 18 });
+
+    // await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn", "address1", "address2", "address3"], { pat_id: 19 });
+    // await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 20 });
+    // await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 21 });
     // console.log(await queryData.retrieveRecord("patients", [], { pat_id: 14 }));
     //await documentExport.retrieveDocs({ pat_id: 6 }, "output");
 }

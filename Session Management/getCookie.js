@@ -2,6 +2,7 @@ const { URL, username, password } = require('../variables');
 const querystring = require('querystring');
 const error = require('../errors');
 const request = require('sync-request');
+const log = require('../Logging/createLog');
 
 //initializes user session and returns the cookie
 function getCookie(){
@@ -18,8 +19,10 @@ function getCookie(){
     let fullURL = `${URL.value}?${encodedLoginParms}`
 
     //making the request
+    //make this async (axios) -> then log may work
     let res = request('GET', fullURL);
     if (res.statusCode != 200){
+        log.createLog("error", "AUTHENTICATION FAILURE");
         throw new error.customError(error.ERRORS.AUTHENTICATION_FAILURE, 'Unable to login into your WebChart account. Make sure the credentials you provided are correct.');
     }
 

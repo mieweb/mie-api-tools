@@ -3,6 +3,7 @@ const error = require('../errors');
 const { URL, practice } = require('../variables');
 const session = require('../Session Management/getCookie');
 const isValidJSON = require("../Update Records/requests_PUT");
+const log = require('../Logging/createLog');
 
 //make the POST request
 function createRecord(endpoint, new_data){
@@ -15,6 +16,7 @@ function createRecord(endpoint, new_data){
         const apiRequest = `PUT/db/${endpoint}`;
         const buffer = Buffer.from(apiRequest, 'utf8');
         let fullURL = `${URL.value}/json/${buffer.toString('base64')}`;
+        log.createLog("info", `Record Creation Request:\nRequest URL: \"${fullURL}\"\nEndpoint: \"${endpoint}\"\nNew Data: ${JSON.stringify(new_data)}`);
 
         new_data = craft_json(new_data);
 
@@ -31,20 +33,24 @@ function createRecord(endpoint, new_data){
 
             if (status.startsWith("2") && isValidJSON.isValidJSON(response.data)){
                 if (!(response.data)["meta"]["status"].startsWith('2')){
+                    log.createLog("error", "Bad Request");
                     throw new error.customError(error.ERRORS.BAD_REQUEST, `Your request to update records was not successful. Make sure your endpoint and JSON are correct`);
                 } else {
                     let response_message = ((response.data)["meta"]["success"][0])
-                    console.log(`Record created successfully! (\"${endpoint}\": ${response_message})`);
+                    log.createLog("info", `Record Creation Response:\nRecord successfully created: \"${endpoint}\": ${response_message}`);
                 }
             } else {
+                log.createLog("error", "Bad Request");
                 throw new error.customError(error.ERRORS.BAD_REQUEST, `Something went wrong when making a POST request. The response did not return valid JSON.`);
             }
         })
         .catch(function (err) {
+            log.createLog("error", "Bad Request");
             throw new error.customError(error.ERRORS.BAD_REQUEST, `Something went wrong when making a POST request (make sure your JSON keys are correct and you CREATE permissions to \"${endpoint}\"): ${err}`);
         });
 
     } else {
+        log.createLog("error", "Invalid Cookie");
         throw new error.customError(error.ERRORS.INVALID_COOKIE, 'Your Session Cookie was Invalid.');
     }
 

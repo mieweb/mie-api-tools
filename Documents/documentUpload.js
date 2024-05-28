@@ -4,6 +4,7 @@ const error = require('../errors');
 const axios = require('axios');
 const { URL, practice } = require('../variables');
 const { parse } = require('csv-parse/sync');
+const log = require('../Logging/createLog');
 
 //function for importing a single document
 function uploadSingleDocument(filename, storageType, docType, patID){

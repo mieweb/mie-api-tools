@@ -3,6 +3,7 @@ const {combine, timestamp, printf} = format;
 const error = require('../errors');
 const fs = require('fs');
 const path = require('path');
+const log = require('../Logging/createLog');
 
 let ledger;
 
@@ -44,6 +45,7 @@ function createTransports(options){
                 }
 
             } else {
+                log.createLog("error", "Field Error");
                 throw new error.customError(error.ERRORS.FIELD_ERROR, `If using an array for the \"Storage\" key, you must have two file paths. The first path is the info log and the second path is the error log. You currently have ${transport.length} file paths.`);
             }
 
@@ -54,7 +56,7 @@ function createTransports(options){
                     break;
 
                 default:
-                    transportOptions.push(verifyTransportFilePath(transport), "");
+                    transportOptions.push(verifyTransportFilePath(transport, ""));
                     break;
             } 
         }
@@ -100,6 +102,7 @@ function getFormat(options){
             return format;
 
         } else {
+            log.createLog("error", "Field Error");
             throw new error.customError(error.ERRORS.FIELD_ERROR, `You can only have at most two format options: \"timestamps\" and \"levels\". You currently have ${formats.length} levels.`);
         }
 
@@ -132,11 +135,13 @@ function parseLevels(options){
                     levels["error"] = 0;
 
                 } else {
+                    log.createLog("error", "Field Error");
                     throw new error.customError(error.ERRORS.FIELD_ERROR, `Invalid field option \"${level_options[i]}\". Only \"info\" and \"error\" are currently supported.`);
                 }
             }
             return levels;
         } else {
+            log.createLog("error", "Field Error");
             throw new error.customError(error.ERRORS.FIELD_ERROR, `You can only have one or two levels. You currently have ${level_options.length} levels.`);
         }
 
@@ -155,6 +160,7 @@ function verifyTransportFilePath(filepath, level){
     try {
 
         if (!filepath.endsWith(".log") && !filepath.endsWith(".txt")){
+            log.createLog("error", "Field Error");
             throw new error.customError(error.ERRORS.FIELD_ERROR, `Your log file \"${filepath}\" must end in .log or .txt.`);
         }
 
@@ -172,7 +178,12 @@ function verifyTransportFilePath(filepath, level){
                 transport = new transports.File({ filename: filepath });
                 break;
             default:
-                transport = new transports.File({ filename: filepath, level: level });
+                 // filter function for specific levels (from ChatGPT)
+                const levelFilter = (level) => format((info) => {
+                    return info.level === level ? info : false;
+                })();
+
+                transport = new transports.File({ filename: filepath, format: combine(levelFilter(level)) });
                 break;
         }
         
@@ -180,6 +191,7 @@ function verifyTransportFilePath(filepath, level){
         
         
     } catch (e) {
+        log.createLog("error", "Write Error");
         throw new error.customError(error.ERRORS.WRITE_ERROR, `There was an issue creating the path: \"${filepath}\". Make sure your path is valid. Error: ${e}`);
     }
 

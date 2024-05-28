@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const error = require('../errors');
 const axios = require('axios');
+const log = require('../Logging/createLog');
 const { URL, practice } = require('../variables');
 
 const storageMap = {
@@ -56,8 +57,10 @@ async function retrieveSingleDoc(documentID, directory){
             data = data["db"]["0"];
             storage_type = getFileExtension(data);    
             pat_id = data["pat_id"];
-            let last_name_data = await queryData.retrieveData("patients", ["last_name"], { pat_id: pat_id});
+            let last_name_data = await queryData.retrieveRecord("patients", ["last_name"], { pat_id: pat_id});
             last_name = last_name_data['0']["last_name"];
+            
+            log.createLog("info", `Document Download Request:\nDocument ID: ${documentID}\nPatient Last Name: \"${last_name}\"`);
 
             const filename = `${last_name}_${documentID}.${storage_type}`;
             
@@ -78,6 +81,7 @@ async function retrieveSingleDoc(documentID, directory){
             }
 
         } else {
+            log.createLog("error", "Bad Request");
             throw new error.customError(error.ERRORS.BAD_PARAMETER, '\"DocumentID\" must be of type int.');
         }
 
@@ -94,6 +98,8 @@ async function retrieveDocs(queryString, directory){
         data = await makeQuery("documents", [], queryString);        
         let length = data["db"].length;
         documentIDArray = [];
+        log.createLog("info", `Multi-Document Download Request:\nDocument IDs: ${documentIDArray}`);
+
 
         //iterate over all the documents returned
         for (i = 0; i < length; i++){
@@ -105,6 +111,7 @@ async function retrieveDocs(queryString, directory){
         }
 
     } else {
+        log.createLog("error", "Invalid Cookie");
         throw new error.customError(error.INVALID_COOKIE, 'Your session cookie was invalid. Make sure your login credentials are correct.');
     }
 
@@ -129,16 +136,20 @@ function downloadDocument(cookie, doc_id, filename){
         if (response.status === 200) {
           fs.writeFile(filename, response.data, (error) => {
             if (error) {
-              throw new Error(`There was an issue writing to ${filename}: ${error.message}`);
+                log.createLog("error", "Write Error");
+                throw new error.customError(error.ERRORS.WRITE_ERROR,`There was an issue writing to ${filename}: ${error.message}`);
             }
-            console.log(`File saved as ${filename}`);
+            //log.createLog("info", `Document Download Response:\nDocument ${doc_id} Successfully saved to \"${filename}\"`);
+            //console.log("here?");
           });
         } else {
-          throw new Error(`Expected a 200 response but instead received a ${response.status}`);
+            log.createLog("error", "Bad Request");
+            throw new error.customError(error.ERRORS.BAD_REQUEST, `Expected a 200 response but instead received a ${response.status}`);
         }
       })
       .catch(err => {
-        throw new Error(`There was a bad request while trying to retrieve document ${doc_id}: ${err.message}`);
+        log.createLog("error", "Bad Request");
+        throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request while trying to retrieve document ${doc_id}: ${err.message}`);
       });
 
 }

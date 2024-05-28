@@ -3,6 +3,8 @@ const axios = require('axios');
 const error = require('../errors');
 const { URL, practice } = require('../variables');
 const session = require('../Session Management/getCookie');
+const log = require('../Logging/createLog');
+
 
 //makes the GET request
 function makeGETRequest(endpoint, queryby){
@@ -15,17 +17,21 @@ function makeGETRequest(endpoint, queryby){
         const buffer = Buffer.from(apirequest, 'utf8');
 
         let fullURL = `${URL.value}/json/${buffer.toString('base64')}`;
+        log.createLog("info", `Record Retrieval Request:\nRequest URL: \"${fullURL}\"\nEndpoint: \"${endpoint}\"\nQuery By: ${JSON.stringify(queryby)}`);
+
 
         return axios.get(fullURL, { headers: {
             'cookie': `wc_miehr_${practice.value}_session_id=${cookie}`
         }})
         .then( (response) => response.data)
         .catch(function (err) {
+            log.createLog("error", "Bad Request");
             throw new error.customError(error.ERRORS.BAD_REQUEST,  "You made an Invalid GET Request to the server. Error: " + err);
         });
 
 
     } else {
+        log.createLog("error", "Invalid Cookie");        
         throw new error.customError(error.ERRORS.INVALID_COOKIE, 'Your Session Cookie was Invalid.');
     }
 
@@ -66,7 +72,6 @@ function craft_API_request(endpoint, options){
         return request;
 
     }
-
 }
 
 module.exports = { makeGETRequest }; 
