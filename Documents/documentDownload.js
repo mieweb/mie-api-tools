@@ -60,6 +60,7 @@ async function retrieveSingleDoc(documentID, directory){
             let last_name_data = await queryData.retrieveRecord("patients", ["last_name"], { pat_id: pat_id});
             last_name = last_name_data['0']["last_name"];
             
+            //modify so this is only called if multi doc request isn't
             log.createLog("info", `Document Download Request:\nDocument ID: ${documentID}\nPatient Last Name: \"${last_name}\"`);
 
             const filename = `${last_name}_${documentID}.${storage_type}`;
@@ -98,13 +99,13 @@ async function retrieveDocs(queryString, directory){
         data = await makeQuery("documents", [], queryString);        
         let length = data["db"].length;
         documentIDArray = [];
-        log.createLog("info", `Multi-Document Download Request:\nDocument IDs: ${documentIDArray}`);
-
 
         //iterate over all the documents returned
         for (i = 0; i < length; i++){
             documentIDArray.push(data["db"][i]["doc_id"]);     
         }
+
+        log.createLog("info", `Multi-Document Download Request:\nDocument IDs: ${documentIDArray}`);
 
         for (j = 0; j < length; j++){
             retrieveSingleDoc(parseInt(documentIDArray[j]), directory);
@@ -139,7 +140,7 @@ function downloadDocument(cookie, doc_id, filename){
                 log.createLog("error", "Write Error");
                 throw new error.customError(error.ERRORS.WRITE_ERROR,`There was an issue writing to ${filename}: ${error.message}`);
             }
-            //log.createLog("info", `Document Download Response:\nDocument ${doc_id} Successfully saved to \"${filename}\"`);
+            log.createLog("info", `Document Download Response:\nDocument ${doc_id} Successfully saved to \"${filename}\"`);
             //console.log("here?");
           });
         } else {

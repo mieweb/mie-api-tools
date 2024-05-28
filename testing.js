@@ -14,12 +14,13 @@ practice.value = "mieinternprac";
 username.value = process.env.USERNAME;//"Max"
 password.value = process.env.PASSWORD;
 
-logging.value = "true";
+logging.value = "false";
 
 const options = {
     "levels": ["error", "info"],
     "format": ["levels", "timestamps"],
-    "storage": ["Logs/info.log", "Logs/error.log"]
+    //"storage": ["Logs/info.log", "Logs/error.log"]
+    "storage": "console"
 }
 
 ledger.createLedger(options);
@@ -53,8 +54,8 @@ const json_data = {
 // const jsonString = JSON.stringify(results);
 // fs.appendFileSync('output.txt', jsonString);
 
-documentExport.retrieveSingleDoc(719, "output_files");
-//ocumentExport.retrieveDocs({ pat_id: 14 }, "output/new_files");
+//documentExport.retrieveSingleDoc(719, "output_files");
+documentExport.retrieveDocs({ pat_id: 42 }, "output_files");
 
 //documentImport.uploadSingleDocument("Hart_667.pdf", 17, "PATH", 18);
 //documentImport.uploadDocs("filesToUpload.csv");
@@ -62,7 +63,7 @@ documentExport.retrieveSingleDoc(719, "output_files");
 async function runnerFunction() {
     //updateData.updateRecord("obs_forms", {obs_item_id: "34"}, json_data);
 
-    //await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 18 });
+    //await queryData.retrieveRecord("documents", ["pat_id"], { pat_id: 14 });
 
     // await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn", "address1", "address2", "address3"], { pat_id: 19 });
     // await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 20 });

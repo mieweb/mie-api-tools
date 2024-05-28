@@ -1,4 +1,5 @@
 const error = require('../errors');
+const log = require('../Logging/createLog');
 
 const identifiers = {
   "patients": "pat_id",
@@ -200,6 +201,7 @@ function verify_identifier(endpoint, identifier) {
 
       //verify
       if (valid_identifier != Object.keys(identifier)[0]){
+        log.createLog("error", "Invalid Identifier");
         throw new error.customError(error.ERRORS.INVALID_IDENTIFIER, `You used an incorrect identifier on the \"${endpoint}\" endpoint. Expected \"${identifiers[endpoint]}\" but instead got \"${Object.keys(identifier)[0]}.\"`);
       }
   
