@@ -7,6 +7,7 @@ const { URL, practice, username, password, logging } = require('./variables.js')
 const queryData = require('./Retrieve Records/getData.js');
 const updateData = require('./Update Records/requests_PUT');
 const newData = require('./Create Records/requests_POST');
+const ledger = require('./Logging/createLedger');
 
 URL.value = "https://mieinternprac.webchartnow.com/webchart.cgi";
 practice.value = "mieinternprac";
@@ -14,6 +15,14 @@ username.value = process.env.USERNAME;
 password.value = process.env.PASSWORD;
 
 logging.value = "true";
+
+const options = {
+    "levels": ["info", "error"],
+    "timestamp": "true"
+}
+
+ledger.createLedger(options);
+
 
 const json_data = {
     //"first_name": "Courtney",
@@ -24,7 +33,10 @@ const json_data = {
     "data": "test update!"
 }
 
+
+
 //updateData.updateRecord("obs_forms", {"obs_item_id": "34"}, json_data);
+
 
 //updateData.makePUTRequest("patients", { pat_id: 18}, json_data);
 //updateData.test();
@@ -40,6 +52,9 @@ const json_data = {
 
 async function runnerFunction() {
     await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 18 });
+    await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn", "address1", "address2", "address3"], { pat_id: 19 });
+    await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 20 });
+    await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 21 });
     // console.log(await queryData.retrieveRecord("patients", [], { pat_id: 14 }));
     //await documentExport.retrieveDocs({ pat_id: 6 }, "output");
 }
