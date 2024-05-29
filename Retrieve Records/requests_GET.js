@@ -7,7 +7,7 @@ const log = require('../Logging/createLog');
 
 
 //makes the GET request
-function makeGETRequest(endpoint, queryby){
+function makeGETRequest(endpoint, queryby, retries = 3){
 
     cookie = session.getCookie();
 
@@ -25,11 +25,12 @@ function makeGETRequest(endpoint, queryby){
         }})
         .then( (response) => response.data)
         .catch(function (err) {
-            if (err.code != "ECONNRESET") {
+            if (err.code != "ECONNRESET" || retries == 0) {
                 log.createLog("error", "Bad Request");
                 throw new error.customError(error.ERRORS.BAD_REQUEST,  "You made an Invalid GET Request to the server. Error: " + err);
             } else {
-                return makeGETRequest(endpoint, queryby);
+                retries--;
+                return makeGETRequest(endpoint, queryby, retries);
             }
                 
         });
