@@ -1,13 +1,13 @@
 const error = require('../errors');
 const log = require('../Logging/createLog');
 const queryData = require('../Retrieve Records/getData');
-const fs = require('fs');
-const { endpointsOne, endpointsThree } = require('../Variables/endpointLists');
+const { endpointsOne, endpointsTwo, endpointsThree } = require('../Variables/endpointLists');
 
 async function retrieveAllPatientRecords(patID){
     
     log.createLog("info", `Patient Retrieval Request (All Records):\nPatient ID: ${patID}`);
-
+    await verifyPatientID(patID);
+    
     if (Number.isInteger(patID)){
         
         let patient_summary_data = await parseAllRecords(patID, endpointsOne);
@@ -25,10 +25,11 @@ async function retrieveAllPatientRecords(patID){
 async function retrievePatientSummaryRaw(patID){
 
     log.createLog("info", `Patient Retrieval Request (Top Records):\nPatient ID: ${patID}`);
+    await verifyPatientID(patID);
 
     if (Number.isInteger(patID)){
         
-        let patient_summary_data = await parseAllRecords(patID, endpointsThree);
+        let patient_summary_data = await parseAllRecords(patID, endpointsTwo);
         log.createLog("info", `Patient Retrieval Response (Top Records):\nSuccessfully collected at records associated with Patient ID: ${patID}`);
         
         return patient_summary_data;
@@ -40,34 +41,10 @@ async function retrievePatientSummaryRaw(patID){
     }
 }
 
-async function parseAllRecords(patID, list){
-
-    patient_summary_data = {};
-
-    for (i = 0; i < list.length; i++){
-        
-        let patient_info;
-        let db_response;
-
-        patient_info = await queryData.retrieveRecord(list[i], [], {pat_id: patID});
-        
-        try {
-            db_response = patient_info['db'];
-        } catch (err) {
-            log.createLog("info", `Patient Retrieval Response:\nFailed to collect all records associated with Patient ID: ${patID}`);
-            log.createLog("error", "Bad Request");
-            throw new error.customError(error.ERRORS.BAD_REQUEST, `Your request to receive records at endpoint \"${list[i]}\" with Patient ID ${patID}.`);
-        }
-        
-        patient_summary_data[list[i]] = db_response;
-    }
-    return patient_summary_data;
-
-}
-
 async function retrievePatientSummaryHigh(patID){
 
     log.createLog("info", `Patient Retrieval Request (Top Records Filtered):\nPatient ID: ${patID}`);
+    await verifyPatientID(patID);
 
     if(!(Number.isInteger(patID))){
         log.createLog("info", `Patient Retrieval Response (Top Records Filtered):\nFailed to collect all records associated with Patient ID: ${patID}`);
@@ -146,6 +123,44 @@ async function retrievePatientSummaryHigh(patID){
 
     log.createLog("info", `Patient Retrieval Response (Top Records):\nSuccessfully collected at records associated with Patient ID: ${patID}`);
     return patient_summary_data;
+
+}
+
+async function parseAllRecords(patID, list){
+
+    patient_summary_data = {};
+
+    for (i = 0; i < list.length; i++){
+        
+        let patient_info;
+        let db_response;
+
+        patient_info = await queryData.retrieveRecord(list[i], [], {pat_id: patID});
+        
+        try {
+            db_response = patient_info['db'];
+        } catch (err) {
+            log.createLog("info", `Patient Retrieval Response:\nFailed to collect all records associated with Patient ID: ${patID}`);
+            log.createLog("error", "Bad Request");
+            throw new error.customError(error.ERRORS.BAD_REQUEST, `Your request to receive records at endpoint \"${list[i]}\" with Patient ID ${patID}.`);
+        }
+        
+        patient_summary_data[list[i]] = db_response;
+    }
+    return patient_summary_data;
+
+}
+
+async function verifyPatientID(patID){
+
+    let response = await queryData.retrieveRecord("patients", [], { pat_id: patID});
+   
+    if (response['meta']['status'] == 204){
+        log.createLog("info", `Patient Retrieval Response:\nFailed to collect patient information with Patient ID ${patID} because no patient with that ID exists.`);
+        log.createLog("error", "Bad Parameter");
+        throw new error.customError(error.ERRORS.BAD_PARAMETER, `No patient exists with ID \"${patID}\".`);
+    
+    }
 
 }
 
