@@ -25,8 +25,13 @@ function makeGETRequest(endpoint, queryby){
         }})
         .then( (response) => response.data)
         .catch(function (err) {
-            log.createLog("error", "Bad Request");
-            throw new error.customError(error.ERRORS.BAD_REQUEST,  "You made an Invalid GET Request to the server. Error: " + err);
+            if (err.code != "ECONNRESET") {
+                log.createLog("error", "Bad Request");
+                throw new error.customError(error.ERRORS.BAD_REQUEST,  "You made an Invalid GET Request to the server. Error: " + err);
+            } else {
+                return makeGETRequest(endpoint, queryby);
+            }
+                
         });
 
 

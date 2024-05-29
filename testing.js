@@ -19,7 +19,7 @@ logging.value = "true";
 const options = {
     "levels": ["error", "info"],
     "format": ["levels", "timestamps"],
-    "storage": "Logs/info.log"//["Logs/info.log", "Logs/error.log"]
+    "storage": ["Logs/info.log", "Logs/error.log"]
 }
 
 ledger.createLedger(options);
@@ -54,17 +54,17 @@ const json_data = {
 // fs.appendFileSync('output.txt', jsonString);
 
 //documentExport.retrieveSingleDoc(29, "output_files");
-//documentExport.retrieveDocs({ storage_type: 4 }, "output_files");
+documentExport.retrieveDocs({ storage_type: 8 }, "output_files", 0);
 
 //documentImport.uploadSingleDocument("Hart_667.pdf", 17, "PATH", 18);
-documentImport.uploadDocs("filesToUpload.csv");
+//documentImport.uploadDocs("filesToUpload.csv");
 
 async function runnerFunction() {
     //updateData.updateRecord("obs_forms", {obs_item_id: "34"}, json_data);
 
-    //await queryData.retrieveRecord("documents", [], { pat_id: 14 });
+    //await queryData.retrieveRecord("documents", ["storage_type"], { storage_type: 8 });
 
-    // await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn", "address1", "address2", "address3"], { pat_id: 19 });
+    //await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn", "address1", "address2", "address3"], { pat_id: 19 });
     // await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 20 });
     // await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 21 });
     // console.log(await queryData.retrieveRecord("patients", [], { pat_id: 14 }));
