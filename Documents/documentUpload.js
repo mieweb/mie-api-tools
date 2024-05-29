@@ -2,7 +2,7 @@ const session = require('../Session Management/getCookie');
 const fs = require('fs');
 const error = require('../errors');
 const axios = require('axios');
-const { URL, practice } = require('../variables');
+const { URL, practice } = require('../Variables/variables');
 const { parse } = require('csv-parse/sync');
 const log = require('../Logging/createLog');
 

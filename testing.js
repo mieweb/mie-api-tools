@@ -3,11 +3,12 @@ const fs = require('fs');
 const documentImport = require('./Documents/documentUpload')
 const documentExport = require('./Documents/documentDownload');
 
-const { URL, practice, username, password, logging } = require('./variables.js');
+const { URL, practice, username, password, logging } = require('./Variables/variables.js');
 const queryData = require('./Retrieve Records/getData.js');
 const updateData = require('./Update Records/requests_PUT');
 const newData = require('./Create Records/requests_POST');
 const ledger = require('./Logging/createLedger');
+const patient_summary = require('./Retrieve Records/patient_summary.js')
 
 URL.value = "https://mieinternprac.webchartnow.com/webchart.cgi";
 practice.value = "mieinternprac";
@@ -54,15 +55,19 @@ const json_data = {
 // fs.appendFileSync('output.txt', jsonString);
 
 //documentExport.retrieveSingleDoc(29, "output_files");
-documentExport.retrieveDocs({ storage_type: 8 }, "output_files", 0);
+//documentExport.retrieveDocs({ storage_type: 8 }, "output_files", 0);
 
 //documentImport.uploadSingleDocument("Hart_667.pdf", 17, "PATH", 18);
 //documentImport.uploadDocs("filesToUpload.csv");
 
+//patient_summary.retrieveAllPatientRecords(18);
+
 async function runnerFunction() {
     //updateData.updateRecord("obs_forms", {obs_item_id: "34"}, json_data);
 
-    //await queryData.retrieveRecord("documents", ["storage_type"], { storage_type: 8 });
+    await patient_summary.retrievePatientSummaryHigh(18342);
+
+    //await queryData.retrieveRecord("rx_nosub", ["pat_id"], { });
 
     //await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn", "address1", "address2", "address3"], { pat_id: 19 });
     // await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 20 });
