@@ -4,6 +4,7 @@ const error = require('../errors');
 const axios = require('axios');
 const { URL, practice } = require('../variables');
 const { parse } = require('csv-parse/sync');
+const log = require('../Logging/createLog');
 
 //function for importing a single document
 function uploadSingleDocument(filename, storageType, docType, patID){
@@ -25,6 +26,7 @@ function uploadSingleDocument(filename, storageType, docType, patID){
             'interface': 'WC_DATA_IMPORT'
         }
 
+        log.createLog("info", `Document Upload Request:\nDocument Type: \"${docType}\"\nStorage Type: \"${storageType}\"\n Patient ID: ${patID}`);
         axios.post(URL.value, data_request_params, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded', //form encoded data
@@ -34,16 +36,18 @@ function uploadSingleDocument(filename, storageType, docType, patID){
         .then(response => {
             const result = response.headers['x-status'];
             if (result != 'success'){
-                console.log(`File \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
+                log.createLog("info", `Document Upload Response:\nFilename \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
             } else {
-                console.log(`File \"${filename}\" was uploaded: ${response.headers['x-status_desc']}`);
+                log.createLog("info", `Document Upload Response:\nFilename \"${filename}\" was successfully uploaded: ${response.headers['x-status_desc']}`);
             } 
         })
         .catch(err => {
+            log.createLog("error", "Bad Request");
             throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request while trying to retrieve document ${doc_id}. Error: ` + err);
         });
 
     } else {
+        log.createLog("error", "Bad Request");
         throw new error.customError(error.ERRORS.BAD_REQUEST, '\"DocumentID\" must be of type int.');
     }
 
@@ -77,6 +81,7 @@ function parseCSV(csv_file) {
     const headers = Object.keys(results[0]);
     const headersValid = validHeaders.every(header => headers.includes(header));
     if (!headersValid){ //invalid CSV headers
+        log.createLog("error", "Invalid CSV Headers");
         throw new error.customError(error.ERRORS.INVALID_CSV_HEADERS, `The headers in \"${csv_file}\" are not valid. They must be \'document_name\', \'pat_id\', \'doc_type\', and \'storage_type\'.`);
     }
 

@@ -3,28 +3,49 @@ const fs = require('fs');
 const documentImport = require('./Documents/documentUpload')
 const documentExport = require('./Documents/documentDownload');
 
-const { URL, practice, username, password } = require('./variables.js');
-const queryData = require('./Get Requests/getData.js');
-const updateData = require('./Put Requests/requests_PUT');
-const newData = require('./Post Requests/requests_POST');
+const { URL, practice, username, password, logging } = require('./variables.js');
+const queryData = require('./Retrieve Records/getData.js');
+const updateData = require('./Update Records/requests_PUT');
+const newData = require('./Create Records/requests_POST');
+const ledger = require('./Logging/createLedger');
 
 URL.value = "https://mieinternprac.webchartnow.com/webchart.cgi";
 practice.value = "mieinternprac";
-username.value = process.env.USERNAME;
+username.value = process.env.USERNAME;//"Max"
 password.value = process.env.PASSWORD;
 
+logging.value = "true";
 
-
-const json_data = {
-    //"first_name": "Courtney",
-    //"last_name": "K.",
-    // "middle_name": "Rogers",
-    // "ssn": "3294802394",
-    // "address": "1509 Pinetrace Street, Fort Wayne, Indiana, 46824"
-    "data": "test update!"
+const options = {
+    "levels": ["error", "info"],
+    "format": ["levels", "timestamps"],
+    "storage": ["Logs/info.log", "Logs/error.log"]
 }
 
-updateData.updateRecord("obs_forms", {"obs_item_id": "34"}, json_data);
+ledger.createLedger(options);
+
+const json_data = {
+    "first_name": "Courtney",
+    "last_name": "K.",
+    "middle_name": "Rogers",
+    "ssn": "3294802394",
+    "address": "1509 Pinetrace Street, Fort Wayne, Indiana, 46824"
+}
+
+//newData.createRecord("patients", json_data);
+
+// data = "lorem ipsuim,"
+// fs.writeFile("Logs/error.log", data, (err) => {
+//     if (err){
+//         console.error(err);
+//     }
+// })
+
+// function hello(){
+//     console.log("hello!");
+// }
+
+// const timeoutId = setTimeout(hello, 2354);
 
 //updateData.makePUTRequest("patients", { pat_id: 18}, json_data);
 //updateData.test();
@@ -32,15 +53,21 @@ updateData.updateRecord("obs_forms", {"obs_item_id": "34"}, json_data);
 // const jsonString = JSON.stringify(results);
 // fs.appendFileSync('output.txt', jsonString);
 
-//documentExport.retrieveSingleDoc(719, "output_files");
-//documentImport.retrieveDocs({ pat_id: 14 }, "output/new_files");
+//documentExport.retrieveSingleDoc(29, "output_files");
+documentExport.retrieveDocs({ storage_type: 8 }, "output_files", 0);
 
 //documentImport.uploadSingleDocument("Hart_667.pdf", 17, "PATH", 18);
 //documentImport.uploadDocs("filesToUpload.csv");
 
 async function runnerFunction() {
-    console.log(await queryData.retrieveData("obs_forms", [], { obs_item_id: 34 }));
-    // console.log(await queryData.retrieveData("patients", [], { pat_id: 14 }));
+    //updateData.updateRecord("obs_forms", {obs_item_id: "34"}, json_data);
+
+    //await queryData.retrieveRecord("documents", ["storage_type"], { storage_type: 8 });
+
+    //await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn", "address1", "address2", "address3"], { pat_id: 19 });
+    // await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 20 });
+    // await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 21 });
+    // console.log(await queryData.retrieveRecord("patients", [], { pat_id: 14 }));
     //await documentExport.retrieveDocs({ pat_id: 6 }, "output");
 }
 

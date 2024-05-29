@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "axios": "^1.7.2",
-    "axios-cookiejar-support": "^5.0.2",
     "csv-parse": "^5.5.6",
     "csv-parser": "^3.0.0",
     "dotenv": "^16.4.5",
@@ -9,7 +8,9 @@
     "querystring": "^0.2.1",
     "request": "^2.88.2",
     "sync-request": "^6.1.0",
-    "tough-cookie": "^4.1.4"
+    "tough-cookie": "^4.1.4",
+    "winston": "^3.13.0",
+    "winston-log-and-exit": "^1.0.6"
   },
   "repository": {
     "type": "git",

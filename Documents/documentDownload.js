@@ -1,10 +1,11 @@
 const session = require('../Session Management/getCookie');
-const makeQuery = require('../Get Requests/tools');
-const queryData = require('../Get Requests/getData.js');
+const makeQuery = require('../Retrieve Records/tools');
+const queryData = require('../Retrieve Records/getData.js');
 const fs = require('fs');
 const path = require('path');
 const error = require('../errors');
 const axios = require('axios');
+const log = require('../Logging/createLog');
 const { URL, practice } = require('../variables');
 
 const storageMap = {
@@ -38,8 +39,9 @@ const storageMap = {
     '27': 'xml'
 }
 
+
 //exports a single document to specified directory
-async function retrieveSingleDoc(documentID, directory){
+async function retrieveSingleDoc(documentID, directory, pat_last_name = "", optimization = 0){
 
     cookie = session.getCookie();
 
@@ -54,12 +56,25 @@ async function retrieveSingleDoc(documentID, directory){
             let storage_type = "";
 
             data = data["db"]["0"];
-            storage_type = getFileExtension(data);    
-            pat_id = data["pat_id"];
-            let last_name_data = await queryData.retrieveData("patients", ["last_name"], { pat_id: pat_id});
-            last_name = last_name_data['0']["last_name"];
+            storage_type = getFileExtension(data);
+            let filename = "";
 
-            const filename = `${last_name}_${documentID}.${storage_type}`;
+            //optimization and avoids re-querying pat_id for some patient 
+            if (optimization != 1){
+                if (pat_last_name == ""){
+                    pat_id = data["pat_id"];
+                    let last_name_data = await queryData.retrieveRecord("patients", ["last_name"], { pat_id: pat_id});
+                    pat_last_name = last_name_data['0']["last_name"];
+                }
+                filename = `${pat_last_name}_${documentID}.${storage_type}`;
+                
+            } else {
+                filename = `${documentID}.${storage_type}`;
+            }
+                
+           
+            //modify so this is only called if multi doc request isn't
+            log.createLog("info", `Document Download Request:\nDocument ID: ${documentID}\nPatient Last Name: \"${pat_last_name}\"`);
             
             if (directory == ""){
                 directory = "./";
@@ -78,6 +93,7 @@ async function retrieveSingleDoc(documentID, directory){
             }
 
         } else {
+            log.createLog("error", "Bad Request");
             throw new error.customError(error.ERRORS.BAD_PARAMETER, '\"DocumentID\" must be of type int.');
         }
 
@@ -85,7 +101,7 @@ async function retrieveSingleDoc(documentID, directory){
 }
 
 //exports multiple documents to specified directory
-async function retrieveDocs(queryString, directory){
+async function retrieveDocs(queryString, directory, optimization = 0){
 
     cookie = session.getCookie();
 
@@ -100,11 +116,22 @@ async function retrieveDocs(queryString, directory){
             documentIDArray.push(data["db"][i]["doc_id"]);     
         }
 
+        let pat_last_name = "";
+
+        //check if query is for pat_id
+        if ((Object.keys(queryString).length == 1 && queryString["pat_id"]) && optimization == 0){
+            let last_name_data = await queryData.retrieveRecord("patients", ["last_name"], { pat_id: queryString["pat_id"]});
+            pat_last_name = last_name_data['0']["last_name"];
+        }
+
+        log.createLog("info", `Multi-Document Download Request:\nDocument IDs: ${documentIDArray}`);
+
         for (j = 0; j < length; j++){
-            retrieveSingleDoc(parseInt(documentIDArray[j]), directory);
+            retrieveSingleDoc(parseInt(documentIDArray[j]), directory, pat_last_name, optimization);
         }
 
     } else {
+        log.createLog("error", "Invalid Cookie");
         throw new error.customError(error.INVALID_COOKIE, 'Your session cookie was invalid. Make sure your login credentials are correct.');
     }
 
@@ -129,16 +156,19 @@ function downloadDocument(cookie, doc_id, filename){
         if (response.status === 200) {
           fs.writeFile(filename, response.data, (error) => {
             if (error) {
-              throw new Error(`There was an issue writing to ${filename}: ${error.message}`);
+                log.createLog("error", "Write Error");
+                throw new error.customError(error.ERRORS.WRITE_ERROR,`There was an issue writing to ${filename}: ${error.message}`);
             }
-            console.log(`File saved as ${filename}`);
+            log.createLog("info", `Document Download Response:\nDocument ${doc_id} Successfully saved to \"${filename}\"`);
           });
         } else {
-          throw new Error(`Expected a 200 response but instead received a ${response.status}`);
+            log.createLog("error", "Bad Request");
+            throw new error.customError(error.ERRORS.BAD_REQUEST, `Expected a 200 response but instead received a ${response.status}`);
         }
       })
       .catch(err => {
-        throw new Error(`There was a bad request while trying to retrieve document ${doc_id}: ${err.message}`);
+        log.createLog("error", "Bad Request");
+        throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request while trying to retrieve document ${doc_id}: ${err.message}`);
       });
 
 }

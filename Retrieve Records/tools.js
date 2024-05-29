@@ -1,5 +1,6 @@
 const makeRequest = require('./requests_GET');
 const error = require('../errors');
+const log = require('../Logging/createLog');
 
 //filters (parses) the JSON data
 async function parseJSON(data, fields){
@@ -30,6 +31,7 @@ async function parseJSON(data, fields){
                         if (patient[fields[index]] || patient[fields[index]] == ''){
                             new_JSON[json_index][fields[index]] = patient[fields[index]];
                         } else {
+                            log.createLog("error", "Invalid Field");
                             throw new error.customError(error.ERRORS.INVALID_FIELD, `The field \"${fields[index]}\" does not exist in this table.`); //field does not exist
                         }
                     }
@@ -53,6 +55,7 @@ async function makeQuery(endpoint, fields, options){
 
     response = await makeRequest.makeGETRequest(endpoint, options); 
     if (!response['db']){
+        log.createLog("error", "Bad Request");
         throw new error.customError(error.ERRORS.BAD_REQUEST,  "You made an Invalid GET Request to the server.");
     }
 
