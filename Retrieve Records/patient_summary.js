@@ -1,7 +1,10 @@
+const { options } = require('postman-request');
 const error = require('../errors');
 const log = require('../Logging/createLog');
 const queryData = require('../Retrieve Records/getData');
 const { endpointsOne, endpointsTwo, endpointsThree } = require('../Variables/endpointLists');
+const fs = require('fs');
+
 
 async function retrieveAllPatientRecords(patID){
     
@@ -158,10 +161,87 @@ async function verifyPatientID(patID){
     if (response['meta']['status'] == 204){
         log.createLog("info", `Patient Retrieval Response:\nFailed to collect patient information with Patient ID ${patID} because no patient with that ID exists.`);
         log.createLog("error", "Bad Parameter");
-        throw new error.customError(error.ERRORS.BAD_PARAMETER, `No patient exists with ID \"${patID}\".`);
-    
+        throw new error.customError(error.ERRORS.BAD_PARAMETER, `No patient exists with ID \"${patID}\".`);    
     }
 
 }
 
-module.exports = { retrievePatientSummaryHigh, retrievePatientSummaryRaw, retrieveAllPatientRecords }
+async function retrieveCustomRecords(endpoint_list, filters=[], queryby = {}, OmitErrors = 1){
+
+    patient_summary_data = {};
+    
+    //check if parameters are 2D or 1D arrays
+    let filters2D = false;
+    let options2D = false;
+
+    if (filters.length != 0){
+        if (Array.isArray(filters[0])){
+            filters2D = true;
+        }
+    }
+
+    if (Array.isArray(queryby)){
+        options2D = true;
+    }
+
+    //iterate over the endpoint list
+    for (i = 0; i < endpoint_list.length; i++){
+
+        //check if error catching is on
+        if (OmitErrors == 1){
+            try {
+
+                patient_summary_data[endpoint_list[i]] = await makeCustomRecordsRequest(i, endpoint_list, filters2D, options2D, filters, queryby);
+
+            } catch {
+                continue; //move to the next endpoint
+            }
+
+        } else if (OmitErrors == 0) {
+            patient_summary_data[endpoint_list[i]] = await makeCustomRecordsRequest(i, endpoint_list, filters2D, options2D, filters, queryby, OmitErrors);
+
+        } else {
+            log.createLog("error", "Bad Parameter");
+            throw new error.customError(error.ERRORS.BAD_PARAMETER, `The \"OmitErrors\" variable must be 0 or 1. You set it to \"${OmitErrors}\"`);    
+        }
+    }
+    
+    fs.writeFile("output.txt", JSON.stringify(patient_summary_data), (err) => {
+        if (err) {
+            console.error(err);
+        } else {
+            console.log("Success!");
+        }
+    });
+
+    //return patient_summary_data;
+
+}
+
+async function makeCustomRecordsRequest(i, endpoint_list, filters2D, options2D, filters, queryby, OmitErrors){
+
+    let filtersPm = filters2D ? filters[i] : filters
+    let optionsPm = options2D ? queryby[i] : queryby
+
+    if (OmitErrors == 0){
+        if (filters2D && !filters[i]){
+            log.createLog("error", "Bad Parameter");
+            throw new error.customError(error.ERRORS.BAD_PARAMETER, `No filters exist when querying for endpoint \"${endpoint_list[i]}\". If your filters are unique for each endpoint, make sure the number of endpoints (currently \"${endpoint_list.length}\") is equal to the number of filter arrays.`);    
+        } else if (options2D && !queryby[i]) {
+            log.createLog("error", "Bad Parameter");
+            throw new error.customError(error.ERRORS.BAD_PARAMETER, `No query options exists when querying for endpoint \"${endpoint_list[i]}\". If your options are unique for each endpoint, make sure the number of endpoints (currently \"${endpoint_list.length}\") is equal to the number of option objects.`);    
+        }
+    }
+
+    let patient_info = await queryData.retrieveRecord(endpoint_list[i], filtersPm, optionsPm);
+    let db_response = filtersPm.length == 0 ? patient_info['db'] : patient_info;
+    
+    return db_response;
+
+}
+
+module.exports = { retrievePatientSummaryHigh, 
+    retrievePatientSummaryRaw, 
+    retrieveAllPatientRecords,
+    retrieveCustomRecords
+ }

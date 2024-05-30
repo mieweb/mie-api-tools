@@ -48,7 +48,7 @@ const json_data = {
 
 // const timeoutId = setTimeout(hello, 2354);
 
-updateData.updateRecord("patients", { pat_idd: 42}, json_data);
+//updateData.updateRecord("patients", { pat_idd: 42}, json_data);
 //updateData.test();
 
 // const jsonString = JSON.stringify(results);
@@ -64,6 +64,8 @@ updateData.updateRecord("patients", { pat_idd: 42}, json_data);
 
 async function runnerFunction() {
     //updateData.updateRecord("obs_forms", {obs_item_id: "34"}, json_data);
+
+    await patient_summary.retrieveCustomRecords(["encounter_orders", "encounter_orders_revisions"], ["status"], [{enc_order_id: 1}, {enc_order_id: 1}], 0);
 
     //await patient_summary.retrievePatientSummaryHigh(18);
 
