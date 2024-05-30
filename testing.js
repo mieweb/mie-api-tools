@@ -3,20 +3,20 @@ const fs = require('fs');
 const documentImport = require('./Documents/documentUpload')
 const documentExport = require('./Documents/documentDownload');
 
-const { URL, practice, username, password, logging } = require('./Variables/variables.js');
+const { URL, practice, username, password, logging, GeminiKey } = require('./Variables/variables.js');
 const queryData = require('./Retrieve Records/getData.js');
 const updateData = require('./Update Records/requests_PUT');
 const newData = require('./Create Records/requests_POST');
 const ledger = require('./Logging/createLedger');
 const patient_summary = require('./Retrieve Records/patient_summary.js')
-const AI_summary = require('./Retrieve Records/AI_Summary');
+const AI_summary = require('./Retrieve Records/AIGemini');
 
 URL.value = "https://mieinternprac.webchartnow.com/webchart.cgi";
 practice.value = "mieinternprac";
 username.value = process.env.USERNAME;//"Max"
 password.value = process.env.PASSWORD;
-
 logging.value = "true";
+GeminiKey.value = process.env.GEMINI_KEY;
 
 const options = {
     "levels": ["error", "info"],
@@ -66,18 +66,24 @@ const json_data = {
 async function runnerFunction() {
     //updateData.updateRecord("obs_forms", {obs_item_id: "34"}, json_data);
 
+    //const response = await patient_summary.retrievePatientRecords(18, {length: "brief"});
+
     //let data = await patient_summary.retrieveCustomRecords(["encounter_orders", "encounter_orders_revisions"], ["status"], [{enc_order_id: 1}, {enc_order_id: 1}], 0);
-    const summary = await AI_summary.summarizePatient(18, process.env.GEMINI_KEY, {"adjective": "professional"});
-    console.log(summary);
+    //const summary = await AI_summary.summarizePatient(18, { model: "gemini-1.5-flash"});
+    //console.log(summary);
+
+    const question = await AI_summary.askAboutPatient(18, "Does this patient have insurance?", { model: "gemini-1.5-flash"});
+    console.log(question);
 
     //await patient_summary.retrievePatientSummaryHigh(18);
 
     //await queryData.retrieveRecord("patients", [], { pat_id: 1000 });
 
-    //await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn", "address1", "address2", "address3"], { pat_id: 19 });
+    // const patients = await queryData.retrieveRecord("patients", [], {});
+
     // await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 20 });
     // await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 21 });
-    // console.log(await queryData.retrieveRecord("patients", [], { pat_id: 14 }));
+    //console.log(await queryData.retrieveRecord("patients", [], { pat_id: 42 }));
     //await documentExport.retrieveDocs({ pat_id: 6 }, "output");
 }
 

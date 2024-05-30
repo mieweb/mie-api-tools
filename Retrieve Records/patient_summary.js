@@ -4,6 +4,30 @@ const queryData = require('../Retrieve Records/getData');
 const { endpointsOne, endpointsTwo, endpointsThree } = require('../Variables/endpointLists');
 
 
+async function retrievePatientRecords(patID, options = {length: "detailed"}){
+
+    let records;
+
+    switch(options["length"]){
+
+        case "detailed":
+            records = await retrieveAllPatientRecords(patID);
+            break;
+        case "concise":
+            records = await retrievePatientSummaryRaw(patID);
+            break;
+        case "brief":
+            records = await retrievePatientSummaryHigh(patID);
+            break;
+        default:
+            log.createLog("error", "Bad Parameter");
+            throw new error.customError(error.ERRORS.BAD_PARAMETER, `The \"Length\" value \"${options["length"]}\" was invalid`);
+    };
+
+    return JSON.stringify(records);
+
+}
+
 async function retrieveAllPatientRecords(patID){
     
     log.createLog("info", `Patient Retrieval Request (All Records):\nPatient ID: ${patID}`);
@@ -68,7 +92,7 @@ async function retrievePatientSummaryHigh(patID){
                     db_response = patient_info;
                     break;
                 case "incidents":
-                    patient_info = await queryData.retrieveRecord(endpointsThree[i], ["employee_died", "comments", "hospitalized", "comment_activity", "case_type", "inc_datetime", "comment_cause", "comment_explanation"], {pat_id: patID});
+                    patient_info = await queryData.retrieveRecord(endpointsThree[i], ["comments", "hospitalized", "comment_activity", "case_type", "inc_datetime", "comment_cause", "comment_explanation"], {pat_id: patID});
                     db_response = patient_info;
                     break;
                 case "patient_conditions_family":
@@ -88,7 +112,7 @@ async function retrievePatientSummaryHigh(patID){
                     db_response = patient_info;
                     break; 
                 case "encounters":
-                    patient_info = await queryData.retrieveRecord(endpointsThree[i], ["chief_complaint", "location", "stage", "visit_type", "diagnosis2"], {pat_id: patID});
+                    patient_info = await queryData.retrieveRecord(endpointsThree[i], ["chief_complaint", "create_date", "location", "stage", "visit_type", "diagnosis2"], {pat_id: patID});
                     db_response = patient_info;
                     break;
                 case "encounters_current":
@@ -96,7 +120,7 @@ async function retrievePatientSummaryHigh(patID){
                     db_response = patient_info;
                     break;
                 case "rxlist":
-                    patient_info = await queryData.retrieveRecord(endpointsThree[i], ["drug_name", "indication", "entered_date"], {pat_id: patID});
+                    patient_info = await queryData.retrieveRecord(endpointsThree[i], ["drug_name", "indication", "entered_date", "end_date"], {pat_id: patID});
                     db_response = patient_info;
                     break;
                 case "rxlist_allergylist":
@@ -220,8 +244,7 @@ async function makeCustomRecordsRequest(i, endpoint_list, filters2D, options2D, 
 
 }
 
-module.exports = { retrievePatientSummaryHigh, 
-    retrievePatientSummaryRaw, 
-    retrieveAllPatientRecords,
+module.exports = { 
+    retrievePatientRecords,
     retrieveCustomRecords
  }
