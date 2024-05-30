@@ -1,4 +1,4 @@
-const { URL, username, password } = require('../variables');
+const { URL, username, password } = require('../Variables/variables');
 const querystring = require('querystring');
 const error = require('../errors');
 const request = require('sync-request');

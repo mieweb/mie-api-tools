@@ -6,7 +6,7 @@ const path = require('path');
 const error = require('../errors');
 const axios = require('axios');
 const log = require('../Logging/createLog');
-const { URL, practice } = require('../variables');
+const { URL, practice } = require('../Variables/variables');
 
 const storageMap = {
     '0': 'txt',

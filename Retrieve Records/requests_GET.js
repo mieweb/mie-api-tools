@@ -1,7 +1,7 @@
 //const request = require('sync-request');
 const axios = require('axios');
 const error = require('../errors');
-const { URL, practice } = require('../variables');
+const { URL, practice } = require('../Variables/variables');
 const session = require('../Session Management/getCookie');
 const log = require('../Logging/createLog');
 

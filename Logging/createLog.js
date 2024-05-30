@@ -1,6 +1,6 @@
 const error = require('../errors');
 const myLedger = require('../Logging/createLedger');
-const { logging } = require('../variables');
+const { logging } = require('../Variables/variables');
 require('winston-log-and-exit');
 
 function createLog(level, message){
