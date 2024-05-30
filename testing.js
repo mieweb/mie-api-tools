@@ -9,6 +9,7 @@ const updateData = require('./Update Records/requests_PUT');
 const newData = require('./Create Records/requests_POST');
 const ledger = require('./Logging/createLedger');
 const patient_summary = require('./Retrieve Records/patient_summary.js')
+const AI_summary = require('./Retrieve Records/AI_Summary');
 
 URL.value = "https://mieinternprac.webchartnow.com/webchart.cgi";
 practice.value = "mieinternprac";
@@ -65,7 +66,9 @@ const json_data = {
 async function runnerFunction() {
     //updateData.updateRecord("obs_forms", {obs_item_id: "34"}, json_data);
 
-    await patient_summary.retrieveCustomRecords(["encounter_orders", "encounter_orders_revisions"], ["status"], [{enc_order_id: 1}, {enc_order_id: 1}], 0);
+    //let data = await patient_summary.retrieveCustomRecords(["encounter_orders", "encounter_orders_revisions"], ["status"], [{enc_order_id: 1}, {enc_order_id: 1}], 0);
+    const summary = await AI_summary.summarizePatient(18, process.env.GEMINI_KEY, {"adjective": "professional"});
+    console.log(summary);
 
     //await patient_summary.retrievePatientSummaryHigh(18);
 

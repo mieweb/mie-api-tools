@@ -1,9 +1,7 @@
-const { options } = require('postman-request');
 const error = require('../errors');
 const log = require('../Logging/createLog');
 const queryData = require('../Retrieve Records/getData');
 const { endpointsOne, endpointsTwo, endpointsThree } = require('../Variables/endpointLists');
-const fs = require('fs');
 
 
 async function retrieveAllPatientRecords(patID){
@@ -169,20 +167,15 @@ async function verifyPatientID(patID){
 async function retrieveCustomRecords(endpoint_list, filters=[], queryby = {}, OmitErrors = 1){
 
     patient_summary_data = {};
-    
-    //check if parameters are 2D or 1D arrays
     let filters2D = false;
     let options2D = false;
 
+    //check if parameters are 2D or 1D arrays
     if (filters.length != 0){
-        if (Array.isArray(filters[0])){
-            filters2D = true;
-        }
+        filters2D = Array.isArray(filters[0]) ? true : false
     }
 
-    if (Array.isArray(queryby)){
-        options2D = true;
-    }
+    options2D = Array.isArray(queryby) ? true : false
 
     //iterate over the endpoint list
     for (i = 0; i < endpoint_list.length; i++){
@@ -190,31 +183,18 @@ async function retrieveCustomRecords(endpoint_list, filters=[], queryby = {}, Om
         //check if error catching is on
         if (OmitErrors == 1){
             try {
-
                 patient_summary_data[endpoint_list[i]] = await makeCustomRecordsRequest(i, endpoint_list, filters2D, options2D, filters, queryby);
-
             } catch {
                 continue; //move to the next endpoint
             }
-
         } else if (OmitErrors == 0) {
             patient_summary_data[endpoint_list[i]] = await makeCustomRecordsRequest(i, endpoint_list, filters2D, options2D, filters, queryby, OmitErrors);
-
         } else {
             log.createLog("error", "Bad Parameter");
             throw new error.customError(error.ERRORS.BAD_PARAMETER, `The \"OmitErrors\" variable must be 0 or 1. You set it to \"${OmitErrors}\"`);    
         }
     }
-    
-    fs.writeFile("output.txt", JSON.stringify(patient_summary_data), (err) => {
-        if (err) {
-            console.error(err);
-        } else {
-            console.log("Success!");
-        }
-    });
-
-    //return patient_summary_data;
+    return patient_summary_data;
 
 }
 
