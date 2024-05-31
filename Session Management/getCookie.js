@@ -7,8 +7,6 @@ const log = require('../Logging/createLog');
 //initializes user session and returns the cookie
 function getCookie(){
 
-    process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
-
     let cookie = '';
 
     const encode_login_parms = {
