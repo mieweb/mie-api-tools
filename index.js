@@ -2,7 +2,7 @@ const { retrieveRecord } = require('./Retrieve Records/getData');
 const { updateRecord } = require('./Update Records/requests_PUT');
 const { retrieveSingleDoc, retrieveDocs } = require('./Documents/documentDownload');
 const { uploadSingleDocument, uploadDocs } = require('./Documents/documentUpload');
-const { retrieveAllPatientRecords } = require('./Retrieve Records/patient_summary');
+const { retrievePatientRecords } = require('./Retrieve Records/patient_summary');
 const { summarizePatient, askAboutPatient } = require('./Retrieve Records/AIGemini');
 const { createLedger } = require('./Logging/createLedger');
 const { createRecord } = require('./Create Records/requests_POST');
@@ -15,7 +15,7 @@ module.exports = {
     downloadDocs: retrieveDocs,
     uploadDoc: uploadSingleDocument,
     uploadDocs: uploadDocs,
-    retrievePatientRecords: retrieveAllPatientRecords,
+    getAllPatientRecords: retrievePatientRecords,
     summarizePatient: summarizePatient,
     queryPatient: askAboutPatient,
     createLedger: createLedger,

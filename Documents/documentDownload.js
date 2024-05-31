@@ -41,7 +41,7 @@ const storageMap = {
 
 
 //exports a single document to specified directory
-async function retrieveSingleDoc(documentID, directory, pat_last_name = "", optimization = 0){
+async function retrieveSingleDoc(documentID, directory, optimization = 0, pat_last_name = ""){
 
     cookie = session.getCookie();
 
@@ -126,7 +126,7 @@ async function retrieveDocs(queryString, directory, optimization = 0){
         log.createLog("info", `Multi-Document Download Request:\nDocument IDs: ${documentIDArray}`);
 
         for (j = 0; j < length; j++){
-            retrieveSingleDoc(parseInt(documentIDArray[j]), directory, pat_last_name, optimization);
+            retrieveSingleDoc(parseInt(documentIDArray[j]), directory, optimization, pat_last_name);
         }
 
     } else {
