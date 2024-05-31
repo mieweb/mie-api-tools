@@ -55,11 +55,11 @@ const json_data = {
 // const jsonString = JSON.stringify(results);
 // fs.appendFileSync('output.txt', jsonString);
 
-//documentExport.retrieveSingleDoc(29, "output_files");
+//documentExport.retrieveSingleDoc(414, "testing_files");
 //documentExport.retrieveDocs({ storage_type: 8 }, "output_files", 0);
 
-//documentImport.uploadSingleDocument("Hart_667.pdf", 17, "PATH", 18);
-//documentImport.uploadDocs("filesToUpload.csv");
+//documentImport.uploadSingleDocument("testing_files/Hart_667.pdf", 17, "PATH", 18, {subject: "This is my subject!", service_location: "OFFICE", service_date: "2008-08-10 00:00:00"});
+documentImport.uploadDocs("filesToUpload.csv");
 
 //patient_summary.retrieveAllPatientRecords(18);
 
@@ -72,8 +72,8 @@ async function runnerFunction() {
     //const summary = await AI_summary.summarizePatient(18, { model: "gemini-1.5-flash"});
     //console.log(summary);
 
-    const question = await AI_summary.askAboutPatient(18, "Does this patient have insurance?", { model: "gemini-1.5-flash"});
-    console.log(question);
+    // const question = await AI_summary.askAboutPatient(18, "Does this patient have insurance?", { model: "gemini-1.5-flash"});
+    // console.log(question);
 
     //await patient_summary.retrievePatientSummaryHigh(18);
 
@@ -83,7 +83,7 @@ async function runnerFunction() {
 
     // await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 20 });
     // await queryData.retrieveRecord("patients", ["first_name", "last_name", "ssn"], { pat_id: 21 });
-    //console.log(await queryData.retrieveRecord("patients", [], { pat_id: 42 }));
+    //console.log(await queryData.retrieveRecord("documents", [], { storage_type: 14 }));
     //await documentExport.retrieveDocs({ pat_id: 6 }, "output");
 }
 

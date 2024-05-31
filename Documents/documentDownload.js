@@ -31,7 +31,7 @@ const storageMap = {
     '19': 'cda',
     '20': 'avi',
     '21': 'ccr',
-    '22': 'mime',
+    '22': 'eml',
     '23': 'htm',
     '24': 'htm',
     '25': 'bmp',
@@ -51,12 +51,11 @@ async function retrieveSingleDoc(documentID, directory, pat_last_name = "", opti
             
             data = await makeQuery("documents", [], { doc_id: documentID });
             
-            let last_name = "";
             let pat_id = null;
             let storage_type = "";
 
             data = data["db"]["0"];
-            storage_type = getFileExtension(data);
+            storage_type = getFileExtension(data, documentID);
             let filename = "";
 
             //optimization and avoids re-querying pat_id for some patient 
@@ -173,8 +172,14 @@ function downloadDocument(cookie, doc_id, filename){
 
 }
 
-function getFileExtension(data){
-    return storageMap[data['storage_type']];
+function getFileExtension(data, id){
+    try {
+        return storageMap[data['storage_type']];
+    } catch (err) {
+        log.createLog("error", "No File Found");
+        throw new error.customError(error.ERRORS.BAD_REQUEST, `There was no file found with ID ${id}. Error: ${err}`);
+    }
+   
 }
 
 
