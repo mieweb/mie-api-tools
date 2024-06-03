@@ -1,45 +1,41 @@
 //const request = require('sync-request');
 const axios = require('axios');
 const error = require('../errors');
-const { URL, practice } = require('../Variables/variables');
+const { URL, practice, cookie } = require('../Variables/variables');
 const session = require('../Session Management/getCookie');
 const log = require('../Logging/createLog');
 
 
 //makes the GET request
-function makeGETRequest(endpoint, queryby, retries = 3){
+async function makeGETRequest(endpoint, queryby, retries = 3){
 
-    cookie = session.getCookie();
-
-    if (cookie != ""){
-        
-        const apirequest = craft_API_request(endpoint, queryby);
-        const buffer = Buffer.from(apirequest, 'utf8');
-
-        let fullURL = `${URL.value}/json/${buffer.toString('base64')}`;
-        log.createLog("info", `Record Retrieval Request:\nRequest URL: \"${fullURL}\"\nEndpoint: \"${endpoint}\"\nQuery By: ${JSON.stringify(queryby)}`);
-
-
-        return axios.get(fullURL, { headers: {
-            'cookie': `wc_miehr_${practice.value}_session_id=${cookie}`
-        }})
-        .then( (response) => response.data)
-        .catch(function (err) {
-            if (err.code != "ECONNRESET" || retries == 0) {
-                log.createLog("error", "Bad Request");
-                throw new error.customError(error.ERRORS.BAD_REQUEST,  "You made an Invalid GET Request to the server. Error: " + err);
-            } else {
-                retries--;
-                return makeGETRequest(endpoint, queryby, retries);
-            }
-                
-        });
-
-
-    } else {
-        log.createLog("error", "Invalid Cookie");        
-        throw new error.customError(error.ERRORS.INVALID_COOKIE, 'Your Session Cookie was Invalid.');
+    if (cookie.value == ""){
+        await session.getCookie();
     }
+        
+    const apirequest = craft_API_request(endpoint, queryby);
+    const buffer = Buffer.from(apirequest, 'utf8');
+
+    let fullURL = `${URL.value}/json/${buffer.toString('base64')}`;
+    log.createLog("info", `Record Retrieval Request:\nRequest URL: \"${fullURL}\"\nEndpoint: \"${endpoint}\"\nQuery By: ${JSON.stringify(queryby)}`);
+
+    return axios.get(fullURL, { headers: {
+        'cookie': `wc_miehr_${practice.value}_session_id=${cookie.value}`
+    }})
+    .then( (response) => response.data)
+    .catch(function (err) {
+        if (err.code != "ECONNRESET" || retries == 0) {
+            log.createLog("error", "Bad Request");
+            throw new error.customError(error.ERRORS.BAD_REQUEST,  "You made an Invalid GET Request to the server. Error: " + err);
+        } else {
+            retries--;
+            return makeGETRequest(endpoint, queryby, retries);
+        }
+            
+    });
+
+
+    
 
 }
 
