@@ -8,7 +8,6 @@ async function retrieveRecord(endpoint, fields, options){
     return new Promise((resolve, reject) => {
         Promise.resolve(makeQuery(endpoint, fields, options))
         .then((result) => {
-            console.log(result);
             if (result["meta"]){
                 if (!(result["meta"]["status"]).startsWith("2")){
                     log.createLog("error", "Invalid Endpoint");

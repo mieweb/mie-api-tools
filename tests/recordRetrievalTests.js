@@ -1,7 +1,7 @@
 const assert = require('assert'); 
 const queryData = require('../Retrieve Records/getData');
 const { URL, practice, username, password, logging, GeminiKey } = require('../Variables/variables');
-const { retrievePatientRecords } = require('../Retrieve Records/patient_summary');
+const { retrievePatientRecords, retrieveCustomRecords } = require('../Retrieve Records/patient_summary');
 const { summarizePatient, askAboutPatient} = require('../Retrieve Records/AIGemini');
 
 
@@ -30,7 +30,7 @@ describe('REQUESTS', async () => {
             .then((data) => {
                 assert.equal(data['0']['ssn'], "111111111");
                 assert.equal(data['0']['home_phone'], "2604440099");
-            });
+            })
             
         }).timeout(10000);
 
@@ -56,6 +56,16 @@ describe('REQUESTS', async () => {
         it('Query Patient - AI', async () => {
             const data = await askAboutPatient(18, "Does this patient have insurance?");
             assert.equal(typeof data, 'string');
+        }).timeout(25000);
+
+        it('Concatenate Records', async () => {
+            
+            let JSON_data = {"patients":{"0":{"pat_id":"18"}},"documents":{"0":{"pat_id":"13","doc_id":"399","storage_type":"4"},"1":{"pat_id":"13","doc_id":"395","storage_type":"4"},"2":{"pat_id":"13","doc_id":"397","storage_type":"4"},"3":{"pat_id":"13","doc_id":"356","storage_type":"10"},"4":{"pat_id":"13","doc_id":"361","storage_type":"7"},"5":{"pat_id":"13","doc_id":"379","storage_type":"8"},"6":{"pat_id":"13","doc_id":"662","storage_type":"4"},"7":{"pat_id":"13","doc_id":"663","storage_type":"4"}}};
+
+            const data = await retrieveCustomRecords(["patients", "documents"], [["pat_id"], ["doc_id", "storage_type"]], [{ pat_id: 18}, {pat_id: 13}], 0);
+
+            assert.equal(JSON.stringify(data), JSON.stringify(JSON_data));
+
         }).timeout(25000);
 
     });

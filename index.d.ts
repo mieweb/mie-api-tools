@@ -26,5 +26,6 @@ declare module 'mie-api-tools' {
     export function summarizePatient(patID: number, options: object): Promise<string>;
     export function queryPatient(patID: number, query: string, options: object): Promise<string>;
     export function createLedger(options: object): void;
+    export function getCustomRecords(endpoint_list: string[], filters: string[], queryby: object, OmitErrors: number): Promise<object>; 
 
 }

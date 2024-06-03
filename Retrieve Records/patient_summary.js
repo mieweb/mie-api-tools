@@ -235,7 +235,9 @@ async function retrieveCustomRecords(endpoint_list, filters=[], queryby = {}, Om
             throw new error.customError(error.ERRORS.BAD_PARAMETER, `The \"OmitErrors\" variable must be 0 or 1. You set it to \"${OmitErrors}\"`);    
         }
     }
-    return patient_summary_data;
+    return new Promise((resolve, reject) => {
+        resolve(patient_summary_data);
+    });
 
 }
 
