@@ -9,6 +9,7 @@ const log = require('../Logging/createLog');
 //makes the GET request
 async function makeGETRequest(endpoint, queryby, retries = 3){
 
+
     if (cookie.value == ""){
         await session.getCookie();
     }
