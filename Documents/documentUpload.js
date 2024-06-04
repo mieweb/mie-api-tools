@@ -6,8 +6,10 @@ const { URL, practice, cookie } = require('../Variables/variables');
 const { parse } = require('csv-parse/sync');
 const log = require('../Logging/createLog');
 const FormData = require('form-data');
-const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
+const { Worker, workerData } = require('worker_threads');
 const path = require('path');
+const os = require("os");
+
 
 //function for importing a single document
 async function uploadSingleDocument(filename, storageType, docType, patID, options = {subject: "", service_location: "", service_date: ""} ){
@@ -60,9 +62,13 @@ async function uploadSingleDocument(filename, storageType, docType, patID, optio
 }
 
 //import multiple documents through a CSV file
-function uploadDocs(csv_file){
+async function uploadDocs(csv_file){
 
-    const MAX_WORKERS = 4;
+    if (cookie.value == ""){
+        await session.getCookie();
+    }
+
+    const MAX_WORKERS = os.cpus().length;
 
     csv_data_parsed = parseCSV(csv_file);
     const length = csv_data_parsed.length;
@@ -87,7 +93,7 @@ function uploadDocs(csv_file){
         index++;
         activeWorkers++;
 
-        const worker = new Worker(path.join(__dirname, "uploadSingleDoc.js"), { workerData: file_information });
+        const worker = new Worker(path.join(__dirname, "uploadSingleDoc.js"), { workerData: {files: file_information, URL: URL.value, Cookie: cookie.value, Practice: practice.value} });
 
         worker.on('message', (message) => {
             if (message.success == true){ 

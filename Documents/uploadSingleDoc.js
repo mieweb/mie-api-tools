@@ -1,30 +1,18 @@
 const session = require('../Session Management/getCookie');
 const fs = require('fs');
 const axios = require('axios');
-const { URL, practice, cookie } = require('../Variables/variables');
 const log = require('../Logging/createLog');
 const FormData = require('form-data');
 const { workerData, parentPort } = require('worker_threads');
 
-async function uploadSingleDocument(filename, storageType, docType, patID, options = {subject: "", service_location: "", service_date: ""} ){
-
-    console.log(URL.value);
-
-    cookie.value = "5567dc99-e33a-4136-a6c6-d1ea25d07ec3";
-    practice.value = "mieinternprac";
-    URL.value = "https://mieinternprac.webchartnow.com/webchart.cgi";
-
-    if (cookie.value == ""){
-        await session.getCookie();
-    }
+//this function is used for multi-threading
+async function uploadSingleDocument(filename, storageType, docType, patID, options = {subject: "", service_location: "", service_date: ""},  URL, Cookie, Practice){
 
     let subject = "subject" in options ? options["subject"] : "";
     let service_date = "service_date" in options ? options["service_date"] : "";
     let service_location = "service_location" in options ? options["service_location"] : "";
 
     const mrnumber = `MR-${patID}`;
-
-    //console.log(storageType, service_date, service_location, docType, subject, filename, patID);
 
     const form = new FormData();
     form.append('f', 'chart');
@@ -40,10 +28,10 @@ async function uploadSingleDocument(filename, storageType, docType, patID, optio
     form.append('interface', 'WC_DATA_IMPORT');
 
     log.createLog("info", `Document Upload Request:\nDocument Type: \"${docType}\"\nStorage Type: \"${storageType}\"\n Patient ID: ${patID}`);
-    axios.post(URL.value, form, {
+    axios.post(URL, form, {
         headers: {
             'Content-Type': 'multi-part/form-data', 
-            'cookie': `wc_miehr_${practice.value}_session_id=${cookie.value}`
+            'cookie': `wc_miehr_${Practice}_session_id=${Cookie}`
         }
     })
     .then(response => {
@@ -60,4 +48,4 @@ async function uploadSingleDocument(filename, storageType, docType, patID, optio
 
 }
 
-uploadSingleDocument(workerData[0], workerData[1], workerData[2], workerData[3], { subject: workerData[4], service_location: workerData[5], service_date: workerData[6]});
+uploadSingleDocument(workerData['files'][0], workerData['files'][1], workerData['files'][2], workerData['files'][3], { subject: workerData['files'][4], service_location: workerData['files'][5], service_date: workerData['files'][6]}, workerData['URL'], workerData['Cookie'], workerData['Practice']);
