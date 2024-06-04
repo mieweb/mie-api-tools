@@ -49,14 +49,13 @@ async function uploadSingleDocument(filename, storageType, docType, patID, optio
     .then(response => {
         const result = response.headers['x-status'];
         if (result != 'success'){
-            //parentPort.postMessage({ success: true, filename, response: response});
+            parentPort.postMessage({ success: false, filename: filename, result: response.headers['x-status_desc'] });
         } else {
             parentPort.postMessage({ success: true, filename: filename, result: response.headers['x-status_desc'] });
         } 
     })
     .catch((err) => {
-        console.error(err);
-        //parentPort.postMessage({ success: false, filename, error: err.message});
+        parentPort.postMessage({ success: 'error', filename: filename, result: err.message});
     });
 
 }

@@ -45,13 +45,16 @@ async function uploadSingleDocument(filename, storageType, docType, patID, optio
     .then(response => {
         const result = response.headers['x-status'];
         if (result != 'success'){
-            parentPort.postMessage({ success: false, filename, response: resonse});
+            console.log(`File \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
+            log.createLog("info", `Document Upload Response:\nFilename \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
         } else {
-            parentPort.postMessage({ success: true, filename, response: response});
+            console.log(`File \"${filename}\" was uploaded: ${response.headers['x-status_desc']}`);
+            log.createLog("info", `Document Upload Response:\nFilename \"${filename}\" was successfully uploaded: ${response.headers['x-status_desc']}`);
         } 
     })
     .catch(err => {
-        parentPort.postMessage({ success: false, filename, error: err.message});
+        log.createLog("error", "Bad Request");
+        throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request trying to upload \"${filename}\". Error: ` + err);
     });
 
 }
@@ -59,7 +62,7 @@ async function uploadSingleDocument(filename, storageType, docType, patID, optio
 //import multiple documents through a CSV file
 function uploadDocs(csv_file){
 
-    const MAX_WORKERS = 8;
+    const MAX_WORKERS = 4;
 
     csv_data_parsed = parseCSV(csv_file);
     const length = csv_data_parsed.length;
@@ -87,22 +90,19 @@ function uploadDocs(csv_file){
         const worker = new Worker(path.join(__dirname, "uploadSingleDoc.js"), { workerData: file_information });
 
         worker.on('message', (message) => {
-            console.log(message.success);
-            if (message.success){
+            if (message.success == true){ 
                 console.log(`File \"${message.filename}\" was uploaded: ${message.result}`);
                 log.createLog("info", `Document Upload Response:\nFilename \"${message.filename}\" was successfully uploaded: ${message.result}`);
+            } else if (message.success == false) {
+                console.log(`File \"${message.filename}\" failed to upload: ${message.result}`);
+                log.createLog("info", `Document Upload Response:\nFilename \"${message.filename}\" failed to upload: ${message.result}`);
             } else {
-                console.log(`File \"${message.filename}\" failed to upload: ${message.response}`);
-                log.createLog("info", `Document Upload Response:\nFilename \"${message.filename}\" failed to upload: ${message.response}`);
+                log.createLog("error", "Bad Request");
+                throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request trying to upload \"${message.filename}\". Error: ` + message.result);
             }
             activeWorkers--
             createWorker();
         });
-
-        worker.on('error', (err) => {
-            log.createLog("error", "Bad Request");
-            throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request trying to upload \"${err.filename}\". Error: ` + err);
-        })
     }
 
     for (i = 0; i < MAX_WORKERS; i++){
