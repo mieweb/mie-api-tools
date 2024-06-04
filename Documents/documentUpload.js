@@ -6,6 +6,10 @@ const { URL, practice, cookie } = require('../Variables/variables');
 const { parse } = require('csv-parse/sync');
 const log = require('../Logging/createLog');
 const FormData = require('form-data');
+const { Worker, workerData } = require('worker_threads');
+const path = require('path');
+const os = require("os");
+
 
 //function for importing a single document
 async function uploadSingleDocument(filename, storageType, docType, patID, options = {subject: "", service_location: "", service_date: ""} ){
@@ -58,14 +62,56 @@ async function uploadSingleDocument(filename, storageType, docType, patID, optio
 }
 
 //import multiple documents through a CSV file
-function uploadDocs(csv_file){
+async function uploadDocs(csv_file){
+
+    if (cookie.value == ""){
+        await session.getCookie();
+    }
 
     csv_data_parsed = parseCSV(csv_file);
     const length = csv_data_parsed.length;
+    let docsToUpload = [];
 
     //iterate over each document to upload
     for (i = 0; i < length; i++){
-        uploadSingleDocument(csv_data_parsed[i]['document_name'], csv_data_parsed[i]['storage_type'], csv_data_parsed[i]['doc_type'], csv_data_parsed[i]['pat_id'], {subject: csv_data_parsed[i]['subject'], service_location: csv_data_parsed[i]['service_location'], service_date: csv_data_parsed[i]['service_date']});
+        docsToUpload.push([csv_data_parsed[i]['document_name'], csv_data_parsed[i]['storage_type'], csv_data_parsed[i]['doc_type'], csv_data_parsed[i]['pat_id'], csv_data_parsed[i]['subject'], csv_data_parsed[i]['service_location'], csv_data_parsed[i]['service_date']]);
+    }
+
+    const MAX_WORKERS = os.cpus().length;
+    let activeWorkers = 0;
+    let index = 0;
+
+    function createWorker() {
+
+        if (index >= docsToUpload.length) {
+            return;
+        }
+    
+        const file_information = docsToUpload[index];
+        
+        index++;
+        activeWorkers++;
+
+        const worker = new Worker(path.join(__dirname, "/Parallelism/uploadDoc.js"), { workerData: {files: file_information, URL: URL.value, Cookie: cookie.value, Practice: practice.value} });
+
+        worker.on('message', (message) => {
+            if (message.success == true){ 
+                console.log(`File \"${message.filename}\" was uploaded: ${message.result}`);
+                log.createLog("info", `Document Upload Response:\nFilename \"${message.filename}\" was successfully uploaded: ${message.result}`);
+            } else if (message.success == false) {
+                console.log(`File \"${message.filename}\" failed to upload: ${message.result}`);
+                log.createLog("info", `Document Upload Response:\nFilename \"${message.filename}\" failed to upload: ${message.result}`);
+            } else {
+                log.createLog("error", "Bad Request");
+                throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request trying to upload \"${message.filename}\". Error: ` + message.result);
+            }
+            activeWorkers--
+            createWorker();
+        });
+    }
+
+    for (i = 0; i < MAX_WORKERS; i++){
+        createWorker();
     }
 
 }
