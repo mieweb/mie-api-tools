@@ -4,28 +4,45 @@ const queryData = require('../Retrieve Records/getData');
 const { endpointsOne, endpointsTwo, endpointsThree } = require('../Variables/endpointLists');
 
 
-async function retrievePatientRecords(patID, options = {length: "detailed"}){
+async function retrievePatientRecords(patID, options = {length: "brief"}){
 
-    let records;
+    return new Promise((resolve, reject) => {
 
-    switch(options["length"]){
-
-        case "detailed":
-            records = await retrieveAllPatientRecords(patID);
-            break;
-        case "concise":
-            records = await retrievePatientSummaryRaw(patID);
-            break;
-        case "brief":
-            records = await retrievePatientSummaryHigh(patID);
-            break;
-        default:
-            log.createLog("error", "Bad Parameter");
-            throw new error.customError(error.ERRORS.BAD_PARAMETER, `The \"Length\" value \"${options["length"]}\" was invalid`);
-    };
-
-    return JSON.stringify(records);
-
+        switch(options["length"]){
+    
+            case "detailed":
+                Promise.resolve(retrieveAllPatientRecords(patID))
+                .then((records) => {
+                    resolve(JSON.stringify(records));
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+                break;
+            case "concise":
+                Promise.resolve(retrievePatientSummaryRaw(patID))
+                .then((records) => {
+                    resolve(JSON.stringify(records));
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+                break;
+            case "brief":
+                Promise.resolve(retrievePatientSummaryHigh(patID))
+                .then((records) => {
+                    resolve(JSON.stringify(records));
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+                break;
+            default:
+                log.createLog("error", "Bad Parameter");
+                reject(new error.customError(error.ERRORS.BAD_PARAMETER, `The \"Length\" value \"${options["length"]}\" was invalid`));
+                break;
+        };
+    });
 }
 
 async function retrieveAllPatientRecords(patID){
@@ -218,7 +235,9 @@ async function retrieveCustomRecords(endpoint_list, filters=[], queryby = {}, Om
             throw new error.customError(error.ERRORS.BAD_PARAMETER, `The \"OmitErrors\" variable must be 0 or 1. You set it to \"${OmitErrors}\"`);    
         }
     }
-    return patient_summary_data;
+    return new Promise((resolve, reject) => {
+        resolve(patient_summary_data);
+    });
 
 }
 

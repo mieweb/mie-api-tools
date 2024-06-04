@@ -2,62 +2,58 @@ const session = require('../Session Management/getCookie');
 const fs = require('fs');
 const error = require('../errors');
 const axios = require('axios');
-const { URL, practice } = require('../Variables/variables');
+const { URL, practice, cookie } = require('../Variables/variables');
 const { parse } = require('csv-parse/sync');
 const log = require('../Logging/createLog');
 const FormData = require('form-data');
 
 //function for importing a single document
-function uploadSingleDocument(filename, storageType, docType, patID, options = {subject: "", service_location: "", service_date: ""} ){
+async function uploadSingleDocument(filename, storageType, docType, patID, options = {subject: "", service_location: "", service_date: ""} ){
 
-    cookie = session.getCookie();
-    if (cookie != ""){
-
-        let subject = "subject" in options ? options["subject"] : "";
-        let service_date = "service_date" in options ? options["service_date"] : "";
-        let service_location = "service_location" in options ? options["service_location"] : "";
-
-        const mrnumber = `MR-${patID}`;
-
-        const form = new FormData();
-        form.append('f', 'chart');
-        form.append('s', 'upload');
-        form.append('storage_type', storageType);
-        form.append('service_date', service_date);
-        form.append('service_location', service_location);
-        form.append('doc_type', docType);
-        form.append('subject', subject);
-        form.append('file', fs.createReadStream(filename));
-        form.append('pat_id', patID);
-        form.append('mrnumber', mrnumber);
-        form.append('interface', 'WC_DATA_IMPORT');
-
-        log.createLog("info", `Document Upload Request:\nDocument Type: \"${docType}\"\nStorage Type: \"${storageType}\"\n Patient ID: ${patID}`);
-        axios.post(URL.value, form, {
-            headers: {
-                'Content-Type': 'multi-part/form-data', 
-                'cookie': `wc_miehr_${practice.value}_session_id=${cookie}`
-            }
-        })
-        .then(response => {
-            const result = response.headers['x-status'];
-            if (result != 'success'){
-                console.log(`File \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
-                log.createLog("info", `Document Upload Response:\nFilename \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
-            } else {
-                console.log(`File \"${filename}\" was uploaded: ${response.headers['x-status_desc']}`);
-                log.createLog("info", `Document Upload Response:\nFilename \"${filename}\" was successfully uploaded: ${response.headers['x-status_desc']}`);
-            } 
-        })
-        .catch(err => {
-            log.createLog("error", "Bad Request");
-            throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request trying to upload \"${filename}\". Error: ` + err);
-        });
-
-    } else {
-        log.createLog("error", "Bad Request");
-        throw new error.customError(error.ERRORS.BAD_REQUEST, '\"DocumentID\" must be of type int.');
+    if (cookie.value == ""){
+        await session.getCookie();
     }
+
+    let subject = "subject" in options ? options["subject"] : "";
+    let service_date = "service_date" in options ? options["service_date"] : "";
+    let service_location = "service_location" in options ? options["service_location"] : "";
+
+    const mrnumber = `MR-${patID}`;
+
+    const form = new FormData();
+    form.append('f', 'chart');
+    form.append('s', 'upload');
+    form.append('storage_type', storageType);
+    form.append('service_date', service_date);
+    form.append('service_location', service_location);
+    form.append('doc_type', docType);
+    form.append('subject', subject);
+    form.append('file', fs.createReadStream(filename));
+    form.append('pat_id', patID);
+    form.append('mrnumber', mrnumber);
+    form.append('interface', 'WC_DATA_IMPORT');
+
+    log.createLog("info", `Document Upload Request:\nDocument Type: \"${docType}\"\nStorage Type: \"${storageType}\"\n Patient ID: ${patID}`);
+    axios.post(URL.value, form, {
+        headers: {
+            'Content-Type': 'multi-part/form-data', 
+            'cookie': `wc_miehr_${practice.value}_session_id=${cookie.value}`
+        }
+    })
+    .then(response => {
+        const result = response.headers['x-status'];
+        if (result != 'success'){
+            console.log(`File \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
+            log.createLog("info", `Document Upload Response:\nFilename \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
+        } else {
+            console.log(`File \"${filename}\" was uploaded: ${response.headers['x-status_desc']}`);
+            log.createLog("info", `Document Upload Response:\nFilename \"${filename}\" was successfully uploaded: ${response.headers['x-status_desc']}`);
+        } 
+    })
+    .catch(err => {
+        log.createLog("error", "Bad Request");
+        throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request trying to upload \"${filename}\". Error: ` + err);
+    });
 
 }
 

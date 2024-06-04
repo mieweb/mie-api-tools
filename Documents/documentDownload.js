@@ -6,7 +6,8 @@ const path = require('path');
 const error = require('../errors');
 const axios = require('axios');
 const log = require('../Logging/createLog');
-const { URL, practice } = require('../Variables/variables');
+const { URL, practice, cookie } = require('../Variables/variables');
+const { Cookie } = require('tough-cookie');
 
 const storageMap = {
     '0': 'txt',
@@ -41,98 +42,95 @@ const storageMap = {
 
 
 //exports a single document to specified directory
-async function retrieveSingleDoc(documentID, directory, pat_last_name = "", optimization = 0){
+async function retrieveSingleDoc(documentID, directory, optimization = 0, pat_last_name = ""){
 
-    cookie = session.getCookie();
+    if (cookie.value == ""){
+        await session.getCookie();
+    }
 
-    if (cookie != ""){
+    if (Number.isInteger(documentID)){
+        
+        data = await makeQuery("documents", [], { doc_id: documentID });
+        
+        let pat_id = null;
+        let storage_type = "";
 
-        if (Number.isInteger(documentID)){
+        data = data["db"]["0"];
+        storage_type = getFileExtension(data, documentID);
+        let filename = "";
+
+        //optimization and avoids re-querying pat_id for some patient 
+        if (optimization != 1){
+            if (pat_last_name == ""){
+                pat_id = data["pat_id"];
+                let last_name_data = await queryData.retrieveRecord("patients", ["last_name"], { pat_id: pat_id});
+                pat_last_name = last_name_data['0']["last_name"];
+            }
+            filename = `${pat_last_name}_${documentID}.${storage_type}`;
             
-            data = await makeQuery("documents", [], { doc_id: documentID });
-            
-            let pat_id = null;
-            let storage_type = "";
-
-            data = data["db"]["0"];
-            storage_type = getFileExtension(data, documentID);
-            let filename = "";
-
-            //optimization and avoids re-querying pat_id for some patient 
-            if (optimization != 1){
-                if (pat_last_name == ""){
-                    pat_id = data["pat_id"];
-                    let last_name_data = await queryData.retrieveRecord("patients", ["last_name"], { pat_id: pat_id});
-                    pat_last_name = last_name_data['0']["last_name"];
-                }
-                filename = `${pat_last_name}_${documentID}.${storage_type}`;
-                
-            } else {
-                filename = `${documentID}.${storage_type}`;
-            }
-                
-           
-            //modify so this is only called if multi doc request isn't
-            log.createLog("info", `Document Download Request:\nDocument ID: ${documentID}\nPatient Last Name: \"${pat_last_name}\"`);
-            
-            if (directory == ""){
-                directory = "./";
-            }
-
-            const fileFullPath = path.join(directory, filename);
-            const fileDirPath = path.dirname(fileFullPath);
-
-            //make directory if one doesn't already exist
-            if (!fs.existsSync(fileDirPath)){
-                fs.mkdirSync(fileDirPath, { recursive: true} )
-            }
-
-            if (!fs.existsSync(fileFullPath)) {
-                downloadDocument(cookie, documentID, fileFullPath);
-            }
-
         } else {
-            log.createLog("error", "Bad Request");
-            throw new error.customError(error.ERRORS.BAD_PARAMETER, '\"DocumentID\" must be of type int.');
+            filename = `${documentID}.${storage_type}`;
+        }
+            
+        
+        //modify so this is only called if multi doc request isn't
+        log.createLog("info", `Document Download Request:\nDocument ID: ${documentID}\nPatient Last Name: \"${pat_last_name}\"`);
+        
+        if (directory == ""){
+            directory = "./";
         }
 
+        const fileFullPath = path.join(directory, filename);
+        const fileDirPath = path.dirname(fileFullPath);
+
+        //make directory if one doesn't already exist
+        if (!fs.existsSync(fileDirPath)){
+            fs.mkdirSync(fileDirPath, { recursive: true} )
+        }
+
+        if (!fs.existsSync(fileFullPath)) {
+            downloadDocument(cookie.value, documentID, fileFullPath);
+        }
+
+    } else {
+        log.createLog("error", "Bad Request");
+        throw new error.customError(error.ERRORS.BAD_PARAMETER, '\"DocumentID\" must be of type int.');
     }
+
+    
 }
 
 //exports multiple documents to specified directory
 async function retrieveDocs(queryString, directory, optimization = 0){
 
-    cookie = session.getCookie();
-
-    if (cookie != ""){
-
-        data = await makeQuery("documents", [], queryString);        
-        let length = data["db"].length;
-        documentIDArray = [];
-
-        //iterate over all the documents returned
-        for (i = 0; i < length; i++){
-            documentIDArray.push(data["db"][i]["doc_id"]);     
-        }
-
-        let pat_last_name = "";
-
-        //check if query is for pat_id
-        if ((Object.keys(queryString).length == 1 && queryString["pat_id"]) && optimization == 0){
-            let last_name_data = await queryData.retrieveRecord("patients", ["last_name"], { pat_id: queryString["pat_id"]});
-            pat_last_name = last_name_data['0']["last_name"];
-        }
-
-        log.createLog("info", `Multi-Document Download Request:\nDocument IDs: ${documentIDArray}`);
-
-        for (j = 0; j < length; j++){
-            retrieveSingleDoc(parseInt(documentIDArray[j]), directory, pat_last_name, optimization);
-        }
-
-    } else {
-        log.createLog("error", "Invalid Cookie");
-        throw new error.customError(error.INVALID_COOKIE, 'Your session cookie was invalid. Make sure your login credentials are correct.');
+    if (cookie.value == ""){
+        await session.getCookie();
     }
+
+
+    data = await makeQuery("documents", [], queryString);        
+    let length = data["db"].length;
+    documentIDArray = [];
+
+    //iterate over all the documents returned
+    for (i = 0; i < length; i++){
+        documentIDArray.push(data["db"][i]["doc_id"]);     
+    }
+
+    let pat_last_name = "";
+
+    //check if query is for pat_id
+    if ((Object.keys(queryString).length == 1 && queryString["pat_id"]) && optimization == 0){
+        let last_name_data = await queryData.retrieveRecord("patients", ["last_name"], { pat_id: queryString["pat_id"]});
+        pat_last_name = last_name_data['0']["last_name"];
+    }
+
+    log.createLog("info", `Multi-Document Download Request:\nDocument IDs: ${documentIDArray}`);
+
+    for (j = 0; j < length; j++){
+        retrieveSingleDoc(parseInt(documentIDArray[j]), directory, optimization, pat_last_name);
+    }
+
 
 }
 

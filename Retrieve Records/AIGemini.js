@@ -32,48 +32,74 @@ const generationConfig = {
 
 async function summarizePatient(patID, options = {adjective: "concise", model: "gemini-1.5-flash"}){
 
-    let Gmodel = "model" in options ? options["model"] : "gemini-1.5-flash"
-    let adjective = "adjective" in options ? options["adjective"] : "concise"
+    return new Promise((resolve, reject) => {
+        let Gmodel = "model" in options ? options["model"] : "gemini-1.5-flash"
+        let adjective = "adjective" in options ? options["adjective"] : "concise"
+        
+        log.createLog("info", `Patient Summary AI Request:\nPatient ID: ${patID}\nGemini Model: \"${Gmodel}\"\nAdjective: \"${adjective}\"`);
+
+        Promise.resolve(getPatientData.retrievePatientRecords(patID, {length: "brief"}))
+        .then((raw_patient_data) => {
+            query_options = {
+                key: GeminiKey.value,
+                Gmodel: Gmodel,
+                adjective: adjective,
+                raw_patient_data: raw_patient_data,
+                patID: patID
+            }
     
-    log.createLog("info", `Patient Summary AI Request:\nPatient ID: ${patID}\nGemini Model: \"${Gmodel}\"\nAdjective: \"${adjective}\"`);
+            Promise.resolve(formGeminiRequest("summary", query_options))
+            .then((summary) => {
+                log.createLog("info", `Patient Summary AI Response:\nSuccessfully retrieved response for Patient ID: ${patID}\nGemini Model: \"${Gmodel}\"\nAdjective: \"${adjective}\"\nSummary: \"${summary}\"`);
+                resolve(summary);
+            })
+            .catch ((err) => {
+                log.createLog("info", `Patient (Summary/Query) AI Response:\nFailed to send a valid request to Gemini with Patient ID: ${options["patID"]}, Model: \"${options["Gmodel"]}\"`);
+                log.createLog("error", "Bad Request");
+                reject(err);
+            })
+            
+        })
+        .catch ((err) => {
+            reject(err);
+        });
 
-    const raw_patient_data = await getPatientData.retrievePatientRecords(patID, {length: "brief"});
-    
-    query_options = {
-        key: GeminiKey.value,
-        Gmodel: Gmodel,
-        adjective: adjective,
-        raw_patient_data: raw_patient_data,
-        patID: patID
-    }
-
-    const summary = await formGeminiRequest("summary", query_options);
-    log.createLog("info", `Patient Summary AI Response:\nSuccessfully retrieved response for Patient ID: ${patID}\nGemini Model: \"${Gmodel}\"\nAdjective: \"${adjective}\"\nSummary: \"${summary}\"`);
-
-    return summary;
-
+    });
 }
 
 async function askAboutPatient(patID, query, options = { model: "gemini-1.5-flash"}){
 
-    let Gmodel = "model" in options ? options["model"] : "gemini-1.5-flash"
+    return new Promise((resolve, reject) => {
+        
+        let Gmodel = "model" in options ? options["model"] : "gemini-1.5-flash"
     
-    log.createLog("info", `Patient Query AI Request:\nPatient ID: ${patID}\nGemini Model: \"${Gmodel}\"\nQuery: \"${query}\"`);
-    const raw_patient_data = await getPatientData.retrievePatientRecords(patID, {length: "brief"});
-
-    query_options = {
-        query: query,
-        key: GeminiKey.value,
-        Gmodel: Gmodel,
-        raw_patient_data: raw_patient_data,
-        patID: patID
-    }
-
-    const answer = await formGeminiRequest("query", query_options);
-    log.createLog("info", `Patient Query AI Response:\nSuccessfully retrieved response for Patient ID: ${patID}\nGemini Model: \"${Gmodel}\"\nResponse: \"${answer}\"`);
-
-    return answer;
-
+        log.createLog("info", `Patient Query AI Request:\nPatient ID: ${patID}\nGemini Model: \"${Gmodel}\"\nQuery: \"${query}\"`);
+        
+        Promise.resolve(getPatientData.retrievePatientRecords(patID, {length: "brief"}))
+        .then((raw_patient_data) => {
+            query_options = {
+                query: query,
+                key: GeminiKey.value,
+                Gmodel: Gmodel,
+                raw_patient_data: raw_patient_data,
+                patID: patID
+            }
+        
+            Promise.resolve(formGeminiRequest("query", query_options))
+            .then((answer) => {
+                log.createLog("info", `Patient Query AI Response:\nSuccessfully retrieved response for Patient ID: ${patID}\nGemini Model: \"${Gmodel}\"\nResponse: \"${answer}\"`);
+                resolve(answer);
+            })
+            .catch ((err) => {
+                log.createLog("info", `Patient (Summary/Query) AI Response:\nFailed to send a valid request to Gemini with Patient ID: ${options["patID"]}, Model: \"${options["Gmodel"]}\"`);
+                log.createLog("error", "Bad Request");
+                reject(err);
+            })
+        })
+        .catch ((err) => {
+            reject(err);
+        });
+    })
 }
 
 async function formGeminiRequest(type, options){
