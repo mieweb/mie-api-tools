@@ -26,11 +26,9 @@ describe('REQUESTS', async () => {
         }).timeout(1000000);
 
         it('Retrieve Records - Fields', async () => {
-            queryData.retrieveRecord("patients", ["ssn", "home_phone"], {pat_id: 18})
-            .then((data) => {
-                assert.equal(data['0']['ssn'], "111111111");
-                assert.equal(data['0']['home_phone'], "2604440099");
-            })
+            const data = await queryData.retrieveRecord("patients", ["ssn", "home_phone"], {pat_id: 18})
+            assert.equal(data['0']['ssn'], "111111111");
+            assert.equal(data['0']['home_phone'], "2604440099");
             
         }).timeout(1000000);
 
