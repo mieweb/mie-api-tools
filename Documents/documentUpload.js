@@ -68,8 +68,6 @@ async function uploadDocs(csv_file){
         await session.getCookie();
     }
 
-    const MAX_WORKERS = os.cpus().length;
-
     csv_data_parsed = parseCSV(csv_file);
     const length = csv_data_parsed.length;
     let docsToUpload = [];
@@ -79,6 +77,7 @@ async function uploadDocs(csv_file){
         docsToUpload.push([csv_data_parsed[i]['document_name'], csv_data_parsed[i]['storage_type'], csv_data_parsed[i]['doc_type'], csv_data_parsed[i]['pat_id'], csv_data_parsed[i]['subject'], csv_data_parsed[i]['service_location'], csv_data_parsed[i]['service_date']]);
     }
 
+    const MAX_WORKERS = os.cpus().length;
     let activeWorkers = 0;
     let index = 0;
 
@@ -93,7 +92,7 @@ async function uploadDocs(csv_file){
         index++;
         activeWorkers++;
 
-        const worker = new Worker(path.join(__dirname, "uploadSingleDoc.js"), { workerData: {files: file_information, URL: URL.value, Cookie: cookie.value, Practice: practice.value} });
+        const worker = new Worker(path.join(__dirname, "/Parallelism/uploadDoc.js"), { workerData: {files: file_information, URL: URL.value, Cookie: cookie.value, Practice: practice.value} });
 
         worker.on('message', (message) => {
             if (message.success == true){ 

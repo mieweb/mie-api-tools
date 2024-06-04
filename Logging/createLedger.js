@@ -45,7 +45,6 @@ function createTransports(options){
                 }
 
             } else {
-                log.createLog("error", "Field Error");
                 throw new error.customError(error.ERRORS.FIELD_ERROR, `If using an array for the \"Storage\" key, you must have two file paths. The first path is the info log and the second path is the error log. You currently have ${transport.length} file paths.`);
             }
 
@@ -141,7 +140,6 @@ function parseLevels(options){
             }
             return levels;
         } else {
-            log.createLog("error", "Field Error");
             throw new error.customError(error.ERRORS.FIELD_ERROR, `You can only have one or two levels. You currently have ${level_options.length} levels.`);
         }
 

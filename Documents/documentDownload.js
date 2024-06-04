@@ -7,7 +7,8 @@ const error = require('../errors');
 const axios = require('axios');
 const log = require('../Logging/createLog');
 const { URL, practice, cookie } = require('../Variables/variables');
-const { Cookie } = require('tough-cookie');
+const { Worker, workerData } = require('worker_threads');
+const os = require("os");
 
 const storageMap = {
     '0': 'txt',
@@ -97,7 +98,6 @@ async function retrieveSingleDoc(documentID, directory, optimization = 0, pat_la
         throw new error.customError(error.ERRORS.BAD_PARAMETER, '\"DocumentID\" must be of type int.');
     }
 
-    
 }
 
 //exports multiple documents to specified directory
@@ -106,7 +106,6 @@ async function retrieveDocs(queryString, directory, optimization = 0){
     if (cookie.value == ""){
         await session.getCookie();
     }
-
 
     data = await makeQuery("documents", [], queryString);        
     let length = data["db"].length;
@@ -127,10 +126,47 @@ async function retrieveDocs(queryString, directory, optimization = 0){
 
     log.createLog("info", `Multi-Document Download Request:\nDocument IDs: ${documentIDArray}`);
 
-    for (j = 0; j < length; j++){
-        retrieveSingleDoc(parseInt(documentIDArray[j]), directory, optimization, pat_last_name);
+    const MAX_WORKERS = os.cpus().length;
+    let activeWorkers = 0;
+    let index = 0;
+
+    async function createWorker() {
+
+        if (index >= documentIDArray.length) {
+            return;
+        }
+
+        const download_doc = documentIDArray[index];
+        index++;
+        activeWorkers++;
+
+        data = await makeQuery("documents", [], {doc_id: download_doc});
+
+        if (optimization != 1 && pat_last_name == ""){
+            pat_id = data['db']['0']["pat_id"];
+            let last_name_data = await queryData.retrieveRecord("patients", ["last_name"], { pat_id: pat_id});
+            pat_last_name = last_name_data['0']["last_name"];
+        }
+
+        const worker = new Worker(path.join(__dirname, "/Parallelism/downloadDoc.js"), { workerData: {docID: download_doc, directory: directory, optimization: optimization, last_name: pat_last_name, URL: URL.value, Practice: practice.value, Cookie: cookie.value, Data: data}})
+
+        worker.on(('message'), (message) => {
+            if (message.success){
+                console.log(`File \"${message.filename}\" was downloaded.`);
+                log.createLog("info", `Document Download Response:\nDocument ${message.doc_id} Successfully saved to \"${message.filename}\"`);
+            } else {
+                log.createLog("error", "Bad Request");
+                throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request while trying to retrieve document ${message.doc_id}`);
+            }
+            activeWorkers--;
+            pat_last_name = "";
+            createWorker();
+        });
     }
 
+    for (i = 0; i < MAX_WORKERS; i++){
+        createWorker();
+    }
 
 }
 
@@ -156,6 +192,7 @@ function downloadDocument(cookie, doc_id, filename){
                 log.createLog("error", "Write Error");
                 throw new error.customError(error.ERRORS.WRITE_ERROR,`There was an issue writing to ${filename}: ${error.message}`);
             }
+            console.log(`File \"${filename}\" was downloaded.`);
             log.createLog("info", `Document Download Response:\nDocument ${doc_id} Successfully saved to \"${filename}\"`);
           });
         } else {

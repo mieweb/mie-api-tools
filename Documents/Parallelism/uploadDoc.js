@@ -1,7 +1,6 @@
-const session = require('../Session Management/getCookie');
 const fs = require('fs');
 const axios = require('axios');
-const log = require('../Logging/createLog');
+const log = require('../../Logging/createLog');
 const FormData = require('form-data');
 const { workerData, parentPort } = require('worker_threads');
 
