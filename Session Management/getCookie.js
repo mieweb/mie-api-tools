@@ -15,8 +15,6 @@ function getCookie(){
     const encodedLoginParms = querystring.stringify(encode_login_parms);
     let fullURL = `${URL.value}?${encodedLoginParms}`
 
-    //making the request
-
     return axios.get(fullURL)
     .then( (response) => {
 

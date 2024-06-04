@@ -6,6 +6,8 @@ const { URL, practice, cookie } = require('../Variables/variables');
 const { parse } = require('csv-parse/sync');
 const log = require('../Logging/createLog');
 const FormData = require('form-data');
+const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
+const path = require('path');
 
 //function for importing a single document
 async function uploadSingleDocument(filename, storageType, docType, patID, options = {subject: "", service_location: "", service_date: ""} ){
@@ -43,16 +45,13 @@ async function uploadSingleDocument(filename, storageType, docType, patID, optio
     .then(response => {
         const result = response.headers['x-status'];
         if (result != 'success'){
-            console.log(`File \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
-            log.createLog("info", `Document Upload Response:\nFilename \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
+            parentPort.postMessage({ success: false, filename, response: resonse});
         } else {
-            console.log(`File \"${filename}\" was uploaded: ${response.headers['x-status_desc']}`);
-            log.createLog("info", `Document Upload Response:\nFilename \"${filename}\" was successfully uploaded: ${response.headers['x-status_desc']}`);
+            parentPort.postMessage({ success: true, filename, response: response});
         } 
     })
     .catch(err => {
-        log.createLog("error", "Bad Request");
-        throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request trying to upload \"${filename}\". Error: ` + err);
+        parentPort.postMessage({ success: false, filename, error: err.message});
     });
 
 }
@@ -60,12 +59,54 @@ async function uploadSingleDocument(filename, storageType, docType, patID, optio
 //import multiple documents through a CSV file
 function uploadDocs(csv_file){
 
+    const MAX_WORKERS = 8;
+
     csv_data_parsed = parseCSV(csv_file);
     const length = csv_data_parsed.length;
+    let docsToUpload = [];
 
     //iterate over each document to upload
     for (i = 0; i < length; i++){
-        uploadSingleDocument(csv_data_parsed[i]['document_name'], csv_data_parsed[i]['storage_type'], csv_data_parsed[i]['doc_type'], csv_data_parsed[i]['pat_id'], {subject: csv_data_parsed[i]['subject'], service_location: csv_data_parsed[i]['service_location'], service_date: csv_data_parsed[i]['service_date']});
+        docsToUpload.push([csv_data_parsed[i]['document_name'], csv_data_parsed[i]['storage_type'], csv_data_parsed[i]['doc_type'], csv_data_parsed[i]['pat_id'], csv_data_parsed[i]['subject'], csv_data_parsed[i]['service_location'], csv_data_parsed[i]['service_date']]);
+    }
+
+    let activeWorkers = 0;
+    let index = 0;
+
+    function createWorker() {
+
+        if (index >= docsToUpload.length) {
+            return;
+        }
+    
+        const file_information = docsToUpload[index];
+        
+        index++;
+        activeWorkers++;
+
+        const worker = new Worker(path.join(__dirname, "uploadSingleDoc.js"), { workerData: file_information });
+
+        worker.on('message', (message) => {
+            console.log(message.success);
+            if (message.success){
+                console.log(`File \"${message.filename}\" was uploaded: ${message.result}`);
+                log.createLog("info", `Document Upload Response:\nFilename \"${message.filename}\" was successfully uploaded: ${message.result}`);
+            } else {
+                console.log(`File \"${message.filename}\" failed to upload: ${message.response}`);
+                log.createLog("info", `Document Upload Response:\nFilename \"${message.filename}\" failed to upload: ${message.response}`);
+            }
+            activeWorkers--
+            createWorker();
+        });
+
+        worker.on('error', (err) => {
+            log.createLog("error", "Bad Request");
+            throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request trying to upload \"${err.filename}\". Error: ` + err);
+        })
+    }
+
+    for (i = 0; i < MAX_WORKERS; i++){
+        createWorker();
     }
 
 }
