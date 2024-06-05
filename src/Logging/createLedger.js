@@ -4,6 +4,7 @@ const error = require('../errors');
 const fs = require('fs');
 const path = require('path');
 const log = require('../Logging/createLog');
+const { log_data } = require('../Variables/variables');
 
 let ledger;
 
@@ -13,15 +14,32 @@ function createLedger(options) {
     const levels = parseLevels(options);
     const myFormat = getFormat(options);
     const transportOptions = createTransports(options);
+    
+    if (options["log_returned_data"]){
+        options["log_returned_data"] == 'false' ? log_data.value = 'false' : log_data.value = 'true';
+    }
 
-    ledger = createLogger({
-        levels: levels,
-        format: combine(
-            timestamp(),
-            myFormat
-        ),
-        transports: transportOptions
-    });
+    if (Object.keys(levels).length == 1){
+        ledger = createLogger({
+            level: Object.keys(levels)[0],
+            format: combine(
+                timestamp(),
+                myFormat
+            ),
+            transports: transportOptions
+        });
+    } else {
+        ledger = createLogger({
+            levels: levels,
+            format: combine(
+                timestamp(),
+                myFormat
+            ),
+            transports: transportOptions
+        });
+    }
+
+    
 
 }
 
@@ -32,31 +50,36 @@ function createTransports(options){
     if (options["storage"]){
 
         let transport = options["storage"];
+        let levels = options["levels"];
 
         if (Array.isArray(transport)){
 
-            levels = ["info", "error"];
-            
             //info file is first, error file is second
-            if (transport.length == 2){
+            if (transport.length == 2 && levels.length == 2){
                 for (i = 0; i < transport.length; i++){
                     file = verifyTransportFilePath(transport[i], levels[i]);
                     transportOptions.push(file);
                 }
 
             } else {
-                throw new error.customError(error.ERRORS.FIELD_ERROR, `If using an array for the \"Storage\" key, you must have two file paths. The first path is the info log and the second path is the error log. You currently have ${transport.length} file paths.`);
+                throw new error.customError(error.ERRORS.FIELD_ERROR, `If using an array for the \"Storage\" key, you must have two file paths. The first path is the info log and the second path is the error log. You must also have two levels. You currently have ${transport.length} file path(s) and ${levels.length} level(s).`);
             }
 
         } else {
             switch(transport){
                 case "console":
-                    transportOptions.push( new transports.Console() );
+                    //transportOptions.push( new transports.Console() );
+                    transportOptions.push(setUpConsoleTransports(levels));
                     break;
-
                 default:
-                    transportOptions.push(verifyTransportFilePath(transport, ""));
-                    break;
+                    if (levels.length == 1) {
+                        transportOptions.push(verifyTransportFilePath(transport, levels[0]));
+                        break;
+                    } else {
+                        transportOptions.push(verifyTransportFilePath(transport, ""));
+                        break;
+                    }
+                   
             } 
         }
 
@@ -101,7 +124,6 @@ function getFormat(options){
             return format;
 
         } else {
-            log.createLog("error", "Field Error");
             throw new error.customError(error.ERRORS.FIELD_ERROR, `You can only have at most two format options: \"timestamps\" and \"levels\". You currently have ${formats.length} levels.`);
         }
 
@@ -134,7 +156,6 @@ function parseLevels(options){
                     levels["error"] = 0;
 
                 } else {
-                    log.createLog("error", "Field Error");
                     throw new error.customError(error.ERRORS.FIELD_ERROR, `Invalid field option \"${level_options[i]}\". Only \"info\" and \"error\" are currently supported.`);
                 }
             }
@@ -158,7 +179,6 @@ function verifyTransportFilePath(filepath, level){
     try {
 
         if (!filepath.endsWith(".log") && !filepath.endsWith(".txt")){
-            log.createLog("error", "Field Error");
             throw new error.customError(error.ERRORS.FIELD_ERROR, `Your log file \"${filepath}\" must end in .log or .txt.`);
         }
 
@@ -176,6 +196,7 @@ function verifyTransportFilePath(filepath, level){
                 transport = new transports.File({ filename: filepath });
                 break;
             default:
+
                  // filter function for specific levels (from ChatGPT)
                 const levelFilter = (level) => format((info) => {
                     return info.level === level ? info : false;
@@ -189,9 +210,31 @@ function verifyTransportFilePath(filepath, level){
         
         
     } catch (e) {
-        log.createLog("error", "Write Error");
         throw new error.customError(error.ERRORS.WRITE_ERROR, `There was an issue creating the path: \"${filepath}\". Make sure your path is valid. Error: ${e}`);
     }
+
+}
+
+function setUpConsoleTransports(levels){
+    
+    let transport;
+
+    if (levels.length == 2) {
+        transport = new transports.Console();
+    } else {
+
+        // filter function for specific levels (from ChatGPT)
+        const levelFilter = (level) => format((info) => {
+            return info.level === level ? info : false;
+        })();
+
+        transport = new transports.Console({
+            format: combine(levelFilter(levels[0]))
+        })
+    }
+
+    return transport;
+
 
 }
 

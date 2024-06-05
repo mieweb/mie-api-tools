@@ -1,4 +1,3 @@
-const error = require('../errors');
 const myLedger = require('../Logging/createLedger');
 const { logging } = require('../Variables/variables');
 require('winston-log-and-exit');
@@ -6,7 +5,6 @@ require('winston-log-and-exit');
 function createLog(level, message){
     
     if (logging.value == "true"){
-
         switch(level){
             case "info":
                 myLedger.ledger.log_and_exit("info", message, 0);
