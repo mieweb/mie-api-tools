@@ -1,6 +1,7 @@
 const error = require('../errors');
 const makeQuery = require('./tools');
 const log = require('../Logging/createLog');
+const { log_data } = require('../Variables/variables');
 
 require('dotenv').config();
 
@@ -14,7 +15,12 @@ async function retrieveRecord(endpoint, fields, options){
                     reject( new error.customError(error.ERRORS.INVALID_ENDPOINT, `The endpoint \"${endpoint}\" does not exist`));
                 }
             }
-            log.createLog("info", `Record Retrieval Response:\nData: ${JSON.stringify(result)}`);
+            if (log_data.value == 'true'){
+                log.createLog("info", `Record Retrieval Response:\nData: ${JSON.stringify(result)}`);
+            } else {
+                log.createLog("info", `Record Retrieval Response`);
+            }
+
             resolve(result);
         })
     
@@ -23,4 +29,3 @@ async function retrieveRecord(endpoint, fields, options){
 }
 
 module.exports = { retrieveRecord }
-

@@ -5,5 +5,6 @@ const password = { value: ''};
 const logging = { value: ''};
 const GeminiKey = { value: ''};
 const cookie = { value: ''};
+const log_data = { value: 'true'};
 
-module.exports = { URL, practice, username, password, logging, GeminiKey, cookie };
+module.exports = { URL, practice, username, password, logging, GeminiKey, cookie, log_data };

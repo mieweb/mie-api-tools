@@ -2,7 +2,7 @@ const error = require('../errors');
 const log = require('../Logging/createLog');
 const getPatientData = require('./patient_summary');
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai");
-const { GeminiKey } = require('../Variables/variables');
+const { GeminiKey, log_data } = require('../Variables/variables');
 
 const safetySettings = [
     {
@@ -50,7 +50,11 @@ async function summarizePatient(patID, options = {adjective: "concise", model: "
     
             Promise.resolve(formGeminiRequest("summary", query_options))
             .then((summary) => {
-                log.createLog("info", `Patient Summary AI Response:\nSuccessfully retrieved response for Patient ID: ${patID}\nGemini Model: \"${Gmodel}\"\nAdjective: \"${adjective}\"\nSummary: \"${summary}\"`);
+                if (log_data.value == 'true'){
+                    log.createLog("info", `Patient Summary AI Response:\nSuccessfully retrieved response for Patient ID: ${patID}\nGemini Model: \"${Gmodel}\"\nAdjective: \"${adjective}\"\nSummary: \"${summary}\"`);
+                } else {
+                    log.createLog("info", `Patient Summary AI Response:\nSuccessfully retrieved response for Patient ID: ${patID}\nGemini Model: \"${Gmodel}\"\nAdjective: \"${adjective}\"`);
+                }
                 resolve(summary);
             })
             .catch ((err) => {
@@ -87,7 +91,12 @@ async function askAboutPatient(patID, query, options = { model: "gemini-1.5-flas
         
             Promise.resolve(formGeminiRequest("query", query_options))
             .then((answer) => {
-                log.createLog("info", `Patient Query AI Response:\nSuccessfully retrieved response for Patient ID: ${patID}\nGemini Model: \"${Gmodel}\"\nResponse: \"${answer}\"`);
+                if (log_data.value == 'true'){
+                    log.createLog("info", `Patient Query AI Response:\nSuccessfully retrieved response for Patient ID: ${patID}\nGemini Model: \"${Gmodel}\"\nResponse: \"${answer}\"`);
+                } else {
+                    log.createLog("info", `Patient Query AI Response:\nSuccessfully retrieved response for Patient ID: ${patID}\nGemini Model: \"${Gmodel}\"`);
+                }
+
                 resolve(answer);
             })
             .catch ((err) => {
