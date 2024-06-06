@@ -26,6 +26,7 @@
   "main": "index.js",
   "module": "./src/esm/bundle.esm.js",
   "scripts": {
+    "test": "echo \"No test specified\"",
     "build": "rollup -c"
   },
   "publishConfig": {
