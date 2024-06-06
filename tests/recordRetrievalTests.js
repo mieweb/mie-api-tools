@@ -1,8 +1,8 @@
 const assert = require('assert'); 
-const queryData = require('../Retrieve Records/getData');
-const { URL, practice, username, password, logging, GeminiKey } = require('../Variables/variables');
-const { retrievePatientRecords, retrieveCustomRecords } = require('../Retrieve Records/patient_summary');
-const { summarizePatient, askAboutPatient} = require('../Retrieve Records/AIGemini');
+const queryData = require('../src/Retrieve Records/getData');
+const { URL, practice, username, password, logging, GeminiKey } = require('../src/Variables/variables');
+const { retrievePatientRecords, retrieveCustomRecords } = require('../src/Retrieve Records/patient_summary');
+const { summarizePatient, askAboutPatient} = require('../src/Retrieve Records/AIGemini');
 
 
 URL.value = "https://mieinternprac.webchartnow.com/webchart.cgi";
