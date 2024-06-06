@@ -16,14 +16,14 @@ A package designed to interact with [MIE's](https://www.mieweb.com/) (Medical In
 *  [Creating Records](#Creating-Records)
 *  [Patient Documents](#Patient-Documents)
     * [Downloading Documents](#Downloading-Documents)
-        * [Download Single Document](#Downloading-Single-Document)
-        * [Download Multiple Documents](#Downloading-Multiple-Documents)
+        * [Download Single Document](#Download-Single-Document)
+        * [Download Multiple Documents](#Download-Multiple-Documents)
     * [Uploading Documents](#Uploading-Documents)
         * [Upload Single Document](#Upload-Single-Document)
         * [Upload Multiple Documents](#Upload-Multiple-Documents)
 * [AI Capabilities](#AI-Capabilities)
-    * [Summarize Patient's Medical History](#Summarize-a-Patient's-Medical-History)
-    * [Ask Questions About Patient's Medical History](#Ask-Questions-About-a-Patient's-Medical-History)
+    * [Summarize Patient's Medical History](#Summarize-a-Patients-Medical-History)
+    * [Ask Questions About Patient's Medical History](#Ask-Questions-About-a-Patients-Medical-History)
 * [Ledger](#ledger)
     * [Ledger Examples](#ledger-examples)
 * [Motivation](#Motivation)
@@ -41,10 +41,10 @@ A package designed to interact with [MIE's](https://www.mieweb.com/) (Medical In
 `$ pnpm add mie-api-tools`
 
 Once the package is installed, you can import it into your project using `require`  
-`const { retrieveRecord } = require('mie-api-tools');`
-> **NOTE:** Default import is highly reccomended. If you want to use a named impoty only, you must install the appropriate global variables that will be used to make your request
+`const mie = require('mie-api-tools');`
+> **NOTE:** Default import is highly reccomended. If you want to use a named import only, you must install the appropriate global variables that will be used to make your request.
 >
-> **Example**: Importing the retrieveRecord method requires ```const { retrieveRecord, URL, practice, username, password} = require('mie-api-tools');``` Simply importing `const { retrieveRecord } = require('mie-api-tools');` will not work.
+> **Example**: Importing the retrieveRecord method requires ```const { retrieveRecord, URL, practice, username, password } = require('mie-api-tools');```. Simply importing `const { retrieveRecord } = require('mie-api-tools');` will not work.
 
 As of version 1.0.0, Mie API Tools **does not support ES Modules**. However, ES support is being implemented in a later version.
 
@@ -53,7 +53,7 @@ As of version 1.0.0, Mie API Tools **does not support ES Modules**. However, ES 
 * Retrieve Records
     * Search through queries
     * Filter by fields
-    * Get all data related to a patient.
+    * Get all data related to a patient
 * Update Records
     * Update any record with JSON data
 * Create Recrods
@@ -71,26 +71,26 @@ As of version 1.0.0, Mie API Tools **does not support ES Modules**. However, ES 
     * Summarize patients' entire medical history in any style
     * Ask questions about patients' medical history
 * Ledger
-    * Can be turned on or off.
-    * Log all requests, responses, and errors.
-    * Can customize your ledger and the location logs are written to.
+    * Can be turned on or off
+    * Log all requests, responses, and errors
+    * Can customize your ledger and the location logs are written to
 
 ## Setting Variables
 
-Before you are able to make requests and interact witht the API, you need to set a few variables to help MIE API Tools create a valid session ID.
+Before you are able to make requests and interact with the API, you need to set a few variables to help MIE API Tools create a valid session ID.
 
 The following table shows all the global variables that can be set:
 
 | Name          | Required?        |    Type  |  Description    |
 | ------------- | ---------------|------------ | --------------- |
-| `URL`      |  Required      | String | The URL of your WebChart. It should look something similar to `"https://practice.webchartnow.com/webchart.cgi"` |
+| `URL`      |  Required      | String | The URL of your WebChart. It should look something similar to `"https://practice.webchartnow.com/webchart.cgi"`. |
 | `practice` | Required | String | The name of your practice. |
 | `username`      |  Required     | String | The username used to create a session ID. **NOTE:** Make sure the user you are choosing has valid permissions. |
 | `password`      |  Required     | String | The password of the user used to create a session ID. |
 | `ledger`      |  Optional     | String | A toggle to switch the ledger on or off. For more information, see [Ledger](#Ledger). |
 | `GeminiKey`      |  Optional     | String | Your Gemini API Key to use MIE API Tools' AI features. For more information, see [AI Capabilities](#AI-Capabilities). |
 
-Setting the variables should be done write after the import statement. An example is shown below:
+Setting the variables should be done right after the import statement. An example is shown below:
 
 ```javascript
 mie.URL.value = "https://practice.webchartnow.com/webchart.cgi";
@@ -147,30 +147,30 @@ In order to narrow down the records returned, you can specify queries to retriev
 For example, in the `patients` endpoint, if you want to only return records pertaining to a patient with `pat_id: 18`:
 
 ```javascript
-mie.retrieveRecord("patients", [], {pat_id: 18})
+mie.retrieveRecord("patients", [], {pat_id: 18});
 ```
 
 You are also able to chain queries together by placing multiple inside an object. This will narrow down a search even more.
 
 ```javascript
-mie.retrieveRecord("patients", [], {first_name: "Will", sex: 'M'})
+mie.retrieveRecord("patients", [], {first_name: "Will", sex: 'M'});
 ```
 
 >**NOTE:** You can only query by fields that are available for that endpoint specifically. For example, `last_name` exists in the `patients` endpoint, making it a legal field to query by. However, querying by `doc_id` in that same endpoint will throw an error.
 
 ### Filtering by Fields
 
-Sometimes a single records can have dozens of fields. If you are only looking for a certain field or fields, you can specify which ones in the second parameter.
+Sometimes a single record can have dozens of fields. If you are only looking for a certain field or fields, you can specify which one(s) in the second parameter.
 
 For example, in the `documents` endpoint, if you want to return only the `storage_type` of each document:
 
 ```javascript
-mie.retrieveRecord("documents", ["storage_type"], { doc_type: 'WCPHOTO' })
+mie.retrieveRecord("documents", ["storage_type"], { doc_type: 'WCPHOTO' });
 ```
 
-In the same example, if we  only want to return the `storage_type` and `doc_id`:
+In the same example, if you only want to return the `storage_type` and `doc_id`:
 ```javascript
-mie.retrieveRecord("documents", ["storage_type", "doc_id"], { doc_type: 'WCPHOTO' })
+mie.retrieveRecord("documents", ["storage_type", "doc_id"], { doc_type: 'WCPHOTO' });
 ```
 
 Thus, the output would look something similar to this for a single record:
@@ -200,7 +200,7 @@ mie.getAllPatientRecords(5, {length: "concise"})
 })
 .catch((err) => {
     console.error(err);
-});*
+});
 ```
 
 `mie.getAllPatientRecords()` accepts the following parameters:
@@ -208,7 +208,7 @@ mie.getAllPatientRecords(5, {length: "concise"})
 | Name          | Required?      | Type         |  Description    |
 | ------------- | -----------|---------------- | --------------- |
 | `pat_id`       |              Required      | Integer |The patient ID of the patient for whom you want to retrieve their information. |
-| `options (length)`      | Optional| Object, with key being type string |The length, or level of detail, of data that is returned. Length accepts `brief`, `concise`, and `detailed`. Each one returns more Records. Why the difference? Some endpoints provide very important (and relevant) patient information, while others provide less important and relevant information. The more brief the synopsis, the less lesser-relevant records that are returned. |
+| `options (length)`      | Optional| Object, with key being type string |The length, or level of detail, of data that is returned. Length accepts `brief`, `concise`, and `detailed`. Each one returns more Records. Why the difference? Some endpoints provide very important (and relevant) patient information, while others provide less important and relevant information. The more brief the synopsis, the less lesser-relevant records that are returned. THe **default length** is `concise`.|
 
 **Response Format**: JSON
 
@@ -239,7 +239,7 @@ Updating records requires a JSON object that contains key-value pairs of fields 
 
 **Response Format**: none
 
->**NOTE:** Each endpoint has a specific identifier. For those that deal with patient data, it is most likely `pat_id`. Other endpoints, such as `documents` have `doc_id` as their identifier. A complete list can be found inside the API Docs of your WebChart or in [*src/Variables/endpointLists.js*](https://github.com/maxklema/mie-api-tools/blob/main/src/Variables/endpointLists.js) of this repository.
+>**NOTE:** Each endpoint has a specific identifier. For those that deal with patient data, it is most likely `pat_id`. Other endpoints, such as `documents`, have `doc_id` as their identifier. A complete list can be found inside the API Docs of your WebChart or in [*src/Variables/endpointLists.js*](https://github.com/maxklema/mie-api-tools/blob/main/src/Variables/endpointLists.js) of this repository.
 
 >**NOTE:** By Default, not all endpoints support UPDATE functionality. Double check that the API endpoint you want to use supports UPDATE functionality.
 
@@ -328,13 +328,13 @@ mie.downloadDocs({storage_type: 8}, "downloads", 0);
 Similar to [Retrieving Records by Querying](#Search-by-Querying), `mie.downloadDocs()` also takes an object with queries. You can only filter by the fields that belong to the `documents` endpoint. You can find a full list at *Control Panel &rarr; API &rarr; Documents*.
 
 You are also able to chain queries together to download more specific documents. For example:\
-`mie.downloadDocs({ storage_type: 8, doc_type: 'WCPHOTO' }, "downloads", 0);`
-
->**NOTE:** `mie.downloadDocs()` uses [multi-threading](https://www.geeksforgeeks.org/mutlithreading-in-javascript/) to download documents much faster. By default, the number of worker threads is set to the number of cores of your CPU (normally 8). If you want to disable this or change the value, you have to set it manually in [documentDownload.js](https://github.com/maxklema/mie-api-tools/blob/main/src/Documents/documentDownload.js) via the `MAX_WORKERS` constant.
+```javascript
+mie.downloadDocs({ storage_type: 8, doc_type: 'WCPHOTO' }, "downloads", 0);
+```
 
 ### Uploading Documents
 
-MIE API Tools allows you to upload a single document at a time as well as multiple documents at once by crafting a custom CSV file (see more below). With the uploading capabilities, you are able to specify fields such as `subject`, `service_location`, and `service_date` with each upload.
+MIE API Tools allows you to upload a single document at a time as well as multiple documents at once by crafting a custom CSV file (see more below). With uploading capabilities, you are able to specify fields such as `subject`, `service_location`, and `service_date` with each upload.
 
 #### Upload Single Document
 
@@ -342,7 +342,7 @@ There may be times when you only want to upload a single document for a single p
 
 The basic structure of the request is as follows:
 
-```javaascript
+```javascript
 mie.uploadDoc("patient_photo/29.jpg", 8, "WCPHOTO", 14, {subject: "This is a new photo upload", service_location: "OFFICE", service_date: "2008-08-10 00:00:00"});
 ```
 
@@ -354,11 +354,11 @@ mie.uploadDoc("patient_photo/29.jpg", 8, "WCPHOTO", 14, {subject: "This is a new
 | `storageType`      | Required | Integer | The storage type of the file that you are uploading. For a full list, see [Custom Documents](https://docs.enterprisehealth.com/functions/system-administration/data-migration/custom-documents-csv-api/#process).|
 | `docType`      | Required | String | The type of document that is being uploaded. For example, `WCPHOTO` for a patient photo.|
 | `patID`      | Required | Integer |The patient ID of the patient for whom you want to upload a document. |
-| `options`      | Optional | Object | There are  three additional options that can be added when uploading a document: `subject`, `service_location`, and `service_date`. The `subject` is a description of the upload, `service_location` is the location from which the document originated, and `service_date` is the date when a medical service or procedure was provided to a patient, or when a particular service or claim was processed. **NOTE:** you can include any of three fields, all of them, or none of them.|
+| `options`      | Optional | Object | There are  three additional options that can be added when uploading a document: `subject`, `service_location`, and `service_date`. The `subject` is a description of the upload, `service_location` is the location from which the document originated, and `service_date` is the date when a medical service or procedure was provided to a patient, or when a particular service or claim was processed. **NOTE:** you can include any of the three fields, all of them, or none of them.|
 
 **Response Format:** String with a success / failure status in the format: `File "downloads/29.jpg" was uploaded: Document (0000965) Uploaded Successfully!`.
 
->**NOTE:** While MIE API Tools supports *most* storage types, some are not supported (yet). However, there are work-arounds. For example, `storage_type: 13 (.HTM)` files do not upload correctly to WebChart. However, using `storage_type: 4 (.HTML)` instead will successfully upload the document. The same is true with `storage_type: 7 (.tif)` files.  Instead, change the file to `storage_type: 3 (.png)` or `storage_type: 17 (.pdf)` which will work. If therw are any other storage types that raise similar issues, please feel free to create an issue or discussion thread (or even a pull request).
+>**NOTE:** While MIE API Tools supports *most* storage types, some are not supported (yet). However, there are work-arounds. For example, `storage_type: 13 (.HTM)` files do not upload correctly to WebChart. However, using `storage_type: 4 (.HTML)` instead will successfully upload the document. The same is true with `storage_type: 7 (.tif)` files.  Instead, change the file to `storage_type: 3 (.png)` or `storage_type: 17 (.pdf)` which will work. If there are any other storage types that raise similar issues, please feel free to create an issue or discussion thread (or even a pull request).
 
 #### Upload Multiple Documents
 
@@ -376,7 +376,7 @@ MIE API Tools allows you to upload multiple documents at a time using a CSV file
 
 Here is an example of a CSV file containing 6 documents to be uploaded:
 
-```csv
+```CSV
 document_name,storage_type,doc_type,pat_id,subject,service_location,service_date
 testing_files/29.jpg,8,WCPHOTO,18,"","",""
 testing_files/Hart_109.txt,14,US,18,"this is my test lab!","OFFICE","2008-08-10 00:00:00"
@@ -404,7 +404,7 @@ mie.uploadDocs("filesToUpload.csv");
 
 **Response Format:** For each file you attempt to upload, a string is returned with a success / failure status in the format: `File "downloads/29.jpg" was uploaded: Document (0000965) Uploaded Successfully!`
 
->**NOTE:** While MIE API Tools supports *most* storage types, some are not supported (yet). However, there are work-arounds. For example, `storage_type: 13 (.HTM)` files do not upload correctly to WebChart. However, using `storage_type: 4 (.HTML)` instead will successfully upload the document. The same is true with `storage_type: 7 (.tif)` files.  Instead, change the file to `storage_type: 3 (.png)` or `storage_type: 17 (.pdf)` which will work. If therw are any other storage types that raise similar issues, please feel free to create an issue or discussion thread (or even a pull request).
+>**NOTE:** While MIE API Tools supports *most* storage types, some are not supported (yet). However, there are work-arounds. For example, `storage_type: 13 (.HTM)` files do not upload correctly to WebChart. However, using `storage_type: 4 (.HTML)` instead will successfully upload the document. The same is true with `storage_type: 7 (.tif)` files.  Instead, change the file to `storage_type: 3 (.png)` or `storage_type: 17 (.pdf)` which will work. If there are any other storage types that raise similar issues, please feel free to create an issue or discussion thread (or even a pull request).
 
 ## AI Capabilities
 
@@ -412,7 +412,7 @@ If you simply want a overview of a patient's medical history and the ability to 
 
 In order to use the AI capabilities, you must set `mie.GeminiKey.value` to that of your Gemini API Key.
 
-### Summarize a Patient's Medical History
+### Summarize a Patients Medical History
 
 One way MIE API Tools utilizes AI is by providing summaries of patient medical history. This can be achieved by using the `mie.summarizePatient()` method.
 
@@ -461,7 +461,7 @@ async function myFunc() {
 myFunc();
 ```
 
-### Ask Questions About a Patient's Medical History
+### Ask Questions About a Patients Medical History
 
 Another way MIE API Tools utilizes AI is by allowing you to ask questions about a patient's medical history. This can be achieved by using the `mie.queryPatient()` method.
 
@@ -481,7 +481,7 @@ mie.queryPatient(18, "Does this patient have insurance?")
 | Name          | Required?        |    Type  |  Description    |
 | ------------- | ---------------|------------ | --------------- |
 | `patID`      |  Required      | Integer | The ID of the patient for whom you want to summarize. |
-| `query` (question)      | `""` indicates no question.| String | The query, or question, you would like to ask about the patient. |
+| `query` (question)      | `""` indicates no question | String | The query, or question, you would like to ask about the patient. |
 | `model`      |  Optional     | Object Key (String)| The Gemini AI Model you want to use to provide you a summary. The default model is `gemini-1.5-flash`. |
 
 An example of using all three parameters in a request looks like this:
@@ -533,7 +533,7 @@ mie.createLedger(options);
 | Name          | Required?        |    Type  |  Description    |
 | ------------- | ---------------|------------ | --------------- |
 | `levels`      |  Optional      | String Array | The type of messages that you would like logged. `info` messages log all requests and responses made. `error` messages log all errors that were thrown. The **default levels** include both `info` and `error` messages. |
-| `format`  | Optional | String Array | Additional options you would like your ledger to include. `timestamps` will log the timestamp next to each message. `levels` will log the level (type of message) next to each message. This is useful if you are logging both `info` and `error` messages in the same file or in the console. The **default formats** include enable both `timestamps` and `levels`. |
+| `format`  | Optional | String Array | Additional options you would like your ledger to include. `timestamps` will log the timestamp next to each message. `levels` will log the level (type of message) next to each message. This is useful if you are logging both `info` and `error` messages in the same file or in the console. The **default formats** enable both `timestamps` and `levels`. |
 | `storage`     |  Optional     | String or String Array| The location that the ledger will write to. If you want     `info` and `error` messages to be written to two different files, set this option to an string array containing two different filepaths. **NOTE:** the first filepath will be where `info` messages are logged while the second filepath will be where `error` messages are logged. An error will be thrown if you specify two file paths but only have one level set. If you only want messages to be logged to one file, you must set `storage` to a String containing that filepath, not a String array. Lastly, if you want your messages to be logged to the console, set `storage_type` to `"console"`. The **default storage** location is `"Logs/apiActivity.log"`. |
 | `log_returned_data`     |  Optional     | String| A boolean, basically, that allows you to toggle loose-lipped data responses on or off. Setting this to `true` will log the data that is returned by each response. Setting this to `false` will not log the data is returned by each response. The **default value** is set to `true`. **However, serious consideration should go into dictating this option as sensitive medical information will be logged.**|
 
@@ -576,7 +576,7 @@ Errors/errors.log:
 2024-06-06T14:26:04.936Z [error]: Bad Parameter: No patient exists with ID "Sdasds".
 ```
 
-**Example Two:** All format options toggled off and `info` and `error` messages written to a single file.
+**Example Two:** All format options are toggled off and `info` and `error` messages are written to a single file.
 
 ```javascript
 const options = {
