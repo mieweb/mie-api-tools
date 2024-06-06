@@ -3,3 +3,9 @@ src/node_modules
 .DS_Store.DS_Store
 /Logs
 filesToUpload.csv
+src/package.json
+src/package-lock.json
+src/cjs
+node_modules
+rollup.config.js
+
