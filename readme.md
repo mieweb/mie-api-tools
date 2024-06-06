@@ -40,8 +40,11 @@ A package designed to interact with [MIE's](https://www.mieweb.com/) (Medical In
 **PNPM**  
 `$ pnpm add mie-api-tools`
 
-Once the package is installed, you can import it into your project using `require`  
-`const mie = require('mie-api-tools');`
+Once the package is installed, you can import it into your project using 
+```javascript
+const mie = require('mie-api-tools');
+```
+
 > **NOTE:** Default import is highly reccomended. If you want to use a named import only, you must install the appropriate global variables that will be used to make your request.
 >
 > **Example**: Importing the retrieveRecord method requires ```const { retrieveRecord, URL, practice, username, password } = require('mie-api-tools');```. Simply importing `const { retrieveRecord } = require('mie-api-tools');` will not work.
