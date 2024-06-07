@@ -18,6 +18,8 @@ const success = [];
 const errors = [];
 const document_queue = []
 const emitter = new EventEmitter();
+const MAX_WORKERS = os.cpus().length;
+let active_workers = 0;
 //const processedFiles = new Set(); 
 
 // success file CSV writer
@@ -35,7 +37,11 @@ const errorCSVWriter = createObjectCsvWriter({
 });
 
 emitter.on('queueUpdate', () => {
-    console.log(document_queue.length);
+    
+    if (document_queue.length != 0 && active_workers < MAX_WORKERS) {
+        worker();
+    }
+
 });
 
 //function for uploading a single document
@@ -89,18 +95,16 @@ async function uploadDoc(row){
 
 async function worker(){
 
-    
-    while (true) {
+    console.log(document_queue);
+    const row = document_queue.shift();
+    const worker = new Worker(path.join(__dirname, "/Parallelism/uploadDoc.js"), { workerData: row })
 
-        // setTimeout( () => 
-        //     console.log(document_queue)
-        // , 1000);
-        console.log(document_queue.length);
-        //const row = document_queue.shift();
-
-        //await uploadDoc(row);
-    }
-
+    worker.on('message', (message) => {
+        if (message.success == true){
+            console.log(queue.length);
+        }
+        active_workers--;
+    });
 
 }
 
@@ -126,28 +130,6 @@ async function uploadDocs(csv_file){
     // // if (cookie.value == ""){
     // //     await session.getCookie();
     // // }
-
-    // passed by reference, continuously updated
-    // const worker_threads = [];
-
-    // for (let i = 0; i < 1; i++){
-    //     worker_threads.push(worker(document_queue, i));
-    // }
-
-
-
-    // const csvStream = fs.createReadStream(csv_file)
-    //     .pipe(csv())
-    //     .on('data', (row) => {
-    //         document_queue.push(row);
-    //     })
-    //     .on('end', () => {
-    //         console.log("CSV processing complete");
-    //     })
-
-    // console.log(document_queue);
-
-    //await Promise.all(worker_threads);
 
     await readStream();
 
