@@ -3,116 +3,155 @@ const fs = require('fs');
 const error = require('../errors');
 const axios = require('axios');
 const { URL, practice, cookie } = require('../Variables/variables');
-const { parse } = require('csv-parse/sync');
+const csv = require('csv-parser');
+const { createObjectCsvWriter } = require('csv-writer');
 const log = require('../Logging/createLog');
 const FormData = require('form-data');
 const { Worker, workerData } = require('worker_threads');
 const path = require('path');
 const os = require("os");
+const { pipeline } = require('stream/promises');
+const stream = require('stream');
+const EventEmitter = require('events');
 
+const success = [];
+const errors = [];
+const document_queue = []
+const emitter = new EventEmitter();
+//const processedFiles = new Set(); 
 
-//function for importing a single document
-async function uploadSingleDocument(filename, storageType, docType, patID, options = {subject: "", service_location: "", service_date: ""} ){
+// success file CSV writer
+const successCSVWriter = createObjectCsvWriter({
+    path: "",
+    header: [{ id: 'file', title: 'File' }, {id: 'patID', title: 'PatID'}, { id: 'status', title: 'Status'}],
+    append: true
+});
 
-    if (cookie.value == ""){
-        await session.getCookie();
+// error file CSV writer
+const errorCSVWriter = createObjectCsvWriter({
+    path: "",
+    header: [{ id: 'file', title: 'File' }, {id: 'patID', title: 'PatID'}, { id: 'status', title: 'Status'}],
+    append: true
+});
+
+emitter.on('queueUpdate', () => {
+    console.log(document_queue.length);
+});
+
+//function for uploading a single document
+async function uploadDoc(row){
+
+    // let subject = "subject" in options ? options["subject"] : "";
+    // let service_date = "service_date" in options ? options["service_date"] : "";
+    // let service_location = "service_location" in options ? options["service_location"] : "";
+
+    // const mrnumber = `MR-${patID}`;
+
+    // const form = new FormData();
+    // form.append('f', 'chart');
+    // form.append('s', 'upload');
+    // form.append('storage_type', storageType);
+    // form.append('service_date', service_date);
+    // form.append('service_location', service_location);
+    // form.append('doc_type', docType);
+    // form.append('subject', subject);
+    // form.append('file', fs.createReadStream(filename));
+    // form.append('pat_id', patID);
+    // form.append('mrnumber', mrnumber);
+    // form.append('interface', 'WC_DATA_IMPORT');
+
+    // log.createLog("info", `Document Upload Request:\nDocument Type: \"${docType}\"\nStorage Type: \"${storageType}\"\n Patient ID: ${patID}`);
+    // axios.post(URL.value, form, {
+    //     headers: {
+    //         'Content-Type': 'multi-part/form-data', 
+    //         'cookie': `wc_miehr_${practice.value}_session_id=${cookie.value}`
+    //     }
+    // })
+    // .then(response => {
+    //     const result = response.headers['x-status'];
+    //     if (result != 'success'){
+    //         console.log(`File \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
+    //         log.createLog("info", `Document Upload Response:\nFilename \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
+    //     } else {
+    //         console.log(`File \"${filename}\" was uploaded: ${response.headers['x-status_desc']}`);
+    //         log.createLog("info", `Document Upload Response:\nFilename \"${filename}\" was successfully uploaded: ${response.headers['x-status_desc']}`);
+    //     } 
+    // })
+    // .catch(err => {
+    //     log.createLog("error", "Bad Request");
+    //     throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request trying to upload \"${filename}\". Error: ` + err);
+    // });
+    
+
+    //console.log(row);
+
+}
+
+async function worker(){
+
+    
+    while (true) {
+
+        // setTimeout( () => 
+        //     console.log(document_queue)
+        // , 1000);
+        console.log(document_queue.length);
+        //const row = document_queue.shift();
+
+        //await uploadDoc(row);
     }
 
-    let subject = "subject" in options ? options["subject"] : "";
-    let service_date = "service_date" in options ? options["service_date"] : "";
-    let service_location = "service_location" in options ? options["service_location"] : "";
 
-    const mrnumber = `MR-${patID}`;
+}
 
-    const form = new FormData();
-    form.append('f', 'chart');
-    form.append('s', 'upload');
-    form.append('storage_type', storageType);
-    form.append('service_date', service_date);
-    form.append('service_location', service_location);
-    form.append('doc_type', docType);
-    form.append('subject', subject);
-    form.append('file', fs.createReadStream(filename));
-    form.append('pat_id', patID);
-    form.append('mrnumber', mrnumber);
-    form.append('interface', 'WC_DATA_IMPORT');
-
-    log.createLog("info", `Document Upload Request:\nDocument Type: \"${docType}\"\nStorage Type: \"${storageType}\"\n Patient ID: ${patID}`);
-    axios.post(URL.value, form, {
-        headers: {
-            'Content-Type': 'multi-part/form-data', 
-            'cookie': `wc_miehr_${practice.value}_session_id=${cookie.value}`
-        }
-    })
-    .then(response => {
-        const result = response.headers['x-status'];
-        if (result != 'success'){
-            console.log(`File \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
-            log.createLog("info", `Document Upload Response:\nFilename \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
-        } else {
-            console.log(`File \"${filename}\" was uploaded: ${response.headers['x-status_desc']}`);
-            log.createLog("info", `Document Upload Response:\nFilename \"${filename}\" was successfully uploaded: ${response.headers['x-status_desc']}`);
-        } 
-    })
-    .catch(err => {
-        log.createLog("error", "Bad Request");
-        throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request trying to upload \"${filename}\". Error: ` + err);
-    });
+async function readStream() {
+    await pipeline(
+        fs.createReadStream("files_many.csv"),
+        csv(),
+        new stream.Writable({
+            objectMode: true,
+            write(row, encoding, callback) {
+                document_queue.push(row);
+                emitter.emit('queueUpdate');
+                callback();
+            }
+        })
+    );
 
 }
 
 //import multiple documents through a CSV file
 async function uploadDocs(csv_file){
 
-    if (cookie.value == ""){
-        await session.getCookie();
-    }
+    // // if (cookie.value == ""){
+    // //     await session.getCookie();
+    // // }
 
-    csv_data_parsed = parseCSV(csv_file);
-    const length = csv_data_parsed.length;
-    let docsToUpload = [];
+    // passed by reference, continuously updated
+    // const worker_threads = [];
 
-    //iterate over each document to upload
-    for (i = 0; i < length; i++){
-        docsToUpload.push([csv_data_parsed[i]['document_name'], csv_data_parsed[i]['storage_type'], csv_data_parsed[i]['doc_type'], csv_data_parsed[i]['pat_id'], csv_data_parsed[i]['subject'], csv_data_parsed[i]['service_location'], csv_data_parsed[i]['service_date']]);
-    }
+    // for (let i = 0; i < 1; i++){
+    //     worker_threads.push(worker(document_queue, i));
+    // }
 
-    const MAX_WORKERS = os.cpus().length;
-    let activeWorkers = 0;
-    let index = 0;
 
-    function createWorker() {
 
-        if (index >= docsToUpload.length) {
-            return;
-        }
-    
-        const file_information = docsToUpload[index];
-        
-        index++;
-        activeWorkers++;
+    // const csvStream = fs.createReadStream(csv_file)
+    //     .pipe(csv())
+    //     .on('data', (row) => {
+    //         document_queue.push(row);
+    //     })
+    //     .on('end', () => {
+    //         console.log("CSV processing complete");
+    //     })
 
-        const worker = new Worker(path.join(__dirname, "/Parallelism/uploadDoc.js"), { workerData: {files: file_information, URL: URL.value, Cookie: cookie.value, Practice: practice.value} });
+    // console.log(document_queue);
 
-        worker.on('message', (message) => {
-            if (message.success == true){ 
-                console.log(`File \"${message.filename}\" was uploaded: ${message.result}`);
-                log.createLog("info", `Document Upload Response:\nFilename \"${message.filename}\" was successfully uploaded: ${message.result}`);
-            } else if (message.success == false) {
-                console.log(`File \"${message.filename}\" failed to upload: ${message.result}`);
-                log.createLog("info", `Document Upload Response:\nFilename \"${message.filename}\" failed to upload: ${message.result}`);
-            } else {
-                log.createLog("error", "Bad Request");
-                throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request trying to upload \"${message.filename}\". Error: ` + message.result);
-            }
-            activeWorkers--
-            createWorker();
-        });
-    }
+    //await Promise.all(worker_threads);
 
-    for (i = 0; i < MAX_WORKERS; i++){
-        createWorker();
-    }
+    await readStream();
+
+    console.log("REST OF QUEUE: " + document_queue.length);
 
 }
 
@@ -145,4 +184,4 @@ function parseCSV(csv_file) {
 
 }
 
-module.exports = { uploadSingleDocument, uploadDocs };
+module.exports = { uploadDocs };
