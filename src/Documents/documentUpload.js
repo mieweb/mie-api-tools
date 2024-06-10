@@ -2,7 +2,7 @@ const session = require('../Session Management/getCookie');
 const fs = require('fs');
 const { URL, practice, cookie } = require('../Variables/variables');
 const csv = require('csv-parser');
-const { createObjectCsvWriter } = require('csv-writer');
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const log = require('../Logging/createLog');
 const { Worker } = require('worker_threads');
 const path = require('path');
@@ -15,26 +15,41 @@ const errors = [];
 const MAX_WORKERS = os.cpus().length;
 const processedFiles = new Set(); 
 
+if (!fs.existsSync("./Upload Status")){
+    fs.mkdirSync("./Upload Status", { recursive: true} )
+}
+
+if (!fs.existsSync("./Upload Status/errors.csv")){
+    fs.writeFile("./Upload Status/errors.csv", "FILE,PAT_ID,STATUS\n", 'utf8', () => {});
+}
+
 // success file CSV writer
-const successCSVWriter = createObjectCsvWriter({
-    path: "./success.csv",
-    header: [{ id: 'file', title: 'File' }, {id: 'patID', title: 'PatID'}, { id: 'status', title: 'Status'}],
+const successCSVWriter = createCsvWriter({
+    path: './Upload Status/success.csv',
+    header: [
+        {id: 'file', title: 'FILE'},
+        {id: 'patID', title: 'PAT_ID'},
+        {id: 'status', title: 'STATUS'}
+    ],
     append: true
 });
 
-// error file CSV writer
-const errorCSVWriter = createObjectCsvWriter({
-    path: "./errors.csv",
-    header: [{ id: 'file', title: 'File' }, {id: 'patID', title: 'PatID'}, { id: 'status', title: 'Status'}],
+// Error file CSV Writer
+const errorCSVWriter = createCsvWriter({
+    path: './Upload Status/errors.csv',
+    header: [
+        {id: 'file', title: 'FILE'},
+        {id: 'patID', title: 'PAT_ID'},
+        {id: 'status', title: 'STATUS'}
+    ],
     append: true
 });
-
 
 //gather already-uploaded files
 async function loadFiles(){
-    if (fs.existsSync("./success.csv")){
+    if (fs.existsSync("./Upload Status/success.csv")){
         return new Promise((resolve, reject) => {
-            fs.createReadStream("./success.csv")
+            fs.createReadStream("./Upload Status/success.csv")
                 .pipe(csv())
                 .on('data', (row) => {
                     if (row){
@@ -44,6 +59,8 @@ async function loadFiles(){
                 .on('end', resolve)
                 .on('error', reject);
         })
+    } else {
+        fs.writeFile("./Upload Status/success.csv", "FILE,PAT_ID,STATUS\n", 'utf8', () => {});
     }
 }
 
@@ -118,16 +135,13 @@ async function uploadDocs(csv_file){
     console.log("All jobs have completed");
 
     //write results to appropriate CSV file
-    if (!success.length == 0){
-        await successCSVWriter.writeRecords(success);
+    if (success.length != 0){
+        successCSVWriter.writeRecords(success);
     }
-    if (!errors.length == 0){
-        await errorCSVWriter.writeRecords(errors);
+    if (errors.length != 0){
+        errorCSVWriter.writeRecords(errors);  
     }
-
-    console.log(processedFiles);
 
 }
-
 
 module.exports = { uploadDocs };
