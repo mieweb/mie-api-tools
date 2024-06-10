@@ -1,13 +1,10 @@
 const session = require('../Session Management/getCookie');
 const fs = require('fs');
-const error = require('../errors');
-const axios = require('axios');
 const { URL, practice, cookie } = require('../Variables/variables');
 const csv = require('csv-parser');
 const { createObjectCsvWriter } = require('csv-writer');
 const log = require('../Logging/createLog');
-const FormData = require('form-data');
-const { Worker, workerData } = require('worker_threads');
+const { Worker } = require('worker_threads');
 const path = require('path');
 const os = require("os");
 const { pipeline } = require('stream/promises');
@@ -15,7 +12,7 @@ const stream = require('stream');
 
 const success = [];
 const errors = [];
-const MAX_WORKERS = 8;
+const MAX_WORKERS = os.cpus().length;
 //const processedFiles = new Set(); 
 
 
@@ -54,39 +51,47 @@ async function uploadDocs(csv_file){
         })
     );
 
-    const workerPromises = [];
+    let workerPromises = [];
 
     for (i = 0; i < MAX_WORKERS; i++){
 
         const addWorker = new Promise((resolve, reject) => {
 
-            const row = docQueue.shift();
-
-            const worker = new Worker(path.join(__dirname, "/Parallelism/uploadDoc.js"), { workerData: {row: row, URL: URL.value, Cookie: cookie.value, Practice: practice.value}})
-        
-            worker.on('message', (message) => {
-                if (message.success == true){ 
-                    console.log(`File \"${message.filename}\" was uploaded: ${message.result}`);
-                    log.createLog("info", `Document Upload Response:\nFilename \"${message.filename}\" was successfully uploaded: ${message.result}`);
-                    resolve();
-                } else if (message.success == false) {
-                    console.log(`File \"${message.filename}\" failed to upload: ${message.result}`)
-                    log.createLog("info", `Document Upload Response:\nFilename \"${message.filename}\" failed to upload: ${message.result}`);
-                    resolve();
-                } else {
-                    log.createLog("error", "Bad Request");
-                    reject(new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request trying to upload \"${message.filename}\". Error: ` + message.result));
+            function newWorker(){
+                const row = docQueue.shift();
+                if (!row){
+                   resolve();
+                   return;
                 }
-            });
+                const worker = new Worker(path.join(__dirname, "/Parallelism/uploadDoc.js"), { workerData: {row: row, URL: URL.value, Cookie: cookie.value, Practice: practice.value}})
+    
+                worker.on('message', (message) => {
+                    if (message.success == true){ 
+                        console.log(`File \"${message.filename}\" was uploaded: ${message.result}`);
+                        log.createLog("info", `Document Upload Response:\nFilename \"${message.filename}\" was successfully uploaded: ${message.result}`);
+                        newWorker();
+                    } else if (message.success == false) {
+                        console.log(`File \"${message.filename}\" failed to upload: ${message.result}`)
+                        log.createLog("info", `Document Upload Response:\nFilename \"${message.filename}\" failed to upload: ${message.result}`);
+                        newWorker();
+                    } else {
+                        console.log(`There was a bad request trying to upload \"${message.filename}\". Error: ` + message.result);
+                        log.createLog("error", "Bad Request");
+                        newWorker();
+                    }
+                });
+            }
+
+            newWorker();
         
         })
 
         workerPromises.push(addWorker);
+
     }
 
     await Promise.all(workerPromises)
-    console.log("all workers have completed");
-
+    console.log("All jobs have completed");
 }
 
 
