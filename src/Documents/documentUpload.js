@@ -12,15 +12,12 @@ const path = require('path');
 const os = require("os");
 const { pipeline } = require('stream/promises');
 const stream = require('stream');
-const EventEmitter = require('events');
 
 const success = [];
 const errors = [];
-const document_queue = []
-const emitter = new EventEmitter();
-const MAX_WORKERS = os.cpus().length;
-let active_workers = 0;
+const MAX_WORKERS = 8;
 //const processedFiles = new Set(); 
+
 
 // success file CSV writer
 const successCSVWriter = createObjectCsvWriter({
@@ -36,134 +33,61 @@ const errorCSVWriter = createObjectCsvWriter({
     append: true
 });
 
-emitter.on('queueUpdate', () => {
+//import multiple documents through a CSV file
+async function uploadDocs(csv_file){
     
-    if (document_queue.length != 0 && active_workers < MAX_WORKERS) {
-        worker();
+    if (cookie.value == ""){
+        await session.getCookie();
     }
 
-});
+    const docQueue = [];
 
-//function for uploading a single document
-async function uploadDoc(row){
-
-    // let subject = "subject" in options ? options["subject"] : "";
-    // let service_date = "service_date" in options ? options["service_date"] : "";
-    // let service_location = "service_location" in options ? options["service_location"] : "";
-
-    // const mrnumber = `MR-${patID}`;
-
-    // const form = new FormData();
-    // form.append('f', 'chart');
-    // form.append('s', 'upload');
-    // form.append('storage_type', storageType);
-    // form.append('service_date', service_date);
-    // form.append('service_location', service_location);
-    // form.append('doc_type', docType);
-    // form.append('subject', subject);
-    // form.append('file', fs.createReadStream(filename));
-    // form.append('pat_id', patID);
-    // form.append('mrnumber', mrnumber);
-    // form.append('interface', 'WC_DATA_IMPORT');
-
-    // log.createLog("info", `Document Upload Request:\nDocument Type: \"${docType}\"\nStorage Type: \"${storageType}\"\n Patient ID: ${patID}`);
-    // axios.post(URL.value, form, {
-    //     headers: {
-    //         'Content-Type': 'multi-part/form-data', 
-    //         'cookie': `wc_miehr_${practice.value}_session_id=${cookie.value}`
-    //     }
-    // })
-    // .then(response => {
-    //     const result = response.headers['x-status'];
-    //     if (result != 'success'){
-    //         console.log(`File \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
-    //         log.createLog("info", `Document Upload Response:\nFilename \"${filename}\" failed to upload: ${response.headers['x-status_desc']}`);
-    //     } else {
-    //         console.log(`File \"${filename}\" was uploaded: ${response.headers['x-status_desc']}`);
-    //         log.createLog("info", `Document Upload Response:\nFilename \"${filename}\" was successfully uploaded: ${response.headers['x-status_desc']}`);
-    //     } 
-    // })
-    // .catch(err => {
-    //     log.createLog("error", "Bad Request");
-    //     throw new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request trying to upload \"${filename}\". Error: ` + err);
-    // });
-    
-
-    //console.log(row);
-
-}
-
-async function worker(){
-
-    console.log(document_queue);
-    const row = document_queue.shift();
-    const worker = new Worker(path.join(__dirname, "/Parallelism/uploadDoc.js"), { workerData: row })
-
-    worker.on('message', (message) => {
-        if (message.success == true){
-            console.log(queue.length);
-        }
-        active_workers--;
-    });
-
-}
-
-async function readStream() {
     await pipeline(
-        fs.createReadStream("files_many.csv"),
+        fs.createReadStream(csv_file),
         csv(),
         new stream.Writable({
             objectMode: true,
             write(row, encoding, callback) {
-                document_queue.push(row);
-                emitter.emit('queueUpdate');
+                docQueue.push(row);
                 callback();
             }
         })
     );
 
-}
+    const workerPromises = [];
 
-//import multiple documents through a CSV file
-async function uploadDocs(csv_file){
+    for (i = 0; i < MAX_WORKERS; i++){
 
-    // // if (cookie.value == ""){
-    // //     await session.getCookie();
-    // // }
+        const addWorker = new Promise((resolve, reject) => {
 
-    await readStream();
+            const row = docQueue.shift();
 
-    console.log("REST OF QUEUE: " + document_queue.length);
+            const worker = new Worker(path.join(__dirname, "/Parallelism/uploadDoc.js"), { workerData: {row: row, URL: URL.value, Cookie: cookie.value, Practice: practice.value}})
+        
+            worker.on('message', (message) => {
+                if (message.success == true){ 
+                    console.log(`File \"${message.filename}\" was uploaded: ${message.result}`);
+                    log.createLog("info", `Document Upload Response:\nFilename \"${message.filename}\" was successfully uploaded: ${message.result}`);
+                    resolve();
+                } else if (message.success == false) {
+                    console.log(`File \"${message.filename}\" failed to upload: ${message.result}`)
+                    log.createLog("info", `Document Upload Response:\nFilename \"${message.filename}\" failed to upload: ${message.result}`);
+                    resolve();
+                } else {
+                    log.createLog("error", "Bad Request");
+                    reject(new error.customError(error.ERRORS.BAD_REQUEST, `There was a bad request trying to upload \"${message.filename}\". Error: ` + message.result));
+                }
+            });
+        
+        })
 
-}
-
-//parses CSV data and returns an array
-function parseCSV(csv_file) {
-
-    validHeaders = ['document_name', 'pat_id', 'doc_type', 'storage_type', 'subject', 'service_location', 'service_date'];
-
-    //Sync operation
-    const csv_raw_data = fs.readFileSync(csv_file, 'utf8');
-    let results;
-    try {
-        results = parse(csv_raw_data, {
-            columns: true,
-            skip_empty_lines: true
-        });
-    } catch (err) {
-        log.createLog("error", "Invalid CSV Headers");
-        throw new error.customError(error.ERRORS.INVALID_CSV_HEADERS, `The headers in \"${csv_file}\" are not valid. They must be \'document_name\', \'pat_id\', \'doc_type\', and \'storage_type\'.`);
-    }
-    
-    const headers = Object.keys(results[0]);
-    const headersValid = validHeaders.every(header => headers.includes(header));
-    if (!headersValid){ //invalid CSV headers
-        log.createLog("error", "Invalid CSV Headers");
-        throw new error.customError(error.ERRORS.INVALID_CSV_HEADERS, `The headers in \"${csv_file}\" are not valid. They must be \'document_name\', \'pat_id\', \'doc_type\', and \'storage_type\'.`);
+        workerPromises.push(addWorker);
     }
 
-    return results;
+    await Promise.all(workerPromises)
+    console.log("all workers have completed");
 
 }
+
 
 module.exports = { uploadDocs };
