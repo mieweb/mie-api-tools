@@ -16,11 +16,7 @@ A package designed to interact with [MIE's](https://www.mieweb.com/) (Medical In
 *  [Creating Records](#Creating-Records)
 *  [Patient Documents](#Patient-Documents)
     * [Downloading Documents](#Downloading-Documents)
-        * [Download Single Document](#Download-Single-Document)
-        * [Download Multiple Documents](#Download-Multiple-Documents)
     * [Uploading Documents](#Uploading-Documents)
-        * [Upload Single Document](#Upload-Single-Document)
-        * [Upload Multiple Documents](#Upload-Multiple-Documents)
 * [AI Capabilities](#AI-Capabilities)
     * [Summarize Patient's Medical History](#Summarize-a-Patients-Medical-History)
     * [Ask Questions About Patient's Medical History](#Ask-Questions-About-a-Patients-Medical-History)
@@ -40,16 +36,19 @@ A package designed to interact with [MIE's](https://www.mieweb.com/) (Medical In
 **PNPM**  
 `$ pnpm add mie-api-tools`
 
-Once the package is installed, you can import it into your project using 
+Once the package is installed, you can import it into your project using `require` or `import`.
 ```javascript
 const mie = require('mie-api-tools');
+```
+
+```javascript
+import mie from 'mie-api-tools';
 ```
 
 > **NOTE:** Default import is highly reccomended. If you want to use a named import only, you must install the appropriate global variables that will be used to make your request.
 >
 > **Example**: Importing the retrieveRecord method requires ```const { retrieveRecord, URL, practice, username, password } = require('mie-api-tools');```. Simply importing `const { retrieveRecord } = require('mie-api-tools');` will not work.
 
-As of version 1.0.0, Mie API Tools **does not support ES Modules**. However, ES support is being implemented in a later version.
 
 ## Methods and Features
 
@@ -285,31 +284,7 @@ MIE API Tools allows you to download a collection of documents and upload a coll
 
 ### Downloading Documents
 
-MIE API Tools allows you to download a single document at a time as well as multiple documents at once through querying. Download functionalities also allow for an optimization option, which allows for faster downloading.
-
-#### Download Single Document
-
-There may be times when you only want to download a single document from a single patient. This can be achieved by using the `mie.downloadDoc()` function.
-
-The Basic Structure of the Request is as follows:
-
-```javascript
-mie.downloadDoc(29, "./downloads/photos", 1);
-```
-
-`mie.downloadDoc()` accepts the following parameters.
-
-| Name          | Required?     | Type          |  Description    |
-| ------------- | ----------------|----------- | --------------- |
-| `documentID`      |  Required      | Integer | The ID of the document you want to download. |
-| `directory`      | Required | String | The directory you want to place your downloaded file in.|
-| `optimization`      | Optional | Integer | When left blank, optimization is turned off. When set to `1`, optimization is turned on. When optimization is on, filenames follow the format: `doc_id.extension`. When optimization is off, filenames follow the format: `(pat_last_name)_(doc_id).extension`. The difference is significant in that the patient's last name does not need to be queried before the document is downloaded, saving time.|
-
-**Response Format**: String with a success / failure status  in the format: `File "downloads/Doe_827.jpg" was downloaded`.
-
-#### Download Multiple Documents
-
-Often times, you will want to download multiple documents at once. This can be achieved by using the `mie.downloadDocs()` function.
+MIE API Tools allows you to download as many documents as you want at once through querying. Download functionalities also allow for an optimization option, which allows for faster downloading. This can be achieved by using the `mie.downloadDocs()` function.
 
 The basic structure of the request is as follows:
 
@@ -326,7 +301,7 @@ mie.downloadDocs({storage_type: 8}, "downloads", 0);
 | `directory`      | Required | String | The directory you want to place your downloaded file in.|
 | `optimization`      | Optional | Integer | When left blank, optimization is turned off. When set to `1`, optimization is turned on. When optimization is on, filenames follow the format: `doc_id.extension`. When optimization is off, filenames follow the format: `(pat_last_name)_(doc_id).extension`. The difference is significant in that the patient's last name does not need to be queried before the document is downloaded, saving time.|
 
-**Response Format**: String with a success / failure status  in the format: `File "downloads/Doe_827.jpg" was downloaded`.
+**Response Format**: For each file you attempt to download, the status of the upload will either be placed in `/Download Status/success.csv` or in `/Download Status/errors.csv`. Each file contains the headers `FILE`, `DOC_ID`, and `STATUS`. Results are appended to the previous. **If you delete statuses in either file, do not delete the headers, or the program may crash!**
 
 Similar to [Retrieving Records by Querying](#Search-by-Querying), `mie.downloadDocs()` also takes an object with queries. You can only filter by the fields that belong to the `documents` endpoint. You can find a full list at *Control Panel &rarr; API &rarr; Documents*.
 
@@ -337,35 +312,9 @@ mie.downloadDocs({ storage_type: 8, doc_type: 'WCPHOTO' }, "downloads", 0);
 
 ### Uploading Documents
 
-MIE API Tools allows you to upload a single document at a time as well as multiple documents at once by crafting a custom CSV file (see more below). With uploading capabilities, you are able to specify fields such as `subject`, `service_location`, and `service_date` with each upload.
+MIE API Tools allows you to upload any amount of documents at once by crafting a custom CSV file (see more below). With uploading capabilities, you are able to specify fields such as `subject`, `service_location`, and `service_date` with each upload.
 
-#### Upload Single Document
-
-There may be times when you only want to upload a single document for a single patient. This can be achieved by using the `mie.uploadDoc()` function.
-
-The basic structure of the request is as follows:
-
-```javascript
-mie.uploadDoc("patient_photo/29.jpg", 8, "WCPHOTO", 14, {subject: "This is a new photo upload", service_location: "OFFICE", service_date: "2008-08-10 00:00:00"});
-```
-
-`mie.uploadDoc()` accepts the following parameters:
-
-| Name          | Required?      | Type         |  Description    |
-| ------------- | ---------------|------------ | --------------- |
-| `filename`      |  Required      | String | The file path of the file that you want to upload to a patient's portal. |
-| `storageType`      | Required | Integer | The storage type of the file that you are uploading. For a full list, see [Custom Documents](https://docs.enterprisehealth.com/functions/system-administration/data-migration/custom-documents-csv-api/#process).|
-| `docType`      | Required | String | The type of document that is being uploaded. For example, `WCPHOTO` for a patient photo.|
-| `patID`      | Required | Integer |The patient ID of the patient for whom you want to upload a document. |
-| `options`      | Optional | Object | There are  three additional options that can be added when uploading a document: `subject`, `service_location`, and `service_date`. The `subject` is a description of the upload, `service_location` is the location from which the document originated, and `service_date` is the date when a medical service or procedure was provided to a patient, or when a particular service or claim was processed. **NOTE:** you can include any of the three fields, all of them, or none of them.|
-
-**Response Format:** String with a success / failure status in the format: `File "downloads/29.jpg" was uploaded: Document (0000965) Uploaded Successfully!`.
-
->**NOTE:** While MIE API Tools supports *most* storage types, some are not supported (yet). However, there are work-arounds. For example, `storage_type: 13 (.HTM)` files do not upload correctly to WebChart. However, using `storage_type: 4 (.HTML)` instead will successfully upload the document. The same is true with `storage_type: 7 (.tif)` files.  Instead, change the file to `storage_type: 3 (.png)` or `storage_type: 17 (.pdf)` which will work. If there are any other storage types that raise similar issues, please feel free to create an issue or discussion thread (or even a pull request).
-
-#### Upload Multiple Documents
-
-MIE API Tools allows you to upload multiple documents at a time using a CSV file. The CSV file contains seven headers:
+MIE API Tools allows you to upload documents using a CSV file. The CSV file contains seven headers:
 
 | Name          | Required?        |    Type  |  Description    |
 | ------------- | ---------------|------------ | --------------- |
@@ -405,7 +354,7 @@ mie.uploadDocs("filesToUpload.csv");
 | ------------- | ---------------|------------ | --------------- |
 | `csv_filename`      |  Required      | String | Your CSV file path containing your documents to upload. |
 
-**Response Format:** For each file you attempt to upload, a string is returned with a success / failure status in the format: `File "downloads/29.jpg" was uploaded: Document (0000965) Uploaded Successfully!`
+**Response Format:** For each file you attempt to upload, the status of the upload will either be placed in `/Upload Status/success.csv` or in `/Upload Status/errors.csv`. Each file contains the headers `FILE`, `PAT_ID`, and `STATUS`. Results are appended to the previous. **If you delete statuses in either file, do not delete the headers, or the program may crash!**
 
 >**NOTE:** While MIE API Tools supports *most* storage types, some are not supported (yet). However, there are work-arounds. For example, `storage_type: 13 (.HTM)` files do not upload correctly to WebChart. However, using `storage_type: 4 (.HTML)` instead will successfully upload the document. The same is true with `storage_type: 7 (.tif)` files.  Instead, change the file to `storage_type: 3 (.png)` or `storage_type: 17 (.pdf)` which will work. If there are any other storage types that raise similar issues, please feel free to create an issue or discussion thread (or even a pull request).
 
