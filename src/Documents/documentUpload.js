@@ -8,6 +8,7 @@ const { Worker } = require('worker_threads');
 const path = require('path');
 const os = require("os");
 const { pipeline } = require('stream/promises');
+const error = require('../errors');
 const stream = require('stream');
 const MAX_WORKERS = os.cpus().length;
 const processedFiles = new Set();
@@ -77,10 +78,16 @@ async function uploadDocs(csv_file){
     let workerPromises = [];
     const success = [];
     const errors = [];
+    const csvParser = csv();
+
+    csvParser.on('error', (err) => {
+        log.createLog("error", "Bad Request");
+        throw new error.customError(error.CSV_PARSING_ERROR,  `There was an error parsing your CSV file. Make sure it is formatted correctly. Error: ${err}`);
+    })
 
     await pipeline(
         fs.createReadStream(csv_file),
-        csv(),
+        csvParser,
         new stream.Writable({
             objectMode: true,
             write(row, encoding, callback) {
