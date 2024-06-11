@@ -57,14 +57,10 @@ async function summarizePatient(patID, options = {adjective: "concise", model: "
                 }
                 resolve(summary);
             })
-            .catch ((err) => {
-                log.createLog("info", `Patient (Summary/Query) AI Response:\nFailed to send a valid request to Gemini with Patient ID: ${options["patID"]}, Model: \"${options["Gmodel"]}\"`);
-                log.createLog("error", "Bad Request");
-                reject(err);
-            })
             
         })
         .catch ((err) => {
+            log.createLog("info", `Patient (Summary/Query) AI Response:\nFailed to send a valid request to Gemini with Patient ID: ${options["patID"]}, Model: \"${options["Gmodel"]}\"`);
             reject(err);
         });
 

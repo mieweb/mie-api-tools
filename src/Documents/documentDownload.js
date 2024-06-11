@@ -72,7 +72,7 @@ async function retrieveDocs(queryString, directory, optimization = 0){
         pat_last_name = last_name_data['0']["last_name"];
     }
 
-    log.createLog("info", `Multi-Document Download Request:\nDocument IDs: ${documentIDArray}`);
+    log.createLog("info", `Multi-Document Download Request:\nQuery: ${JSON.stringify(queryString)}`);
 
     for (i = 0; i < MAX_WORKERS; i++){
 

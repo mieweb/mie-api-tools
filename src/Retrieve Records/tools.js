@@ -32,7 +32,7 @@ async function parseJSON(data, fields){
                             new_JSON[json_index][fields[index]] = patient[fields[index]];
                         } else {
                             log.createLog("error", "Invalid Field");
-                            throw new error.customError(error.ERRORS.INVALID_FIELD, `The field \"${fields[index]}\" does not exist in this table.`); //field does not exist
+                            throw new error.customError(error.ERRORS.INVALID_FIELD, `The field \"${fields[index]}\" does not exist in this table.`);
                         }
                     }
                 }

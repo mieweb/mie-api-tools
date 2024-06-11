@@ -16,7 +16,6 @@ async function updateRecord(endpoint, identifier, json_options){
 
     //parse the identifier
     if (identifierLength != 1){
-        //log.createLog("error", `INVALID IDENTIFIER: You can only have 1 identifier in your request. You currently have ${identifierLength} identifiers.`);
         log.createLog("error", `Invalid Identifier`);
         throw new error.customError(error.ERRORS.INVALID_IDENTIFIER, `You can only have 1 identifier in your request. You currently have ${identifierLength} identifiers.`);
     }
@@ -56,11 +55,6 @@ async function updateRecord(endpoint, identifier, json_options){
             throw new error.customError(error.ERRORS.BAD_REQUEST, `Something went wrong when making a POST request. The response did not return valid JSON.`);
         }    
         })
-        .catch(function (err) {
-        log.createLog("error", "Bad Request");
-        throw new error.customError(error.ERRORS.BAD_REQUEST, `Something went wrong when making a POST request: ${err}`);
-        });
-
    
 
 }
