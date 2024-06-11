@@ -1,4 +1,3 @@
-const session = require('../Session Management/getCookie');
 const makeQuery = require('../Retrieve Records/tools');
 const queryData = require('../Retrieve Records/getData.js');
 const fs = require('fs');
@@ -8,11 +7,9 @@ const log = require('../Logging/createLog');
 const { URL, practice, cookie } = require('../Variables/variables');
 const { Worker } = require('worker_threads');
 const os = require("os");
-const { error } = require('console');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
-const success = [];
-const errors = [];
 const processedFiles = new Set(); 
+const MAX_WORKERS = os.cpus().length;
 
 // success file CSV writer
 const successCSVWriter = createCsvWriter({
@@ -36,15 +33,6 @@ const errorCSVWriter = createCsvWriter({
     append: true
 });
 
-//create new directory to store job statuses
-if (!fs.existsSync("./Download Status")){
-    fs.mkdirSync("./Download Status", { recursive: true} )
-}
-
-if (!fs.existsSync("./Download Status/errors.csv")){
-    fs.writeFile("./Download Status/errors.csv", "FILE,DOC_ID,STATUS\n", 'utf8', () => {});
-}
-
 async function checkDownloadedFiles(){
     if (fs.existsSync("./Download Status/success.csv")){
         return new Promise((resolve, reject) => {
@@ -63,17 +51,22 @@ async function checkDownloadedFiles(){
 //exports multiple documents to specified directory
 async function retrieveDocs(queryString, directory, optimization = 0){
 
-    let data = await makeQuery("documents", [], queryString);        
+    //create new directory to store job statuses
+    if (!fs.existsSync("./Download Status")){
+        fs.mkdirSync("./Download Status", { recursive: true} )
+    }
+
+    if (!fs.existsSync("./Download Status/errors.csv")){
+        fs.writeFile("./Download Status/errors.csv", "FILE,DOC_ID,STATUS\n", 'utf8', () => {});
+    }
+
+    console.log("Gathering Documents...");
+    let data = await makeQuery("documents", [], queryString);     
     let length = data["db"].length;
     let documentIDArray = [];
     let pat_last_name = "";
-    const MAX_WORKERS = 1//os.cpus().length;
     let workerPromises = [];
     await checkDownloadedFiles();
-
-    if (cookie.value == ""){
-        await session.getCookie();
-    }
 
     //iterate over all the documents returned
     for (i = 0; i < length; i++){
@@ -100,34 +93,34 @@ async function retrieveDocs(queryString, directory, optimization = 0){
                     return;
                 }
                 if (processedFiles.has(download_doc)) {
-                    console.log("here?" + download_doc);
                     processedFiles.add(download_doc);
                     doWork();
-                }
+                } else {
+                    data = await makeQuery("documents", [], {doc_id: download_doc});
+                    let storage_type = data['db'][0]['storage_type'];
+                    pat_last_name = "";
 
-                data = await makeQuery("documents", [], {doc_id: download_doc});
-                pat_last_name = "";
+                    if (optimization != 1 && pat_last_name == ""){
+                        pat_id = data['db']['0']["pat_id"];
+                        let last_name_data = await queryData.retrieveRecord("patients", ["last_name"], { pat_id: pat_id});
+                        pat_last_name = last_name_data['0']["last_name"];
+                    }
 
-                if (optimization != 1 && pat_last_name == ""){
-                    pat_id = data['db']['0']["pat_id"];
-                    let last_name_data = await queryData.retrieveRecord("patients", ["last_name"], { pat_id: pat_id});
-                    pat_last_name = last_name_data['0']["last_name"];
-                }
+                    const worker = new Worker(path.join(__dirname, "/Parallelism/downloadDoc.js"), { workerData: {docID: download_doc, directory: directory, optimization: optimization, last_name: pat_last_name, URL: URL.value, Practice: practice.value, Cookie: cookie.value, Data: data, storageType: storage_type}})
 
-                const worker = new Worker(path.join(__dirname, "/Parallelism/downloadDoc.js"), { workerData: {docID: download_doc, directory: directory, optimization: optimization, last_name: pat_last_name, URL: URL.value, Practice: practice.value, Cookie: cookie.value, Data: data}})
-
-                worker.on(('message'), (message) => {
+                    worker.on(('message'), async (message) => {
                     if (message.success){
                         console.log(`File \"${message.filename}\" was downloaded.`);
                         log.createLog("info", `Document Download Response:\nDocument ${message.doc_id} Successfully saved to \"${message.filename}\"`);
-                        success.push({ file: message.filename, docID: download_doc, status: 'SUCCESS'});
+                        successCSVWriter.writeRecords([{ file: message.filename, docID: download_doc, status: 'SUCCESS'}]);
                         doWork();
                     } else {
                         log.createLog("error", "Bad Request");
-                        success.push({ file: message.filename, docID: download_doc, status: `There was a bad request while trying to retrieve document ${message.doc_id}`});
+                        errorCSVWriter.writeRecords([{ file: message.filename, docID: download_doc, status: `There was a bad request while trying to retrieve document ${message.doc_id}`}]);
                         doWork();
                     }
                 });
+                }
             }
             doWork();
         });
@@ -136,14 +129,6 @@ async function retrieveDocs(queryString, directory, optimization = 0){
 
     await Promise.all(workerPromises);
     console.log("Download Document Job Completed.");
-
-    //write results to appropriate CSV file
-    if (success.length != 0){
-        successCSVWriter.writeRecords(success);
-    }
-    if (errors.length != 0){
-        errorCSVWriter.writeRecords(errors);  
-    }
 }
 
 module.exports = { retrieveDocs };

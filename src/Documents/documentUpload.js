@@ -9,18 +9,8 @@ const path = require('path');
 const os = require("os");
 const { pipeline } = require('stream/promises');
 const stream = require('stream');
-const success = [];
-const errors = [];
 const MAX_WORKERS = os.cpus().length;
 const processedFiles = new Set(); 
-
-if (!fs.existsSync("./Upload Status")){
-    fs.mkdirSync("./Upload Status", { recursive: true} )
-}
-
-if (!fs.existsSync("./Upload Status/errors.csv")){
-    fs.writeFile("./Upload Status/errors.csv", "FILE,PAT_ID,STATUS\n", 'utf8', () => {});
-}
 
 // success file CSV writer
 const successCSVWriter = createCsvWriter({
@@ -74,9 +64,20 @@ async function uploadDocs(csv_file){
         await session.getCookie();
     }
 
+    if (!fs.existsSync("./Upload Status")){
+        fs.mkdirSync("./Upload Status", { recursive: true} )
+    }
+    
+    if (!fs.existsSync("./Upload Status/errors.csv")){
+        console.log("Why am I here?");
+        fs.writeFile("./Upload Status/errors.csv", "FILE,PAT_ID,STATUS\n", 'utf8', () => {});
+    }
+
     await loadFiles();
     const docQueue = [];
     let workerPromises = [];
+    const success = [];
+    const errors = [];
 
     await pipeline(
         fs.createReadStream(csv_file),
