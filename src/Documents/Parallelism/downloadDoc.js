@@ -15,7 +15,6 @@ async function retrieveSingleDoc(documentID, directory, optimization = 0, pat_la
         let pat_id = null;
         let storage_type = "";
         let filename = "";
-        data = data["db"]["0"];
         
         try {
             storage_type = storageMap[storageType];

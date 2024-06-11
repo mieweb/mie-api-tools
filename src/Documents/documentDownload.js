@@ -70,7 +70,7 @@ async function retrieveDocs(queryString, directory, optimization = 0){
 
     //iterate over all the documents returned
     for (i = 0; i < length; i++){
-        documentIDArray.push(data["db"][i]["doc_id"]);     
+        documentIDArray.push(data["db"][i]);     
     }
 
     //check if query is for pat_id
@@ -87,36 +87,36 @@ async function retrieveDocs(queryString, directory, optimization = 0){
 
             async function doWork() {
 
-                const download_doc = documentIDArray.shift();
-                if (!download_doc) {
+                data = documentIDArray.shift();
+                if (!data) {
                     resolve();
                     return;
                 }
-                if (processedFiles.has(download_doc)) {
-                    processedFiles.add(download_doc);
+                if (processedFiles.has(data['doc_id'])) {
+                    processedFiles.add(data['doc_id']);
                     doWork();
                 } else {
-                    data = await makeQuery("documents", [], {doc_id: download_doc});
-                    let storage_type = data['db'][0]['storage_type'];
+                    let storage_type = data['storage_type'];
+                    let doc_id = data['doc_id'];
                     pat_last_name = "";
 
                     if (optimization != 1 && pat_last_name == ""){
-                        pat_id = data['db']['0']["pat_id"];
+                        pat_id = data["pat_id"];
                         let last_name_data = await queryData.retrieveRecord("patients", ["last_name"], { pat_id: pat_id});
                         pat_last_name = last_name_data['0']["last_name"];
                     }
 
-                    const worker = new Worker(path.join(__dirname, "/Parallelism/downloadDoc.js"), { workerData: {docID: download_doc, directory: directory, optimization: optimization, last_name: pat_last_name, URL: URL.value, Practice: practice.value, Cookie: cookie.value, Data: data, storageType: storage_type}})
+                    const worker = new Worker(path.join(__dirname, "/Parallelism/downloadDoc.js"), { workerData: {docID: doc_id, directory: directory, optimization: optimization, last_name: pat_last_name, URL: URL.value, Practice: practice.value, Cookie: cookie.value, Data: data, storageType: storage_type}})
 
                     worker.on(('message'), async (message) => {
                     if (message.success){
                         console.log(`File \"${message.filename}\" was downloaded.`);
                         log.createLog("info", `Document Download Response:\nDocument ${message.doc_id} Successfully saved to \"${message.filename}\"`);
-                        successCSVWriter.writeRecords([{ file: message.filename, docID: download_doc, status: 'SUCCESS'}]);
+                        successCSVWriter.writeRecords([{ file: message.filename, docID: message.doc_id, status: 'SUCCESS'}]);
                         doWork();
                     } else {
                         log.createLog("error", "Bad Request");
-                        errorCSVWriter.writeRecords([{ file: message.filename, docID: download_doc, status: `There was a bad request while trying to retrieve document ${message.doc_id}`}]);
+                        errorCSVWriter.writeRecords([{ file: message.filename, docID: message.doc_id, status: `There was a bad request while trying to retrieve document ${message.doc_id}`}]);
                         doWork();
                     }
                 });
