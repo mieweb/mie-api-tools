@@ -103,7 +103,6 @@ async function retrieveDocs(queryString, directory, optimization = 0){
 
                     worker.on(('message'), async (message) => {
                     if (message.success){
-                        console.log(`File \"${message.filename}\" was downloaded.`);
                         log.createLog("info", `Document Download Response:\nDocument ${message.doc_id} Successfully saved to \"${message.filename}\"`);
                         successCSVWriter.writeRecords([{ file: message.filename, docID: message.doc_id, status: 'SUCCESS'}]);
                         doWork();
