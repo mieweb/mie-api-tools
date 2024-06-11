@@ -5,50 +5,23 @@ const error = require('../../errors');
 const axios = require('axios');
 const log = require('../../Logging/createLog');
 const { workerData, parentPort } = require('worker_threads');
-
-const storageMap = {
-    '0': 'txt',
-    '1': 'txt', 
-    '2': 'rtf',
-    '3': 'png',
-    '4': 'html',
-    '5': 'html',
-    '6': 'doc',
-    '7': 'tif',
-    '8': 'jpg',
-    '9': 'bin',
-    '10': 'dcm',
-    '11': 'htm',
-    '12': 'htm',
-    '13': 'htm',
-    '14': 'txt',
-    '15': 'htm',
-    '16': 'htm',
-    '17': 'pdf',
-    '18': 'xls',
-    '19': 'cda',
-    '20': 'avi',
-    '21': 'ccr',
-    '22': 'eml',
-    '23': 'htm',
-    '24': 'htm',
-    '25': 'bmp',
-    '26': 'x12',
-    '27': 'xml'
-}
-
+const { storageMap } = require('../../Variables/endpointLists.js');
 
 //Multi-threaded version of downloadDoc
-async function retrieveSingleDoc(documentID, directory, optimization = 0, pat_last_name = "", URL, Practice, Cookie, data){
+async function retrieveSingleDoc(documentID, directory, optimization = 0, pat_last_name = "", URL, Practice, Cookie, data, storageType){
 
     if (Number.isInteger(documentID)){
- 
+        
         let pat_id = null;
         let storage_type = "";
-
-        data = data["db"]["0"];
-        storage_type = getFileExtension(data, documentID);
         let filename = "";
+        
+        try {
+            storage_type = storageMap[storageType];
+        } catch (err) {
+            log.createLog("error", "No File Found");
+            throw new error.customError(error.ERRORS.BAD_REQUEST, `There was no file found with ID ${id}. Error: ${err}`);
+        }
 
         //optimization and avoids re-querying pat_id for some patient 
         if (optimization != 1){
@@ -123,14 +96,4 @@ function downloadDocument(Cookie, doc_id, filename, URL, Practice){
 
 }
 
-function getFileExtension(data, id){
-    try {
-        return storageMap[data['storage_type']];
-    } catch (err) {
-        log.createLog("error", "No File Found");
-        throw new error.customError(error.ERRORS.BAD_REQUEST, `There was no file found with ID ${id}. Error: ${err}`);
-    }
-   
-}
-
-retrieveSingleDoc(parseInt(workerData['docID']), workerData['directory'], parseInt(workerData['optimization']), workerData['last_name'], workerData['URL'], workerData['Practice'], workerData['Cookie'], workerData['Data']);
+retrieveSingleDoc(parseInt(workerData['docID']), workerData['directory'], parseInt(workerData['optimization']), workerData['last_name'], workerData['URL'], workerData['Practice'], workerData['Cookie'], workerData['Data'], workerData['storageType']);

@@ -8,20 +8,10 @@ const { Worker } = require('worker_threads');
 const path = require('path');
 const os = require("os");
 const { pipeline } = require('stream/promises');
+const error = require('../errors');
 const stream = require('stream');
-
-const success = [];
-const errors = [];
 const MAX_WORKERS = os.cpus().length;
-const processedFiles = new Set(); 
-
-if (!fs.existsSync("./Upload Status")){
-    fs.mkdirSync("./Upload Status", { recursive: true} )
-}
-
-if (!fs.existsSync("./Upload Status/errors.csv")){
-    fs.writeFile("./Upload Status/errors.csv", "FILE,PAT_ID,STATUS\n", 'utf8', () => {});
-}
+const processedFiles = new Set();
 
 // success file CSV writer
 const successCSVWriter = createCsvWriter({
@@ -75,12 +65,29 @@ async function uploadDocs(csv_file){
         await session.getCookie();
     }
 
+    if (!fs.existsSync("./Upload Status")){
+        fs.mkdirSync("./Upload Status", { recursive: true} )
+    }
+    
+    if (!fs.existsSync("./Upload Status/errors.csv")){
+        fs.writeFile("./Upload Status/errors.csv", "FILE,PAT_ID,STATUS\n", 'utf8', () => {});
+    }
+
     await loadFiles();
     const docQueue = [];
+    let workerPromises = [];
+    const success = [];
+    const errors = [];
+    const csvParser = csv();
+
+    csvParser.on('error', (err) => {
+        log.createLog("error", "Bad Request");
+        throw new error.customError(error.CSV_PARSING_ERROR,  `There was an error parsing your CSV file. Make sure it is formatted correctly. Error: ${err}`);
+    })
 
     await pipeline(
         fs.createReadStream(csv_file),
-        csv(),
+        csvParser,
         new stream.Writable({
             objectMode: true,
             write(row, encoding, callback) {
@@ -92,8 +99,6 @@ async function uploadDocs(csv_file){
             }
         })
     );
-
-    let workerPromises = [];
 
     for (i = 0; i < MAX_WORKERS; i++){
         const addWorker = new Promise((resolve) => {
@@ -109,17 +114,14 @@ async function uploadDocs(csv_file){
     
                 worker.on('message', (message) => {
                     if (message.success == true){ 
-                        console.log(`File \"${message.filename}\" was uploaded: ${message.result}`);
                         log.createLog("info", `Document Upload Response:\nFilename \"${message.filename}\" was successfully uploaded: ${message.result}`);
                         success.push({ file: row.document_name, patID: row.pat_id, status: 'Success'});
                         newWorker();
                     } else if (message.success == false) {
-                        console.log(`File \"${message.filename}\" failed to upload: ${message.result}`)
                         log.createLog("info", `Document Upload Response:\nFilename \"${message.filename}\" failed to upload: ${message.result}`);
                         errors.push({ file: row.document_name, patID: row.pat_id, status: 'Failed Upload'})
                         newWorker();
                     } else {
-                        console.log(`There was a bad request trying to upload \"${message.filename}\". Error: ` + message.result);
                         log.createLog("error", "Bad Request");
                         errors.push({ file: row.document_name, patID: row.pat_id, status: `Failed Upload - Bad Request: ${message.result}`})
                         newWorker();
@@ -132,7 +134,7 @@ async function uploadDocs(csv_file){
     }
 
     await Promise.all(workerPromises)
-    console.log("All jobs have completed");
+    console.log("Upload Document Job Completed.");
 
     //write results to appropriate CSV file
     if (success.length != 0){

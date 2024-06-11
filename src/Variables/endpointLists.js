@@ -309,4 +309,35 @@ const identifiers = {
     "datebegin_esigning": "dep_id"
   };
 
-module.exports = { endpointsOne, endpointsTwo, endpointsThree, identifiers };
+  const storageMap = {
+    '0': 'txt',
+    '1': 'txt', 
+    '2': 'rtf',
+    '3': 'png',
+    '4': 'html',
+    '5': 'html',
+    '6': 'doc',
+    '7': 'tif',
+    '8': 'jpg',
+    '9': 'bin',
+    '10': 'dcm',
+    '11': 'htm',
+    '12': 'htm',
+    '13': 'htm',
+    '14': 'txt',
+    '15': 'htm',
+    '16': 'htm',
+    '17': 'pdf',
+    '18': 'xls',
+    '19': 'cda',
+    '20': 'avi',
+    '21': 'ccr',
+    '22': 'eml',
+    '23': 'htm',
+    '24': 'htm',
+    '25': 'bmp',
+    '26': 'x12',
+    '27': 'xml'
+}
+
+module.exports = { endpointsOne, endpointsTwo, endpointsThree, identifiers, storageMap };

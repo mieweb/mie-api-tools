@@ -1,7 +1,7 @@
 const { retrieveRecord } = require('./src/Retrieve Records/getData');
 const { updateRecord } = require('./src/Update Records/requests_PUT');
-const { retrieveSingleDoc, retrieveDocs } = require('./src/Documents/documentDownload');
-const { uploadSingleDocument, uploadDocs } = require('./src/Documents/documentUpload');
+const { retrieveDocs } = require('./src/Documents/documentDownload');
+const { uploadDocs } = require('./src/Documents/documentUpload');
 const { retrievePatientRecords, retrieveCustomRecords } = require('./src/Retrieve Records/patient_summary');
 const { summarizePatient, askAboutPatient } = require('./src/Retrieve Records/AIGemini');
 const { createLedger } = require('./src/Logging/createLedger');
@@ -11,9 +11,7 @@ const { URL, practice, username, password, logging, GeminiKey } = require('./src
 module.exports = {
     retrieveRecord: retrieveRecord,
     updateRecord: updateRecord,
-    downloadDoc: retrieveSingleDoc,
     downloadDocs: retrieveDocs,
-    uploadDoc: uploadSingleDocument,
     uploadDocs: uploadDocs,
     getAllPatientRecords: retrievePatientRecords,
     summarizePatient: summarizePatient,
