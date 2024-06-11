@@ -60,18 +60,11 @@ async function retrieveDocs(queryString, directory, optimization = 0){
         fs.writeFile("./Download Status/errors.csv", "FILE,DOC_ID,STATUS\n", 'utf8', () => {});
     }
 
-    console.log("Gathering Documents...");
-    let data = await makeQuery("documents", [], queryString);     
-    let length = data["db"].length;
-    let documentIDArray = [];
+    let data = await makeQuery("documents", [], queryString);  
+    let documentIDArray = data['db'];
     let pat_last_name = "";
     let workerPromises = [];
     await checkDownloadedFiles();
-
-    //iterate over all the documents returned
-    for (i = 0; i < length; i++){
-        documentIDArray.push(data["db"][i]);     
-    }
 
     //check if query is for pat_id
     if ((Object.keys(queryString).length == 1 && queryString["pat_id"]) && optimization == 0){

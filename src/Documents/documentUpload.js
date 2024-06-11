@@ -10,7 +10,7 @@ const os = require("os");
 const { pipeline } = require('stream/promises');
 const stream = require('stream');
 const MAX_WORKERS = os.cpus().length;
-const processedFiles = new Set(); 
+const processedFiles = new Set();
 
 // success file CSV writer
 const successCSVWriter = createCsvWriter({
@@ -69,7 +69,6 @@ async function uploadDocs(csv_file){
     }
     
     if (!fs.existsSync("./Upload Status/errors.csv")){
-        console.log("Why am I here?");
         fs.writeFile("./Upload Status/errors.csv", "FILE,PAT_ID,STATUS\n", 'utf8', () => {});
     }
 
