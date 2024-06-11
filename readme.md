@@ -62,13 +62,11 @@ import mie from 'mie-api-tools';
     * Create any record with JSON data
 * Patient Documents
     * Downloading Documents
-        *  Download single documents
         *  Download multiple documents through querying
-            * **Multi-Threading** allows for extremely fast downloading  
+        * **Multi-Threading** allows for extremely fast downloading  
     * Uploading Documents
-        * Upload single documents
         * Upload multiple documents with through a CSV file
-            * **Multi-Threading** allows for extremely fast uploading
+        * **Multi-Threading** allows for extremely fast uploading
 * AI Capabilities (using [Gemini](https://ai.google.dev/))
     * Summarize patients' entire medical history in any style
     * Ask questions about patients' medical history
@@ -142,6 +140,8 @@ async function myFunc() {
 myFunc();
 ```
 
+>Example File: [here](https://github.com/maxklema/mie-api-tools/blob/main/examples/getRecords.js).
+
 ### Search by Querying
 
 In order to narrow down the records returned, you can specify queries to retrieve records by in the third parameter.
@@ -159,6 +159,8 @@ mie.retrieveRecord("patients", [], {first_name: "Will", sex: 'M'});
 ```
 
 >**NOTE:** You can only query by fields that are available for that endpoint specifically. For example, `last_name` exists in the `patients` endpoint, making it a legal field to query by. However, querying by `doc_id` in that same endpoint will throw an error.
+
+>Example File: [here](https://github.com/maxklema/mie-api-tools/blob/main/examples/getRecords.js).
 
 ### Filtering by Fields
 
@@ -187,6 +189,8 @@ doc_id: '659'
 
 >**NOTE:** When filtering by fields, the `pat_id` (if applicable) is always included in the returned data.
 
+>Example File: [here](https://github.com/maxklema/mie-api-tools/blob/main/examples/getRecords.js).
+
 ### Retrieving all Patient Data
 
 There may be cases where you want to gather all the available records for a patient. However, these records can be scattered across dozens of endpoints, making it hard to query, let alone concatenate, all of the data.
@@ -213,6 +217,8 @@ mie.getAllPatientRecords(5, {length: "concise"})
 | `options (length)`      | Optional| Object, with key being type string |The length, or level of detail, of data that is returned. Length accepts `brief`, `concise`, and `detailed`. Each one returns more Records. Why the difference? Some endpoints provide very important (and relevant) patient information, while others provide less important and relevant information. The more brief the synopsis, the less lesser-relevant records that are returned. THe **default length** is `concise`.|
 
 **Response Format**: JSON
+
+>Example File: [here](https://github.com/maxklema/mie-api-tools/blob/main/examples/getAllPatientData.js).
 
 ## Updating Records
 
@@ -245,6 +251,7 @@ Updating records requires a JSON object that contains key-value pairs of fields 
 
 >**NOTE:** By Default, not all endpoints support UPDATE functionality. Double check that the API endpoint you want to use supports UPDATE functionality.
 
+>Example File: [here](https://github.com/maxklema/mie-api-tools/blob/main/examples/updateRecords.js).
 
 ## Creating Records
 
@@ -275,6 +282,8 @@ Updating records requires a JSON object that contains key-value pairs of fields 
 >**NOTE:** When creating a new record in a certain endpoint, it is **not necessary** to include all possible field-value pairs in the JSON object. For example, when creating a new patient, you do not have to fill in every field, such as `first_name`, `ssn`, `address3`, etc. A new patient will still be created with the fields you did include in the JSON object while the remaining fields will be left blank.
 
 >**NOTE:** By Default, not all endpoints support POST functionality. Double check that the API endpoint you want to use supports POST functionality.
+
+>Example File: [here](https://github.com/maxklema/mie-api-tools/blob/main/examples/createRecords.js).
 
 ## Patient Documents
 
@@ -309,6 +318,8 @@ You are also able to chain queries together to download more specific documents.
 ```javascript
 mie.downloadDocs({ storage_type: 8, doc_type: 'WCPHOTO' }, "downloads", 0);
 ```
+
+>Example Folder: [here](https://github.com/maxklema/mie-api-tools/tree/main/examples/Download%20Documents).
 
 ### Uploading Documents
 
@@ -357,6 +368,8 @@ mie.uploadDocs("filesToUpload.csv");
 **Response Format:** For each file you attempt to upload, the status of the upload will either be placed in `/Upload Status/success.csv` or in `/Upload Status/errors.csv`. Each file contains the headers `FILE`, `PAT_ID`, and `STATUS`. Results are appended to the previous. **If you delete statuses in either file, do not delete the headers, or the program may crash!**
 
 >**NOTE:** While MIE API Tools supports *most* storage types, some are not supported (yet). However, there are work-arounds. For example, `storage_type: 13 (.HTM)` files do not upload correctly to WebChart. However, using `storage_type: 4 (.HTML)` instead will successfully upload the document. The same is true with `storage_type: 7 (.tif)` files.  Instead, change the file to `storage_type: 3 (.png)` or `storage_type: 17 (.pdf)` which will work. If there are any other storage types that raise similar issues, please feel free to create an issue or discussion thread (or even a pull request).
+
+>Example Folder: [here](https://github.com/maxklema/mie-api-tools/tree/main/examples/Upload%20Documents).
 
 ## AI Capabilities
 
@@ -412,6 +425,7 @@ async function myFunc() {
 
 myFunc();
 ```
+>Example File: [here](https://github.com/maxklema/mie-api-tools/blob/main/examples/AiTools.js).
 
 ### Ask Questions About a Patients Medical History
 
@@ -459,6 +473,8 @@ async function myFunc() {
 
 myFunc();
 ```
+>Example File: [here](https://github.com/maxklema/mie-api-tools/blob/main/examples/AiTools.js).
+
 ## Ledger
 
 MIE API Tools provides a tool to log all requests, responses, and errors made. The package uses the [Winston](https://github.com/winstonjs/winston) package for logging.
@@ -559,6 +575,8 @@ Failed to collect patient information with Patient ID Sdasds because no patient 
 Bad Parameter: No patient exists with ID "Sdasds".
 ```
 
+>Example Folder: [here](https://github.com/maxklema/mie-api-tools/tree/main/examples/Using%20the%20Ledger).
+e
 ## Motivation
 
 MIE has an API that integrates with WebChart (Electronic Health Record) Systems, allowing developers and healthcare professionals access to critical medical data from the WebChart server. However, to use the MIE API, it has to be run in a browser using HTTPS requests. This makes it hard for developers to use the API and can lead to problems including scalability issues, session management, and security concerns. Since browsers are not optimized for handling large numbers of connections and requests, with the API running in a browser, it may be harder to handle large volumes of requests. Browser sessions are not long, resulting in the API facing challenges in managing longer-term sessions. This can then affect the ability to maintain persistent connections across multiple API requests. Overall, integrating the MIE API with Webchart EHR systems through a browser is not the optimal method to utilize this important API.
@@ -568,4 +586,3 @@ This package allows for the API to be used seamlessly by being capable of perfor
 ## Author
 
 - [@maxklema](https://www.github.com/maxklema)
-
