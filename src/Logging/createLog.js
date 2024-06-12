@@ -11,7 +11,6 @@ function createLog(level, message){
                 myLedger.ledger.log_and_exit("info", message, 0);
                 break;
             case "error":
-                console.log("here?");
                 process.on('uncaughtException', (err) => {
                     console.error(err);
                     myLedger.ledger.log('error', `Uncaught Exception:`, err, function() {

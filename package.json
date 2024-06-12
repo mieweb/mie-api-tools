@@ -24,8 +24,8 @@
     "type": "git",
     "url": "git://github.com/maxklema/mie-api-tools.git"
   },
-  "name": "mie-api-tools",
-  "version": "1.0.3",
+  "name": "@maxklema/mie-api-tools",
+  "version": "1.0.5",
   "description": "A package designed to interact with the MIE (Medical Informatics Engineering) API seamlessly in NPM environments.",
   "main": "index.js",
   "module": "./src/esm/bundle.esm.js",
@@ -40,10 +40,12 @@
   },
   "keywords": [
     "api",
-    "mie"
+    "mie",
+    "package",
+    "nodejs"
   ],
   "author": "Maxwell Klema",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-json": "^6.1.0",

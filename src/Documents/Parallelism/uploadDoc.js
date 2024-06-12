@@ -10,6 +10,23 @@ async function uploadSingleDocument(filename, storageType, docType, patID, subje
 
     const mrnumber = `MR-${patID}`;
 
+    //convert HTM and TIF file types
+    if (filename.endsWith(".htm")){
+        convertFile(4, ".html", 4);
+     } else if (filename.endsWith(".tif") || filename.endsWith(".tiff")) {
+        filename.endsWith(".tif") == true ? convertFile(4, ".png", 3) : convertFile(5, ".png", 3);
+     }
+
+    function convertFile(extension_length, new_extension, new_storage){
+        fs.rename(filename, (filename.slice(0, filename.length - extension_length) + new_extension), (err) => {
+            if (err) {
+                console.error(err);
+            }
+        })
+        storageType = new_storage;
+        filename = filename.slice(0, filename.length - extension_length) + new_extension
+    }
+
     const form = new FormData();
     try {
         form.append('f', 'chart');

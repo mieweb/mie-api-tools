@@ -367,7 +367,7 @@ mie.uploadDocs("filesToUpload.csv");
 
 **Response Format:** For each file you attempt to upload, the status of the upload will either be placed in `/Upload Status/success.csv` or in `/Upload Status/errors.csv`. Each file contains the headers `FILE`, `PAT_ID`, and `STATUS`. Results are appended to the previous. **If you delete statuses in either file, do not delete the headers, or the program may crash!**
 
->**NOTE:** While MIE API Tools supports *most* storage types, some are not supported (yet). However, there are work-arounds. For example, `storage_type: 13 (.HTM)` files do not upload correctly to WebChart. However, using `storage_type: 4 (.HTML)` instead will successfully upload the document. The same is true with `storage_type: 7 (.tif)` files.  Instead, change the file to `storage_type: 3 (.png)` or `storage_type: 17 (.pdf)` which will work. If there are any other storage types that raise similar issues, please feel free to create an issue or discussion thread (or even a pull request).
+>**NOTE:** While MIE API Tools supports *most* storage types, some are not supported (yet). However, there are work-arounds. For example, `storage_type: 13 (.htm)` files do not upload correctly to WebChart. Neither do `.tif` or `.tiff` files. As a result, all `.htm` files are automatically converted to `.html` files. Similarly, all `.tif` and `.tiff` files are automatically converted to `.png` files.
 
 >Example Folder: [here](https://github.com/maxklema/mie-api-tools/tree/main/examples/Upload%20Documents).
 
