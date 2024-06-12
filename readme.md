@@ -28,26 +28,26 @@ A package designed to interact with [MIE's](https://www.mieweb.com/) (Medical In
 ## Installation
 
 **NPM**  
-`$ npm i mie-api-tools`
+`$ npm i @maxklema/mie-api-tools`
 
 **Yarn**  
-`$ yarn add mie-api-tools`
+`$ yarn add @maxklema/mie-api-tools`
 
 **PNPM**  
-`$ pnpm add mie-api-tools`
+`$ pnpm add @maxklema/mie-api-tools`
 
 Once the package is installed, you can import it into your project using `require` or `import`.
 ```javascript
-const mie = require('mie-api-tools');
+const mie = require('@maxklema/mie-api-tools');
 ```
 
 ```javascript
-import mie from 'mie-api-tools';
+import mie from '@maxklema/mie-api-tools';
 ```
 
 > **NOTE:** Default import is highly reccomended. If you want to use a named import only, you must install the appropriate global variables that will be used to make your request.
 >
-> **Example**: Importing the retrieveRecord method requires ```const { retrieveRecord, URL, practice, username, password } = require('mie-api-tools');```. Simply importing `const { retrieveRecord } = require('mie-api-tools');` will not work.
+> **Example**: Importing the retrieveRecord method requires ```const { retrieveRecord, URL, practice, username, password } = require('@maxklema/mie-api-tools');```. Simply importing `const { retrieveRecord } = require('@maxklema/mie-api-tools');` will not work.
 
 
 ## Methods and Features
