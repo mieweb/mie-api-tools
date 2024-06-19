@@ -25,6 +25,10 @@ A package designed to interact with [MIE's](https://www.mieweb.com/) (Medical In
 * [Motivation](#Motivation)
 * [Author](#Author)
 
+## Testing
+
+Testing
+
 ## Installation
 
 **NPM**  
