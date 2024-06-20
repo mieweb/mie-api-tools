@@ -1,6 +1,5 @@
 const myLedger = require('../Logging/createLedger');
 const { logging } = require('../Variables/variables');
-require('winston-log-and-exit');
 
 function createLog(level, message){
     
@@ -8,7 +7,7 @@ function createLog(level, message){
 
         switch(level){
             case "info":
-                myLedger.ledger.log_and_exit("info", message, 0);
+                myLedger.ledger.log("info", message, 0);
                 break;
             case "error":
                 process.on('uncaughtException', (err) => {
