@@ -176,7 +176,7 @@ describe('MIE API TESTS', async () => {
 
     })
 
-    describe.only("Documents", async function() {
+    describe("Documents", async function() {
 
         afterEach(function() {
             
@@ -190,28 +190,28 @@ describe('MIE API TESTS', async () => {
             
         })
 
-        // it("Downloading Documents", async function() {
+        it("Downloading Documents", async function() {
 
-        //     //download Documents
-        //     await mie.downloadDocs({ doc_id: 29 }, "mocha_downloads", 0);
-        //     await mie.downloadDocs({ doc_id: 729 }, "mocha_downloads", 0);
+            //download Documents
+            await mie.downloadDocs({ doc_id: 29 }, "mocha_downloads", 0);
+            await mie.downloadDocs({ doc_id: 729 }, "mocha_downloads", 0);
 
-        //     function delay(ms) {
-        //         return new Promise(resolve => setTimeout(resolve, ms));
-        //     }
+            function delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
 
-        //     await delay(1000);
+            await delay(1000);
 
-        //     //get Success.CSV file
-        //     const fPath = path.join(__dirname, "../Download Status/success.csv");
-        //     const fileContent = fs.readFileSync(fPath, "utf8");
+            //get Success.CSV file
+            const fPath = path.join(__dirname, "../Download Status/success.csv");
+            const fileContent = fs.readFileSync(fPath, "utf8");
 
-        //     //split the content into lines
-        //     const lines = fileContent.split("\n");
-        //     assert.equal(lines[1], "mocha_downloads/Hart_29.jpg,29,SUCCESS");
-        //     assert.equal(lines[2], "mocha_downloads/Hart_729.jpg,729,SUCCESS");
+            //split the content into lines
+            const lines = fileContent.split("\n");
+            assert.equal(lines[1], "mocha_downloads/Hart_29.jpg,29,SUCCESS");
+            assert.equal(lines[2], "mocha_downloads/Hart_729.jpg,729,SUCCESS");
 
-        // }).timeout(1000000);
+        }).timeout(1000000);
 
         it('Uploading Documents', async function() {
 
