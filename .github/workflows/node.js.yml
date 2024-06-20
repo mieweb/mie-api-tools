@@ -5,9 +5,11 @@ name: Node.js CI
 
 on:
   push:
+
     branches: [ "main", "maxklema-patch-1" ]
   pull_request:
     branches: [ "main", "maxklema-patch-1" ]
+
 
 jobs:
   build:
@@ -37,3 +39,4 @@ jobs:
         GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
         URL: ${{ secrets.URL }}
         PRACTICE: ${{ secrets.PRACTICE }}
+
