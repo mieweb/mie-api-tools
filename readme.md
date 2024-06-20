@@ -377,6 +377,8 @@ mie.uploadDocs("filesToUpload.csv");
 
 ## AI Capabilities
 
+>**NOTE**: AI capabilities are only supported in Node.js 18 and above.
+
 If you simply want a overview of a patient's medical history and the ability to ask questions about them, MIE API Tools has built-in methods that allow you to do this. The package uses Google's [Gemini](https://ai.google.dev/) LLM to help do this.
 
 In order to use the AI capabilities, you must set `mie.GeminiKey.value` to that of your Gemini API Key.

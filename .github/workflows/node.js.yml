@@ -66,6 +66,6 @@ jobs:
         env:
           USERNAME: ${{ secrets.USERNAME }}
           PASSWORD: ${{ secrets.PASSWORD }}
-          GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
+          GEMINI_KEY: ${{ secrets.ROCKY_GEMINI_KEY }}
           URL: ${{ secrets.URL }}
           PRACTICE: ${{ secrets.PRACTICE }}
