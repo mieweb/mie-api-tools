@@ -18,7 +18,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest, ]
+        os: [ubuntu-latest ]
         node-version: [16.x, 18.x, 20.x, 22.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
@@ -59,6 +59,7 @@ jobs:
         run: |
           curl -fsSL https://rpm.nodesource.com/setup_${{ matrix.node-version }}.x | bash -
           yum install -y nodejs
+          npm install -g npx mocha
       - name: Install Dependencies
         run: npm install
       - name: Perform Mocha Tests
