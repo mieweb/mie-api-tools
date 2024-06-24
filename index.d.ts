@@ -1,4 +1,4 @@
-declare module 'mie-api-tools' {
+declare module '@maxklema/mie-api-tools' {
     
     interface globals {
         value: string;

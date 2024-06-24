@@ -1,9 +1,9 @@
 //const request = require('sync-request');
 const axios = require('axios');
-const error = require('../errors');
-const { URL, practice, cookie } = require('../Variables/variables');
-const session = require('../Session Management/getCookie');
-const log = require('../Logging/createLog');
+const error = require('../errors.cjs');
+const { URL, practice, cookie } = require('../Variables/variables.cjs');
+const session = require('../Session Management/getCookie.cjs');
+const log = require('../Logging/createLog.cjs');
 
 
 //makes the GET request

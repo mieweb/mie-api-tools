@@ -1,6 +1,6 @@
-const error = require('../errors');
-const log = require('../Logging/createLog');
-const { identifiers } = require('../Variables/endpointLists');
+const error = require('../errors.cjs');
+const log = require('../Logging/createLog.cjs');
+const { identifiers } = require('../Variables/endpointLists.cjs');
 
 function verify_identifier(endpoint, identifier) {
 

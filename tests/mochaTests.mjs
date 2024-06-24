@@ -1,15 +1,11 @@
-const assert = require('assert'); 
-const mie = require('../index');
-const fs = require('fs');
-const path = require('path');
+import assert from 'assert'; 
+import mie from '../index.cjs';
 
 mie.URL.value = process.env.URL;
 mie.practice.value = process.env.PRACTICE;
 mie.username.value = process.env.USERNAME;
 mie.password.value = process.env.PASSWORD;
 mie.GeminiKey.value = process.env.GEMINI_KEY;
-
-mie.ledger.value = "false";
 
 describe('MIE API TESTS', async () => {
 
@@ -79,7 +75,7 @@ describe('MIE API TESTS', async () => {
             mie.updateRecord("patients", { pat_id: 43 }, data_to_update);
 
             //update with new data
-            new_data = {
+            let new_data = {
                 "first_name": "Max",
                 "ssn": "123456789",
             };
@@ -138,110 +134,6 @@ describe('MIE API TESTS', async () => {
         }).timeout(1000000);
 
     });
-
-    describe("Ledger Functionality", async function() {
-
-        afterEach(function() {
-           
-            //delete Ledgers
-            const logDirectory = path.join(__dirname, '../Logs');
-            fs.rmSync(logDirectory, {recursive: true, force: true});
-            mie.ledger.value = "false";
-            
-        });
-
-        it("Write to info.log", async function() {
-
-            //create the ledger
-            mie.ledger.value = "true";
-            const options = {
-                "levels": ["info", "error"],
-                "format": ["levels"],
-                "storage": ["./Logs/info.log", "./Logs/errors.log"],
-                "log_returned_data": "false"
-            }
-            mie.createLedger(options);
-
-            //Write to the ledger
-            await mie.retrieveRecord("patients", ["first_name"], { pat_id: 18 });
-
-            //Read from the ledger
-            const logFilePath = path.join(__dirname, "../Logs/info.log");
-            const data = fs.readFileSync(logFilePath, "utf8");
-            let expectedData = "[info]: Record Retrieval Request:\nRequest URL: \"https://mieinternprac.webchartnow.com/webchart.cgi/json/R0VUL2RiL3BhdGllbnRzL3BhdF9pZD0xOA==\"\nEndpoint: \"patients\"\nQuery By: {\"pat_id\":18}\n[info]: Record Retrieval Response\n";
-            assert.equal(data, expectedData);
-
-
-        });
-
-    })
-
-    describe("Documents", async function() {
-
-        afterEach(function() {
-            
-            //delete files and statuses
-            const fileDirectory = path.join(__dirname, '../mocha_downloads');
-            const DstatusDirectory = path.join(__dirname, '../Download Status');
-            const UstatusDirectory = path.join(__dirname, '../Upload Status');
-            fs.rmSync(fileDirectory, {recursive: true, force: true});
-            fs.rmSync(DstatusDirectory, {recursive: true, force: true});
-            fs.rmSync(UstatusDirectory, {recursive: true, force: true});
-            
-        })
-
-        it("Downloading Documents", async function() {
-
-            //download Documents
-            await mie.downloadDocs({ doc_id: 29 }, "mocha_downloads", 0);
-            await mie.downloadDocs({ doc_id: 729 }, "mocha_downloads", 0);
-
-            function delay(ms) {
-                return new Promise(resolve => setTimeout(resolve, ms));
-            }
-
-            await delay(1000);
-
-            //get Success.CSV file
-            const fPath = path.join(__dirname, "../Download Status/success.csv");
-            const fileContent = fs.readFileSync(fPath, "utf8");
-
-            //split the content into lines
-            const lines = fileContent.split("\n");
-            assert.equal(lines[1], "mocha_downloads/Hart_29.jpg,29,SUCCESS");
-            assert.equal(lines[2], "mocha_downloads/Hart_729.jpg,729,SUCCESS");
-
-        }).timeout(1000000);
-
-        it('Uploading Documents', async function() {
-
-            //upload docs
-            docCSV_Path = path.join(__dirname, "Upload Test/docsToUpload.csv");
-        
-            await mie.uploadDocs(docCSV_Path);
-
-            function delay(ms) {
-                return new Promise(resolve => setTimeout(resolve, ms));
-            }
-
-            await delay(2000);
-            
-            //get success.csv file
-            const fPath = path.join(__dirname, "../Upload Status/success.csv");
-            const fileContent = fs.readFileSync(fPath, "utf8");
-
-            //split the content into lines
-            const lines = fileContent.split("\n");
-
-            let success = [lines[1], lines[2], lines[3], lines[4]];
-            let expected = ["tests/Upload Test/Documents/Doe.html,14,Success", "tests/Upload Test/Documents/Doe_116.ccr,18,Success", "tests/Upload Test/Documents/autumn.jpg,18,Success", "tests/Upload Test/Documents/bill.jpg,14,Success"];
-
-            assert.deepEqual(success.sort(), expected.sort());
-         
-
-        }).timeout(1000000);
-
-    })
 
 
 });

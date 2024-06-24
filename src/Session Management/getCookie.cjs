@@ -1,9 +1,9 @@
-const { URL, username, password } = require('../Variables/variables');
-let { cookie } = require('../Variables/variables');
+const { URL, username, password } = require('../Variables/variables.cjs');
+let { cookie } = require('../Variables/variables.cjs');
 const querystring = require('querystring');
-const error = require('../errors');
+const error = require('../errors.cjs');
 const axios = require('axios');
-const log = require('../Logging/createLog');
+const log = require('../Logging/createLog.cjs');
 
 //initializes user session and returns the cookie
 function getCookie(){

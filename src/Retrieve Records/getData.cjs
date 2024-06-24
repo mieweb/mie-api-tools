@@ -1,7 +1,7 @@
-const error = require('../errors');
-const makeQuery = require('./tools');
-const log = require('../Logging/createLog');
-const { log_data } = require('../Variables/variables');
+const error = require('../errors.cjs');
+const makeQuery = require('./tools.cjs');
+const log = require('../Logging/createLog.cjs');
+const { log_data } = require('../Variables/variables.cjs');
 
 require('dotenv').config();
 

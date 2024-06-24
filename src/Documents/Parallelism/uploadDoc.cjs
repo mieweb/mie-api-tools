@@ -1,8 +1,8 @@
 const fs = require('fs');
 const axios = require('axios');
-const log = require('../../Logging/createLog');
+const log = require('../../Logging/createLog.cjs');
 const FormData = require('form-data');
-const error = require('../../errors');
+const error = require('../../errors.cjs');
 const { workerData, parentPort } = require('worker_threads');
 
 //this function is used for multi-threading

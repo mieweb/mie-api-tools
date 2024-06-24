@@ -1,5 +1,5 @@
-const myLedger = require('../Logging/createLedger');
-const { logging } = require('../Variables/variables');
+const myLedger = require('./createLedger.cjs');
+const { logging } = require('../Variables/variables.cjs');
 
 function createLog(level, message){
     
