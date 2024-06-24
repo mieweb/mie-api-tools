@@ -40,16 +40,6 @@ describe('MIE API TESTS', async () => {
             
         }).timeout(1500000);
 
-        it('Summarize Patient - AI', async () => {
-            const data = await mie.summarizePatient(18);
-            assert.equal(typeof data, 'string');
-        }).timeout(25000);
-
-        it('Query Patient - AI', async () => {
-            const data = await mie.queryPatient(18, "Does this patient have insurance?");
-            assert.equal(typeof data, 'string');
-        }).timeout(25000);
-
         it('Concatenate Records', async () => {
             
             let JSON_data = {"patients":{"0":{"pat_id":"18"}},"documents":{"0":{"pat_id":"13","doc_id":"399","storage_type":"4"},"1":{"pat_id":"13","doc_id":"395","storage_type":"4"},"2":{"pat_id":"13","doc_id":"397","storage_type":"4"},"3":{"pat_id":"13","doc_id":"356","storage_type":"10"},"4":{"pat_id":"13","doc_id":"361","storage_type":"7"},"5":{"pat_id":"13","doc_id":"379","storage_type":"8"},"6":{"pat_id":"13","doc_id":"662","storage_type":"4"},"7":{"pat_id":"13","doc_id":"663","storage_type":"4"}}};
@@ -59,6 +49,29 @@ describe('MIE API TESTS', async () => {
             assert.equal(JSON.stringify(data), JSON.stringify(JSON_data));
 
         }).timeout(2500000);
+
+    });
+
+    describe('AI Tests', function() {
+
+        const nodeVersion = parseInt(process.versions.node.split('.')[0], 10);
+
+        before(function() {
+            if (nodeVersion < 18){
+                this.skip();
+            }
+        });
+
+        it('Summarize Patient - AI', async function() {
+            const data = await mie.summarizePatient(18);
+            assert.equal(typeof data, 'string');
+        }).timeout(25000);
+
+
+        it('Query Patient - AI', async function() {
+            const data = await mie.queryPatient(18, "Does this patient have insurance?");
+            assert.equal(typeof data, 'string');
+        }).timeout(25000);
 
     });
 
