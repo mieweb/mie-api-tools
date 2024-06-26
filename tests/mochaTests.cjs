@@ -13,6 +13,17 @@ mie.ledger.value = "false";
 
 describe('MIE API TESTS', async () => {
 
+    describe("Get Session ID", async () => {
+
+        it("Get Cookie - Validate", async () => {
+
+            await mie.getCookie();
+            const cookie = mie.Cookie.value;
+            assert.equal(cookie.length, 36);
+
+        }); 
+    })
+
     describe("Retrieve Records", async () => {
         
         it('Retrieve Records - No Fields', async () => {

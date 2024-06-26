@@ -6,7 +6,8 @@ const { retrievePatientRecords, retrieveCustomRecords } = require('./src/Retriev
 const { summarizePatient, askAboutPatient } = require('./src/Retrieve Records/AIGemini.cjs');
 const { createLedger } = require('./src/Logging/createLedger.cjs');
 const { createRecord } = require('./src/Create Records/requests_POST.cjs');
-const { URL, practice, username, password, logging, GeminiKey } = require('./src/Variables/variables.cjs');
+const { getCookie } = require('./src/Session Management/getCookie.cjs');
+const { URL, practice, username, password, logging, GeminiKey, cookie } = require('./src/Variables/variables.cjs');
 
 module.exports = {
     retrieveRecord: retrieveRecord,
@@ -19,10 +20,12 @@ module.exports = {
     createLedger: createLedger,
     createRecord: createRecord,
     getCustomRecords: retrieveCustomRecords,
+    getCookie: getCookie,
     URL: URL,
     practice: practice,
     username: username,
     password: password,
     ledger: logging,
-    GeminiKey: GeminiKey
+    GeminiKey: GeminiKey,
+    Cookie: cookie
 }

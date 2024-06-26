@@ -7,6 +7,7 @@ A package designed to interact with [MIE's](https://www.mieweb.com/) (Medical In
 - [Installation](#Installation)
 - [Methods and Features](#Methods-and-Features)
 - [Setting Variables](#Setting-Variables)
+- [Retrieving Cookie](#Retrieving-Cookie)
 - [Retrieving Records](#Retrieving-Records)
   - [Search by Querying](#Search-by-Querying)
   - [Filtering by Fields](#Filtering-by-Fields)
@@ -57,6 +58,7 @@ As of version **1.0.7**, importing @maxklema/mie-api-tools using `import` does n
 
 ## Methods and Features
 
+- Retrieve Session Cookie
 - Retrieve Records
   - Search through queries
   - Filter by fields
@@ -105,6 +107,23 @@ mie.password.value = process.env.PASSWORD;
 ```
 
 > **NOTE:** When setting the username and password values, it is recommended to use environment variables.
+
+## Retrieving Cookie
+
+Sometimes, you may only want to receieve your WebChart Session Cookie. This can be achieved with the `mie.getCookie()` method.
+
+Here is an example:
+
+```javascript
+async function getCookie() {
+  await mie.getCookie();
+  return mie.Cookie.value;
+}
+
+const cookie = getCookie();
+```
+
+> **NOTE**: You must declare your login information first before calling this method. To do this, see [Setting Variables](#Setting-Variables).
 
 ## Retrieving Records
 

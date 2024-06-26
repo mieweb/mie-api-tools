@@ -6,7 +6,7 @@ const axios = require('axios');
 const log = require('../Logging/createLog.cjs');
 
 //initializes user session and returns the cookie
-function getCookie(){
+async function getCookie(){
 
     const encode_login_parms = {
         'login_user': username.value,
@@ -15,7 +15,7 @@ function getCookie(){
     const encodedLoginParms = querystring.stringify(encode_login_parms);
     let fullURL = `${URL.value}?${encodedLoginParms}`
 
-    return axios.get(fullURL)
+    return await axios.get(fullURL)
     .then( (response) => {
 
         let status = (response.status).toString();

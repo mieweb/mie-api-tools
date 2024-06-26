@@ -9,6 +9,17 @@ mie.GeminiKey.value = process.env.GEMINI_KEY;
 
 describe('MIE API TESTS', async () => {
 
+    describe("Get Session ID", async () => {
+
+        it("Get Cookie - Validate", async () => {
+
+            await mie.getCookie();
+            const cookie = mie.Cookie.value;
+            assert.equal(cookie.length, 36);
+
+        }); 
+    })
+
     describe("Retrieve Records", async () => {
         
         it('Retrieve Records - No Fields', async () => {
