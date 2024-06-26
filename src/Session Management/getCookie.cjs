@@ -8,14 +8,20 @@ const log = require('../Logging/createLog.cjs');
 //initializes user session and returns the cookie
 async function getCookie(){
 
-    const encode_login_parms = {
+    const encode_login_parms = querystring.stringify({
+        'login_post_redirect': '',
         'login_user': username.value,
         'login_passwd': password.value
-    }
-    const encodedLoginParms = querystring.stringify(encode_login_parms);
-    let fullURL = `${URL.value}?${encodedLoginParms}`
+    })
 
-    return await axios.get(fullURL)
+    let config = {
+        method: 'post',
+        maxBodtLength: Infinity,
+        url: URL.value,
+        data: encode_login_parms
+    }
+
+    return await axios.request(config)
     .then( (response) => {
 
         let status = (response.status).toString();
