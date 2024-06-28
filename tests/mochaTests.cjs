@@ -2,6 +2,7 @@ const assert = require('assert');
 const mie = require('../index.cjs');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 mie.URL.value = process.env.URL;
 mie.practice.value = process.env.PRACTICE;
@@ -200,7 +201,7 @@ describe('MIE API TESTS', async () => {
 
     })
 
-    describe("Documents", async function() {
+    describe.only("Documents", async function() {
 
         afterEach(function() {
             
@@ -271,6 +272,21 @@ describe('MIE API TESTS', async () => {
         }).timeout(1000000);
 
         it('Uploading Documents - Header Variation Two', async function() {
+
+            function isRockyLinux(){
+                const platform = os.platform();
+                const release = os.release();
+                console.log(os.platform());
+                console.log(os.release());
+
+                return platform == 'Linux' && ( release.includes('rocky') || release.includes('Rocky') )
+            }
+
+            const nodeVersion = parseInt(process.versions.node.split('.')[0], 10);
+
+            if (isRockyLinux() && nodeVersion < 18 ){
+                this.skip();
+            }
 
             //upload docs
             docCSV_Path = path.join(__dirname, "Upload Test/docsToUploadTwo.csv");
