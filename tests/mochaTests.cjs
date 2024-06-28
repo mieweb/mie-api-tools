@@ -273,18 +273,10 @@ describe('MIE API TESTS', async () => {
 
         it('Uploading Documents - Header Variation Two', async function() {
 
-            function isRockyLinux(){
-                const platform = os.platform();
-                const release = os.release();
-                console.log(os.platform());
-                console.log(os.release());
-
-                return platform == 'Linux' && ( release.includes('rocky') || release.includes('Rocky') )
-            }
 
             const nodeVersion = parseInt(process.versions.node.split('.')[0], 10);
 
-            if (isRockyLinux() && nodeVersion < 18 ){
+            if (nodeVersion < 18 ){
                 this.skip();
             }
 
