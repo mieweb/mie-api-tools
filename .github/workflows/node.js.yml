@@ -59,7 +59,7 @@ jobs:
       - name: Install Dependencies
         run: npm install
       - name: Change permissions for test files
-        run: chmod -R 755 tests/Upload\ Test/Documents
+        run: chmod -R 755 tests/Upload\ Test/Documents/Doe2.htm
       - name: Perform Mocha Tests
         run: npm test
         env:
