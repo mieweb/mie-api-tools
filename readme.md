@@ -25,10 +25,6 @@ A package designed to interact with [MIE's](https://www.mieweb.com/) (Medical In
 - [Motivation](#Motivation)
 - [Author](#Author)
 
-## Testing
-
-Testing
-
 ## Installation
 
 **NPM**  
@@ -358,15 +354,16 @@ MIE API Tools allows you to upload any amount of documents at once by crafting a
 
 MIE API Tools allows you to upload documents using a CSV file. The CSV file contains seven headers:
 
-| Name               | Required?       | Type    | Description                                                                                                                                                                                                       |
-| ------------------ | --------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `filename`         | Required        | String  | The file path of the file that you want to upload to a patient's portal.                                                                                                                                          |
-| `storageType`      | Required        | Integer | The storage type of the file that you are uploading. For a full list, see [Custom Documents](https://docs.enterprisehealth.com/functions/system-administration/data-migration/custom-documents-csv-api/#process). |
-| `docType`          | Required        | String  | The type of document that is being uploaded. For example, `WCPHOTO` for a patient photo.                                                                                                                          |
-| `patID`            | Required        | Integer | The patient ID of the patient for whom you want to upload a document.                                                                                                                                             |
-| `subject`          | Header Required | String  | A description of the document being uploaded.                                                                                                                                                                     |
-| `service_location` | Header Required | String  | The location from which the document originated.                                                                                                                                                                  |
-| `service_date`     | Header Required | String  | The date when the medical service or procedure was provided to a patient, or when the particular service or claim was processed.                                                                                  |
+| Name               | Required?    | Type    | Description                                                                                                                                                                                                       |
+| ------------------ | ------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `filename`         | **Required** | String  | The file path of the file that you want to upload to a patient's portal.                                                                                                                                          |
+| `storageType`      | Optional     | Integer | The storage type of the file that you are uploading. For a full list, see [Custom Documents](https://docs.enterprisehealth.com/functions/system-administration/data-migration/custom-documents-csv-api/#process). |
+| `docType`          | **Required** | String  | The type of document that is being uploaded. For example, `WCPHOTO` for a patient photo.                                                                                                                          |
+| `patID`            | **Required** | Integer | The patient ID of the patient for whom you want to upload a document.                                                                                                                                             |
+| `mrnumber`         | Optional     | String  | The `MR-#` of the patient for whom you want to upload a document.                                                                                                                                                 |
+| `subject`          | Optional     | String  | A description of the document being uploaded.                                                                                                                                                                     |
+| `service_location` | Optional     | String  | The location from which the document originated.                                                                                                                                                                  |
+| `service_date`     | Optional     | String  | The date when the medical service or procedure was provided to a patient, or when the particular service or claim was processed.                                                                                  |
 
 Here is an example of a CSV file containing 6 documents to be uploaded:
 
@@ -379,8 +376,6 @@ testing_files/111.txt,14,US,18,"","OFFICE","2008-08-10 00:00:00"
 testing_files/112.txt,14,US,18,"","OFFICE","2008-08-10 00:00:00"
 testing_files/113.txt,14,US,18,"","OFFICE","2008-08-10 00:00:00"
 ```
-
-> **NOTE:** Although the headers for `subject`, `service_location`, and `service_date` must be included, their values can be left empty, just like when uploading a [single document](#Upload-Single-Document).
 
 Once you have created your CSV file containing all the files you want to upload, you can upload them by invoking the `mie.uploadDocs()` function.
 
@@ -396,7 +391,7 @@ mie.uploadDocs("filesToUpload.csv");
 | -------------- | --------- | ------ | ------------------------------------------------------- |
 | `csv_filename` | Required  | String | Your CSV file path containing your documents to upload. |
 
-**Response Format:** For each file you attempt to upload, the status of the upload will either be placed in `/Upload Status/success.csv` or in `/Upload Status/errors.csv`. Each file contains the headers `FILE`, `PAT_ID`, and `STATUS`. Results are appended to the previous. **If you delete statuses in either file, do not delete the headers, or the program may crash!**
+**Response Format:** For each file you attempt to upload, the status of the upload will either be placed in `/Upload Status/success.csv` or in `/Upload Status/errors.csv`. Each file contains the headers `FILE`, `PAT_ID`, and `STATUS`. Results are appended to the previous. **If you delete individual statuses in either file, do not delete the headers, or the program may crash!**
 
 > **NOTE:** While MIE API Tools supports _most_ storage types, some are not supported (yet). However, there are work-arounds. For example, `storage_type: 13 (.htm)` files do not upload correctly to WebChart. Neither do `.tif` or `.tiff` files. As a result, all `.htm` files are automatically converted to `.html` files. Similarly, all `.tif` and `.tiff` files are automatically converted to `.png` files.
 

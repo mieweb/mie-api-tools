@@ -6,9 +6,9 @@ const error = require('../../errors.cjs');
 const { workerData, parentPort } = require('worker_threads');
 
 //this function is used for multi-threading
-async function uploadSingleDocument(filename, storageType, docType, patID, subject, service_location, service_date, URL, Cookie, Practice){
+async function uploadSingleDocument(upload_data, URL, Cookie, Practice){
 
-    const mrnumber = `MR-${patID}`;
+    let filename = upload_data['document_name'];
 
     //convert HTM and TIF file types
     if (filename.endsWith(".htm")){
@@ -29,23 +29,38 @@ async function uploadSingleDocument(filename, storageType, docType, patID, subje
 
     const form = new FormData();
     try {
+        if (upload_data['service_date'])
+            form.append('service_date', upload_data['service_date']);
+        
+        if (upload_data['service_location'])
+            form.append('service_location', upload_data['service_location']);
+        
+        if (upload_data['storage_type']) 
+            form.append('storage_type', upload_data['storage_type']);
+        
+        if (upload_data['subject'])
+            form.append('subject', upload_data['subject']);
+        
+        //required headers
         form.append('f', 'chart');
         form.append('s', 'upload');
-        form.append('storage_type', storageType);
-        form.append('service_date', service_date);
-        form.append('service_location', service_location);
-        form.append('doc_type', docType);
-        form.append('subject', subject);
+        form.append('doc_type', upload_data['doc_type']);
         form.append('file', fs.createReadStream(filename));
-        form.append('pat_id', patID);
-        form.append('mrnumber', mrnumber);
+        form.append('pat_id', upload_data['pat_id']);
         form.append('interface', 'WC_DATA_IMPORT');
+
+        if (upload_data['mrnumber']) {
+            form.append('mrnumber', upload_data['mrnumber']);
+        } else {
+            form.append('mrnumber', `MR-${upload_data['pat_id']}`);
+        }
+
     } catch (err) {
         log.createLog("error", "Bad Request");
         throw new error.customError(error.CSV_PARSING_ERROR,  `There was an error parsing your CSV file. Make sure it is formatted correctly. Error: ${err}`);
     }
 
-    log.createLog("info", `Document Upload Request:\nDocument Type: \"${docType}\"\nStorage Type: \"${storageType}\"\n Patient ID: ${patID}`);
+    log.createLog("info", `Document Upload Request:\nDocument Type: \"${upload_data['doc_type']}\"\nStorage Type: \"${upload_data['storage_type']}\"\n Patient ID: ${upload_data['pat_id']}`);
     axios.post(URL, form, {
         headers: {
             'Content-Type': 'multi-part/form-data', 
@@ -66,4 +81,4 @@ async function uploadSingleDocument(filename, storageType, docType, patID, subje
 
 }
 
-uploadSingleDocument(workerData['row'].document_name, workerData['row'].storage_type, workerData['row'].doc_type, workerData['row'].pat_id, workerData['row'].subject, workerData['row'].service_location, workerData['row'].service_date, workerData['URL'], workerData['Cookie'], workerData['Practice']);
+uploadSingleDocument(workerData['row'], workerData['URL'], workerData['Cookie'], workerData['Practice']);

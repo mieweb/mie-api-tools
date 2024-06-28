@@ -74,11 +74,17 @@ async function uploadDocs(csv_file){
     }
 
     await loadFiles();
+    const headers = [];
     const docQueue = [];
     let workerPromises = [];
     const success = [];
     const errors = [];
-    const csvParser = csv();
+    const csvParser = csv({
+        mapHeaders: ({ header, index }) => {
+            headers.push(header);
+            return header;
+        }
+    });
 
     csvParser.on('error', (err) => {
         log.createLog("error", "Bad Request");
@@ -91,6 +97,7 @@ async function uploadDocs(csv_file){
         new stream.Writable({
             objectMode: true,
             write(row, encoding, callback) {
+                //if row is header, store it in an array
                 if (!processedFiles.has(getKey({file: row.document_name, pat_id: row.pat_id}))){
                     processedFiles.add(getKey({file: row.document_name, pat_id: row.pat_id}));
                     docQueue.push(row);

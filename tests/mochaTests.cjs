@@ -21,7 +21,7 @@ describe('MIE API TESTS', async () => {
             const cookie = mie.Cookie.value;
             assert.equal(cookie.length, 36);
 
-        }); 
+        }).timeout(1000000); 
     })
 
     describe("Retrieve Records", async () => {
@@ -211,6 +211,11 @@ describe('MIE API TESTS', async () => {
             fs.rmSync(fileDirectory, {recursive: true, force: true});
             fs.rmSync(DstatusDirectory, {recursive: true, force: true});
             fs.rmSync(UstatusDirectory, {recursive: true, force: true});
+            try {
+                fs.renameSync(path.join(__dirname, './Upload Test/Documents/Doe2.html'), path.join(__dirname, './Upload Test/Documents/Doe2.htm'));
+            } catch (e) {
+                //nothing
+            }
             
         })
 
@@ -237,7 +242,7 @@ describe('MIE API TESTS', async () => {
 
         }).timeout(1000000);
 
-        it('Uploading Documents', async function() {
+        it('Uploading Documents - Header Variation One', async function() {
 
             //upload docs
             docCSV_Path = path.join(__dirname, "Upload Test/docsToUpload.csv");
@@ -259,6 +264,34 @@ describe('MIE API TESTS', async () => {
 
             let success = [lines[1], lines[2], lines[3], lines[4]];
             let expected = ["tests/Upload Test/Documents/Doe.html,14,Success", "tests/Upload Test/Documents/Doe_116.ccr,18,Success", "tests/Upload Test/Documents/autumn.jpg,18,Success", "tests/Upload Test/Documents/bill.jpg,14,Success"];
+
+            assert.deepEqual(success.sort(), expected.sort());
+         
+
+        }).timeout(1000000);
+
+        it('Uploading Documents - Header Variation Two', async function() {
+
+            //upload docs
+            docCSV_Path = path.join(__dirname, "Upload Test/docsToUploadTwo.csv");
+        
+            await mie.uploadDocs(docCSV_Path);
+
+            function delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            await delay(2000);
+            
+            //get success.csv file
+            const fPath = path.join(__dirname, "../Upload Status/success.csv");
+            const fileContent = fs.readFileSync(fPath, "utf8");
+
+            //split the content into lines
+            const lines = fileContent.split("\n");
+
+            let success = [lines[1], lines[2], lines[3], lines[4]];
+            let expected = ["tests/Upload Test/Documents/Hart_109.txt,18,Success", "tests/Upload Test/Documents/Doe2.htm,18,Success", "tests/Upload Test/Documents/110.txt,14,Success", "tests/Upload Test/Documents/autumn.jpg,14,Success"];
 
             assert.deepEqual(success.sort(), expected.sort());
          

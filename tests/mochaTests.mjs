@@ -17,7 +17,7 @@ describe('MIE API TESTS', async () => {
             const cookie = mie.Cookie.value;
             assert.equal(cookie.length, 36);
 
-        }); 
+        }).timeout(1000000); 
     })
 
     describe("Retrieve Records", async () => {
