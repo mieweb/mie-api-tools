@@ -1,7 +1,7 @@
-const error = require('../errors');
-const log = require('../Logging/createLog');
-const queryData = require('../Retrieve Records/getData');
-const { endpointsOne, endpointsTwo, endpointsThree } = require('../Variables/endpointLists');
+const error = require('../errors.cjs');
+const log = require('../Logging/createLog.cjs');
+const queryData = require('./getData.cjs');
+const { endpointsOne, endpointsTwo, endpointsThree } = require('../Variables/endpointLists.cjs');
 
 
 async function retrievePatientRecords(patID, options = {length: "brief"}){

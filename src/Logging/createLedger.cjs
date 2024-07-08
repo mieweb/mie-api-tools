@@ -1,10 +1,10 @@
 const { createLogger, format, transports } = require('winston');
 const { combine, timestamp, printf} = format;
-const error = require('../errors');
+const error = require('../errors.cjs');
 const fs = require('fs');
 const path = require('path');
-const log = require('../Logging/createLog');
-const { log_data } = require('../Variables/variables');
+const log = require('./createLog.cjs');
+const { log_data } = require('../Variables/variables.cjs');
 
 let ledger;
 

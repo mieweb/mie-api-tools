@@ -1,8 +1,8 @@
-const error = require('../errors');
-const log = require('../Logging/createLog');
-const getPatientData = require('./patient_summary');
+const error = require('../errors.cjs');
+const log = require('../Logging/createLog.cjs');
+const getPatientData = require('./patient_summary.cjs');
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai");
-const { GeminiKey, log_data } = require('../Variables/variables');
+const { GeminiKey, log_data } = require('../Variables/variables.cjs');
 
 const safetySettings = [
     {

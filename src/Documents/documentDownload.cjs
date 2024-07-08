@@ -1,10 +1,10 @@
-const makeQuery = require('../Retrieve Records/tools');
-const queryData = require('../Retrieve Records/getData.js');
+const makeQuery = require('../Retrieve Records/tools.cjs');
+const queryData = require('../Retrieve Records/getData.cjs');
 const fs = require('fs');
 const csv = require('csv-parser');
 const path = require('path');
-const log = require('../Logging/createLog');
-const { URL, practice, cookie } = require('../Variables/variables');
+const log = require('../Logging/createLog.cjs');
+const { URL, practice, cookie } = require('../Variables/variables.cjs');
 const { Worker } = require('worker_threads');
 const os = require("os");
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
@@ -99,7 +99,7 @@ async function retrieveDocs(queryString, directory, optimization = 0){
                         pat_last_name = last_name_data['0']["last_name"];
                     }
 
-                    const worker = new Worker(path.join(__dirname, "/Parallelism/downloadDoc.js"), { workerData: {docID: doc_id, directory: directory, optimization: optimization, last_name: pat_last_name, URL: URL.value, Practice: practice.value, Cookie: cookie.value, Data: data, storageType: storage_type}})
+                    const worker = new Worker(path.join(__dirname, "/Parallelism/downloadDoc.cjs"), { workerData: {docID: doc_id, directory: directory, optimization: optimization, last_name: pat_last_name, URL: URL.value, Practice: practice.value, Cookie: cookie.value, Data: data, storageType: storage_type}})
 
                     worker.on(('message'), async (message) => {
                     if (message.success){

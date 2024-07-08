@@ -1,11 +1,11 @@
-const queryData = require('../../Retrieve Records/getData.js');
+const queryData = require('../../Retrieve Records/getData.cjs');
 const fs = require('fs');
 const path = require('path');
-const error = require('../../errors');
+const error = require('../../errors.cjs');
 const axios = require('axios');
-const log = require('../../Logging/createLog');
+const log = require('../../Logging/createLog.cjs');
 const { workerData, parentPort } = require('worker_threads');
-const { storageMap } = require('../../Variables/endpointLists.js');
+const { storageMap } = require('../../Variables/endpointLists.cjs');
 
 //Multi-threaded version of downloadDoc
 async function retrieveSingleDoc(documentID, directory, optimization = 0, pat_last_name = "", URL, Practice, Cookie, data, storageType){

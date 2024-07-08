@@ -1,6 +1,6 @@
-const makeRequest = require('./requests_GET');
-const error = require('../errors');
-const log = require('../Logging/createLog');
+const makeRequest = require('./requests_GET.cjs');
+const error = require('../errors.cjs');
+const log = require('../Logging/createLog.cjs');
 
 //filters (parses) the JSON data
 async function parseJSON(data, fields){

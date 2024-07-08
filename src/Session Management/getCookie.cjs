@@ -1,21 +1,27 @@
-const { URL, username, password } = require('../Variables/variables');
-let { cookie } = require('../Variables/variables');
+const { URL, username, password } = require('../Variables/variables.cjs');
+let { cookie } = require('../Variables/variables.cjs');
 const querystring = require('querystring');
-const error = require('../errors');
+const error = require('../errors.cjs');
 const axios = require('axios');
-const log = require('../Logging/createLog');
+const log = require('../Logging/createLog.cjs');
 
 //initializes user session and returns the cookie
-function getCookie(){
+async function getCookie(){
 
-    const encode_login_parms = {
+    const encode_login_parms = querystring.stringify({
+        'login_post_redirect': '',
         'login_user': username.value,
         'login_passwd': password.value
-    }
-    const encodedLoginParms = querystring.stringify(encode_login_parms);
-    let fullURL = `${URL.value}?${encodedLoginParms}`
+    })
 
-    return axios.get(fullURL)
+    let config = {
+        method: 'post',
+        maxBodtLength: Infinity,
+        url: URL.value,
+        data: encode_login_parms
+    }
+
+    return await axios.request(config)
     .then( (response) => {
 
         let status = (response.status).toString();

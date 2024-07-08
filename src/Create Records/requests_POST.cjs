@@ -1,9 +1,9 @@
 const axios = require('axios');
-const error = require('../errors');
-const { URL, practice, cookie } = require('../Variables/variables');
-const session = require('../Session Management/getCookie');
-const isValidJSON = require("../Update Records/requests_PUT");
-const log = require('../Logging/createLog');
+const error = require('../errors.cjs');
+const { URL, practice, cookie } = require('../Variables/variables.cjs');
+const session = require('../Session Management/getCookie.cjs');
+const isValidJSON = require("../Update Records/requests_PUT.cjs");
+const log = require('../Logging/createLog.cjs');
 
 //make the POST request
 async function createRecord(endpoint, new_data){

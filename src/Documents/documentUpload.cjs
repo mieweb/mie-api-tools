@@ -1,14 +1,14 @@
-const session = require('../Session Management/getCookie');
+const session = require('../Session Management/getCookie.cjs');
 const fs = require('fs');
-const { URL, practice, cookie } = require('../Variables/variables');
+const { URL, practice, cookie } = require('../Variables/variables.cjs');
 const csv = require('csv-parser');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
-const log = require('../Logging/createLog');
+const log = require('../Logging/createLog.cjs');
 const { Worker } = require('worker_threads');
 const path = require('path');
 const os = require("os");
 const { pipeline } = require('stream/promises');
-const error = require('../errors');
+const error = require('../errors.cjs');
 const stream = require('stream');
 const MAX_WORKERS = os.cpus().length;
 const processedFiles = new Set();
@@ -74,11 +74,17 @@ async function uploadDocs(csv_file){
     }
 
     await loadFiles();
+    const headers = [];
     const docQueue = [];
     let workerPromises = [];
     const success = [];
     const errors = [];
-    const csvParser = csv();
+    const csvParser = csv({
+        mapHeaders: ({ header, index }) => {
+            headers.push(header);
+            return header;
+        }
+    });
 
     csvParser.on('error', (err) => {
         log.createLog("error", "Bad Request");
@@ -91,6 +97,7 @@ async function uploadDocs(csv_file){
         new stream.Writable({
             objectMode: true,
             write(row, encoding, callback) {
+                //if row is header, store it in an array
                 if (!processedFiles.has(getKey({file: row.document_name, pat_id: row.pat_id}))){
                     processedFiles.add(getKey({file: row.document_name, pat_id: row.pat_id}));
                     docQueue.push(row);
@@ -110,7 +117,7 @@ async function uploadDocs(csv_file){
                    return;
                 }
 
-                const worker = new Worker(path.join(__dirname, "/Parallelism/uploadDoc.js"), { workerData: {row: row, URL: URL.value, Cookie: cookie.value, Practice: practice.value}})
+                const worker = new Worker(path.join(__dirname, "/Parallelism/uploadDoc.cjs"), { workerData: {row: row, URL: URL.value, Cookie: cookie.value, Practice: practice.value}})
     
                 worker.on('message', (message) => {
                     if (message.success == true){ 

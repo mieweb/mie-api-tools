@@ -1,9 +1,9 @@
 const axios = require('axios');
-const error = require('../errors');
-const { URL, practice, cookie } = require('../Variables/variables');
-const session = require('../Session Management/getCookie');
-const verify_identifier = require("./request_identifiers");
-const log = require('../Logging/createLog');
+const error = require('../errors.cjs');
+const { URL, practice, cookie } = require('../Variables/variables.cjs');
+const session = require('../Session Management/getCookie.cjs');
+const verify_identifier = require("./request_identifiers.cjs");
+const log = require('../Logging/createLog.cjs');
 
 //make the PUT Request
 async function updateRecord(endpoint, identifier, json_options){
