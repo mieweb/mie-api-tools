@@ -1,23 +1,33 @@
 const fs = require('fs');
 const axios = require('axios');
-const log = require('../../Logging/createLog.cjs');
 const FormData = require('form-data');
-const error = require('../../errors.cjs');
-const { workerData, parentPort } = require('worker_threads');
+const { parentPort } = require('worker_threads');
+const { mapOne, mapTwo } = require('../docMappings.cjs')
+const path = require('path');
+
+const getBar = (uploadStatus) => {
+    let percentage = parseFloat(((uploadStatus["uploaded"] / uploadStatus["total"]) * 100).toFixed(2));
+    const total = 20; //length of bar
+    const progress = Math.round(percentage / 5);
+    const emptySpace = total - progress;
+
+    return `${'\x1b[34m█\x1b[0m'.repeat(progress)}${'\x1b[34m▒\x1b[0m'.repeat(emptySpace)} ${`\x1b[34m${`${percentage}%`}\x1b[0m`} (${uploadStatus["uploaded"]}/${uploadStatus["total"]})`
+}
 
 //this function is used for multi-threading
-async function uploadSingleDocument(upload_data, URL, Cookie, Practice){
+async function uploadSingleDocument(upload_data, URL, Cookie, Practice, Mapping, Directory, uploadStatus){
 
-    let filename = upload_data['document_name'];
+    let map;
+    let filename;
 
-    //convert HTM and TIF file types
-    if (filename.endsWith(".htm")){
-        convertFile(4, ".html", 4);
-     } else if (filename.endsWith(".tif") || filename.endsWith(".tiff")) {
-        filename.endsWith(".tif") == true ? convertFile(4, ".png", 3) : convertFile(5, ".png", 3);
-     }
+    if (typeof Mapping == 'object'){
+        map = new Map(Object.entries(Mapping));
+    } else {
+        Mapping == "one" ? map = mapOne : map = mapTwo;
+    }
 
     function convertFile(extension_length, new_extension, new_storage){
+        
         fs.rename(filename, (filename.slice(0, filename.length - extension_length) + new_extension), (err) => {
             if (err) {
                 console.error(err);
@@ -28,39 +38,39 @@ async function uploadSingleDocument(upload_data, URL, Cookie, Practice){
     }
 
     const form = new FormData();
-    try {
-        if (upload_data['service_date'])
-            form.append('service_date', upload_data['service_date']);
-        
-        if (upload_data['service_location'])
-            form.append('service_location', upload_data['service_location']);
-        
-        if (upload_data['storage_type']) 
-            form.append('storage_type', upload_data['storage_type']);
-        
-        if (upload_data['subject'])
-            form.append('subject', upload_data['subject']);
-        
-        //required headers
-        form.append('f', 'chart');
-        form.append('s', 'upload');
-        form.append('doc_type', upload_data['doc_type']);
-        form.append('file', fs.createReadStream(filename));
-        form.append('pat_id', upload_data['pat_id']);
-        form.append('interface', 'WC_DATA_IMPORT');
+    form.append('f', 'chart');
+    form.append('s', 'upload');
 
-        if (upload_data['mrnumber']) {
-            form.append('mrnumber', upload_data['mrnumber']);
+    //iterate over each key
+    for (const [key, value] of map.entries()){
+        if (value == "file"){
+
+            filename = upload_data[key];
+
+            if (!filename){
+                throw Error(`ERROR: Could not find the filepath for this upload. Is your mapping correct?`);
+            }
+
+            //convert HTM and TIF file types
+            if (filename.endsWith(".htm")){
+                convertFile(4, ".html", 4);
+            } else if (filename.endsWith(".tif") || filename.endsWith(".tiff")) {
+                filename.endsWith(".tif") == true ? convertFile(4, ".png", 3) : convertFile(5, ".png", 3);
+            }
+
+            const bar = getBar(uploadStatus);
+            process.stdout.write('\x1b[2K'); //clear current line
+            process.stdout.write(`${'\x1b[33m➜\x1b[0m'} Upload Status: ${bar} | Uploading ${`\x1b[34m${path.join(Directory, filename)}\x1b[0m`} \r`);
+
+            form.append(value, fs.createReadStream(path.join(Directory, filename)));
+
         } else {
-            form.append('mrnumber', `MR-${upload_data['pat_id']}`);
+            let headerValue;
+            upload_data[key] ? headerValue = upload_data[key] : headerValue = "";
+            form.append(value, headerValue);
         }
-
-    } catch (err) {
-        log.createLog("error", "Bad Request");
-        throw new error.customError(error.CSV_PARSING_ERROR,  `There was an error parsing your CSV file. Make sure it is formatted correctly. Error: ${err}`);
     }
 
-    log.createLog("info", `Document Upload Request:\nDocument Type: \"${upload_data['doc_type']}\"\nStorage Type: \"${upload_data['storage_type']}\"\n Patient ID: ${upload_data['pat_id']}`);
     axios.post(URL, form, {
         headers: {
             'Content-Type': 'multi-part/form-data', 
@@ -70,15 +80,36 @@ async function uploadSingleDocument(upload_data, URL, Cookie, Practice){
     .then(response => {
         const result = response.headers['x-status'];
         if (result != 'success'){
-            parentPort.postMessage({ success: false, filename: filename, result: response.headers['x-status_desc'] });
+            parentPort.postMessage({ success: false, row: upload_data, result: response.headers['x-status_desc'] });
         } else {
-            parentPort.postMessage({ success: true, filename: filename, result: response.headers['x-status_desc'] });
+            parentPort.postMessage({ success: true, row: upload_data, result: response.headers['x-status_desc'] });
         } 
     })
     .catch((err) => {
-        parentPort.postMessage({ success: 'error', filename: filename, result: err.message});
+        parentPort.postMessage({ success: 'error', row: upload_data, result: err.message});
     });
-
 }
 
-uploadSingleDocument(workerData['row'], workerData['URL'], workerData['Cookie'], workerData['Practice']);
+parentPort.on('message', async (message) => {
+    if (message.type == "job"){
+
+        const uploadStatusData = {
+            "total": message["data"]["total"],
+            "uploaded": message["data"]["uploaded"]
+        }
+
+        const workerData = {
+            row: message["row"], 
+            URL: message["data"]["URL"],
+            Cookie: message["data"]["cookie"],
+            Practice: message["data"]["practice"],
+            Mapping: message["data"]["Mapping"],
+            Directory: message["data"]["Directory"],
+            uploadStatus: uploadStatusData
+        }
+
+        uploadSingleDocument(workerData["row"], workerData["URL"], workerData["Cookie"], workerData["Practice"], workerData["Mapping"], workerData["Directory"], workerData["uploadStatus"]);
+    } else if (message.type == "exit"){
+        parentPort.close(); //terminate worker thread
+    }
+});
