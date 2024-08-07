@@ -22,7 +22,7 @@
     "url": "git://github.com/maxklema/mie-api-tools.git"
   },
   "name": "@maxklema/mie-api-tools",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "A package designed to interact with the MIE (Medical Informatics Engineering) API seamlessly in NPM environments.",
   "main": "index.cjs",
   "module": "index.mjs",
