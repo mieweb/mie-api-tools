@@ -13,6 +13,21 @@ jobs:
         with:
           node-version: 16
       - run: npm ci
+      - name: Perform Mocha Tests - 1/2
+        run: npm test
+        env:
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
+          URL: ${{ secrets.URL }}
+          HANDLE: ${{ secrets.HANDLE }}
+      - name: Perform Mocha Tests - 2/2
+        run: npm run migrations
+        env:
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          URL: ${{ secrets.URL }}
+          HANDLE: ${{ secrets.HANDLE }}
 
   publish-gpr:
     needs: build
