@@ -13,4 +13,4 @@ const new_patient_data = {
     "ssn": "342301932",
     "address1": "1690 Broadway Bldg 19, Ste 500, Fort Wayne, IN 46802"
 }
-mie.createRecord("patients", new_patient_data);
+mie.post("patients", new_patient_data);

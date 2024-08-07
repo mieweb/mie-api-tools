@@ -12,11 +12,11 @@ const data_to_update = {
     "ssn": "342098712",
     "address1": "1690 Broadway Bldg 19, Ste 500, Fort Wayne, IN 46802"
 }
-mie.updateRecord("patients", { pat_id: 40 }, data_to_update);
+mie.put("patients", { pat_id: 40 }, data_to_update);
 
 
 //Update Document 2500's storage type to '13'
 const document_data = {
     "storage_type": "13"
 }
-mie.updateRecord("documents", { doc_id: 2500 }, document_data);
+mie.put("documents", { doc_id: 2500 }, document_data);

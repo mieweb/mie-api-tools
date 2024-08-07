@@ -7,7 +7,7 @@ mie.password.value = "";
 
 
 //queries the database for patient 14
-mie.retrieveRecord("patients", [], { pat_id: 14 })
+mie.get("patients", [], { pat_id: 14 })
 .then((result) => {
     console.log(result);
 })
@@ -18,7 +18,7 @@ mie.retrieveRecord("patients", [], { pat_id: 14 })
 
 //queries the database for document 29
 //Only displays "storage_type" and "doc_type"
-mie.retrieveRecord("documents", ["doc_type"], { doc_id: 29 })
+mie.get("documents", ["doc_type"], { doc_id: 29 })
 .then((result) => {
     console.log(result);
 })
@@ -29,8 +29,8 @@ mie.retrieveRecord("documents", ["doc_type"], { doc_id: 29 })
 
 async function myFunc() {
 
-    //you can call retrieveRecord() in an async function, too!
-    const encounter = await mie.retrieveRecord("encounters", [], {});
+    //you can call get() in an async function, too!
+    const encounter = await mie.get("encounters", [], {});
     console.log(JSON.stringify(encounter));
 
 }

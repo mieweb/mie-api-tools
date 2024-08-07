@@ -24,14 +24,14 @@ describe('MIE API TESTS', async () => {
         
         it('Retrieve Records - No Fields', async () => {
             
-            const data = await mie.retrieveRecord("patients", [], {pat_id: 18});
+            const data = await mie.get("patients", [], {pat_id: 18});
             assert.equal(data["meta"]["status"], "200");
             assert.equal(data['db'][0]['spouse_birthdate'], "1930-01-15 00:00:00");
 
         }).timeout(1000000);
 
         it('Retrieve Records - Fields', async () => {
-            const data = await mie.retrieveRecord("patients", ["ssn", "home_phone"], {pat_id: 18})
+            const data = await mie.get("patients", ["ssn", "home_phone"], {pat_id: 18})
             assert.equal(data['0']['ssn'], "111111111");
             assert.equal(data['0']['home_phone'], "2604440099");
             
@@ -96,7 +96,7 @@ describe('MIE API TESTS', async () => {
                 "ssn": "00000000",
             };
 
-            mie.updateRecord("patients", { pat_id: 43 }, data_to_update);
+            mie.put("patients", { pat_id: 43 }, data_to_update);
 
             //update with new data
             let new_data = {
@@ -105,9 +105,9 @@ describe('MIE API TESTS', async () => {
             };
 
             setTimeout(async () =>  {
-                mie.updateRecord("patients", { pat_id: 43 }, new_data);
+                mie.put("patients", { pat_id: 43 }, new_data);
 
-                data = await mie.retrieveRecord("patients", ["ssn", "first_name"], { pat_id: 43});
+                data = await mie.get("patients", ["ssn", "first_name"], { pat_id: 43});
 
                 assert.equal(data['0']['ssn'], "123456789");
                 assert.equal(data['0']['first_name'], "Max");
@@ -128,9 +128,9 @@ describe('MIE API TESTS', async () => {
                 "pat_id": 14,
             }
 
-            mie.createRecord("observations", data);
+            mie.post("observations", data);
 
-            const patient_data = await mie.retrieveRecord("observations", ["obs_code", "obs_name", "obs_result"], { });
+            const patient_data = await mie.get("observations", ["obs_code", "obs_name", "obs_result"], { });
 
             assert.equal(patient_data[Object.keys(patient_data).length-1]['obs_name'], "BP Site");
             assert.equal(patient_data[Object.keys(patient_data).length-1]['obs_result'], "Left Arm");

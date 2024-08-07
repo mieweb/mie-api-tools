@@ -10,15 +10,15 @@ const { getCookie } = require('./src/Session Management/getCookie.cjs');
 const { URL, practice, username, password, logging, GeminiKey, cookie } = require('./src/Variables/variables.cjs');
 
 module.exports = {
-    retrieveRecord: retrieveRecord,
-    updateRecord: updateRecord,
+    get: retrieveRecord,
+    put: updateRecord,
     downloadDocs: retrieveDocs,
     migrateData: migrateData,
     getAllPatientRecords: retrievePatientRecords,
     summarizePatient: summarizePatient,
     queryPatient: askAboutPatient,
     createLedger: createLedger,
-    createRecord: createRecord,
+    post: createRecord,
     getCustomRecords: retrieveCustomRecords,
     getCookie: getCookie,
     URL: URL,

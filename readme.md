@@ -55,7 +55,7 @@ import mie from "@maxklema/mie-api-tools";
 
 > **NOTE:** Default import is highly reccomended. If you want to use a named import only, you must install the appropriate global variables that will be used to make your request.
 >
-> **Example**: Importing the retrieveRecord method requires `const { retrieveRecord, URL, practice, username, password } = require('@maxklema/mie-api-tools');`. Simply importing `const { retrieveRecord } = require('@maxklema/mie-api-tools');` will not work.
+> **Example**: Importing the get method requires `const { get, URL, practice, username, password } = require('@maxklema/mie-api-tools');`. Simply importing `const { get } = require('@maxklema/mie-api-tools');` will not work.
 
 As of version **1.0.7**, importing @maxklema/mie-api-tools using `import` does not include ledger or document capabilities.
 
@@ -130,13 +130,13 @@ const cookie = getCookie();
 
 ## Retrieving Records
 
-Perhaps the most common use case of the package is getting database records. This can be achieved with the `mie.retrieveRecord()` method.
+Perhaps the most common use case of the package is getting database records. This can be achieved with the `mie.get()` method.
 
 The basic structure of the request is as follows:
 
 ```javascript
 mie
-  .retrieveRecord("patients", [], {})
+  .get("patients", [], {})
   .then((data) => {
     console.log(data);
   })
@@ -145,7 +145,7 @@ mie
   });
 ```
 
-`mie.retrieveRecord()` accepts the following parameters:
+`mie.get()` accepts the following parameters:
 
 | Name       | Required?       | Type         | Description                                                                                                                                                      |
 | ---------- | --------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -157,18 +157,18 @@ mie
 
 > **NOTE:** Only specifying the endpoint while leaving the other parameters empty will return **ALL** data for that endpoint. For example, when retrieving records for the `patients` endpoint, all `patients` data will be returned.
 
-Although `mie.retrieveRecord()` returns a promise, the method can also be invoked with `await/async`.
+Although `mie.get()` returns a promise, the method can also be invoked with `await/async`.
 
 ```javascript
 async function myFunc() {
-  const data = await mie.retrieveRecord("documents", [], {});
+  const data = await mie.get("documents", [], {});
   console.log(data);
 }
 
 myFunc();
 ```
 
-> Example File: [here](https://github.com/maxklema/mie-api-tools/blob/main/examples/getRecords.js).
+> Example File: [here](https://github.com/maxklema/mie-api-tools/blob/main/examples/retrieveRecords.js).
 
 ### Search by Querying
 
@@ -177,13 +177,13 @@ In order to narrow down the records returned, you can specify queries to retriev
 For example, in the `patients` endpoint, if you want to only return records pertaining to a patient with `pat_id: 18`:
 
 ```javascript
-mie.retrieveRecord("patients", [], { pat_id: 18 });
+mie.get("patients", [], { pat_id: 18 });
 ```
 
 You are also able to chain queries together by placing multiple inside an object. This will narrow down a search even more.
 
 ```javascript
-mie.retrieveRecord("patients", [], { first_name: "Will", sex: "M" });
+mie.get("patients", [], { first_name: "Will", sex: "M" });
 ```
 
 > **NOTE:** You can only query by fields that are available for that endpoint specifically. For example, `last_name` exists in the `patients` endpoint, making it a legal field to query by. However, querying by `doc_id` in that same endpoint will throw an error.
@@ -197,13 +197,13 @@ Sometimes a single record can have dozens of fields. If you are only looking for
 For example, in the `documents` endpoint, if you want to return only the `storage_type` of each document:
 
 ```javascript
-mie.retrieveRecord("documents", ["storage_type"], { doc_type: "WCPHOTO" });
+mie.get("documents", ["storage_type"], { doc_type: "WCPHOTO" });
 ```
 
 In the same example, if you only want to return the `storage_type` and `doc_id`:
 
 ```javascript
-mie.retrieveRecord("documents", ["storage_type", "doc_id"], {
+mie.get("documents", ["storage_type", "doc_id"], {
   doc_type: "WCPHOTO",
 });
 ```
@@ -254,7 +254,7 @@ mie
 
 ## Updating Records
 
-Another common use of the package is updating records at various API endpoints. This can be achieved by using the `mie.updateRecord()` method.
+Another common use of the package is updating records at various API endpoints. This can be achieved by using the `mie.put()` method.
 
 The basic structure of the request is as follows:
 
@@ -264,12 +264,12 @@ const json_data = {
   address1: "1690 Broadway Bldg 19, Ste 500, Fort Wayne, IN 46802",
 };
 
-mie.updateRecord("patients", { pat_id: 18 }, json_data);
+mie.put("patients", { pat_id: 18 }, json_data);
 ```
 
 Updating records requires a JSON object that contains key-value pairs of fields to update.
 
-`mie.updateRecord()` accepts the following parameters:
+`mie.put()` accepts the following parameters:
 
 | Name                      | Required?              | Type   | Description                                                                                                                                                      |
 | ------------------------- | ---------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -287,7 +287,7 @@ Updating records requires a JSON object that contains key-value pairs of fields 
 
 ## Creating Records
 
-Creating new Records is another important capability of MIE API Tools. The methodology is very similar to `mie.updateRecords()` but without the identifier. This can be achieved by using the `mie.createRecord()` method.
+Creating new Records is another important capability of MIE API Tools. The methodology is very similar to `mie.puts()` but without the identifier. This can be achieved by using the `mie.post()` method.
 
 The basic structure of the request is as follows:
 
@@ -297,12 +297,12 @@ const json_data = {
   address1: "1690 Broadway Bldg 19, Ste 500, Fort Wayne, IN 46802",
 };
 
-mie.createRecord("patients", json_data);
+mie.post("patients", json_data);
 ```
 
 Updating records requires a JSON object that contains key-value pairs of fields to update.
 
-`mie.updateRecords()` accepts the following parameters.
+`mie.puts()` accepts the following parameters.
 
 | Name       | Required?              | Type   | Description                                                                                                                                                      |
 | ---------- | ---------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |

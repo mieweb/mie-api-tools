@@ -15,12 +15,12 @@ const { URL, practice, username, password, GeminiKey, cookie } = Vars;
 const { getCookie } = retrieveCookie;
 
 export default {
-    retrieveRecord: retrieveRecord,
-    updateRecord: updateRecord,
+    get: retrieveRecord,
+    put: updateRecord,
     getAllPatientRecords: retrievePatientRecords,
     summarizePatient: summarizePatient,
     queryPatient: askAboutPatient,
-    createRecord: createRecord,
+    post: createRecord,
     getCustomRecords: retrieveCustomRecords,
     getCookie: getCookie,
     URL: URL,
