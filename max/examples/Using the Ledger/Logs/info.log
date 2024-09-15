@@ -1,0 +1,100 @@
+2024-06-11T19:17:43.694Z [info]: Patient Summary AI Request:
+Patient ID: 18
+Gemini Model: "gemini-1.5-flash"
+Adjective: "concise"
+2024-06-11T19:17:43.699Z [info]: Patient Retrieval Request (Top Records Filtered):
+Patient ID: 18
+2024-06-11T19:17:44.824Z [info]: Record Retrieval Request:
+Request URL: "https://yourwebchartprac.webchartnow.com/webchart.cgi/json/R0VUL2RiL2RvY3VtZW50cy9wYXRfaWQ9Ng=="
+Endpoint: "documents"
+Query By: {"pat_id":6}
+2024-06-11T19:17:44.999Z [info]: Record Retrieval Request:
+Request URL: "https://yourwebchartprac.webchartnow.com/webchart.cgi/json/R0VUL2RiL3BhdGllbnRzL3BhdF9pZD02"
+Endpoint: "patients"
+Query By: {"pat_id":6}
+2024-06-11T19:17:45.127Z [info]: Record Retrieval Response
+2024-06-11T19:17:45.128Z [info]: Multi-Document Download Request:
+Document IDs: [object Object],[object Object],[object Object]
+2024-06-11T19:17:46.038Z [info]: Record Retrieval Request:
+Request URL: "https://yourwebchartprac.webchartnow.com/webchart.cgi/json/R0VUL2RiL3BhdGllbnRzL3BhdF9pZD0xOA=="
+Endpoint: "patients"
+Query By: {"pat_id":18}
+2024-06-11T19:17:46.158Z [info]: Record Retrieval Response
+2024-06-11T19:17:46.158Z [info]: Record Retrieval Request:
+Request URL: "https://yourwebchartprac.webchartnow.com/webchart.cgi/json/R0VUL2RiL3BhdGllbnRzL3BhdF9pZD0xOA=="
+Endpoint: "patients"
+Query By: {"pat_id":18}
+2024-06-11T19:17:46.310Z [info]: Record Retrieval Response
+2024-06-11T19:17:46.310Z [info]: Record Retrieval Request:
+Request URL: "https://yourwebchartprac.webchartnow.com/webchart.cgi/json/R0VUL2RiL3BhdGllbnRfY29uZGl0aW9ucy9wYXRfaWQ9MTg="
+Endpoint: "patient_conditions"
+Query By: {"pat_id":18}
+2024-06-11T19:17:47.065Z [info]: Record Retrieval Response
+2024-06-11T19:17:47.066Z [info]: Record Retrieval Request:
+Request URL: "https://yourwebchartprac.webchartnow.com/webchart.cgi/json/R0VUL2RiL3BhdGllbnRfY29uZGl0aW9uc19mYW1pbHkvcGF0X2lkPTE4"
+Endpoint: "patient_conditions_family"
+Query By: {"pat_id":18}
+2024-06-11T19:17:47.185Z [info]: Record Retrieval Response
+2024-06-11T19:17:47.186Z [info]: Record Retrieval Request:
+Request URL: "https://yourwebchartprac.webchartnow.com/webchart.cgi/json/R0VUL2RiL3BhdGllbnRfcHJvY2VkdXJlcy9wYXRfaWQ9MTg="
+Endpoint: "patient_procedures"
+Query By: {"pat_id":18}
+2024-06-11T19:17:47.366Z [info]: Record Retrieval Response
+2024-06-11T19:17:47.367Z [info]: Record Retrieval Request:
+Request URL: "https://yourwebchartprac.webchartnow.com/webchart.cgi/json/R0VUL2RiL3BhdGllbnRfdGFyZ2V0cy9wYXRfaWQ9MTg="
+Endpoint: "patient_targets"
+Query By: {"pat_id":18}
+2024-06-11T19:17:47.407Z [info]: Record Update Request:
+Request URL: "https://yourwebchartprac.webchartnow.com/webchart.cgi/json/UFVUL2RiL3BhdGllbnRz"
+Endpoint: "patients"
+Identifier: {"pat_id":40}
+New Data: {"first_name":"Brooklyn","ssn":"342098712","address1":"1690 Broadway Bldg 19, Ste 500, Fort Wayne, IN 46802"}
+2024-06-11T19:17:47.486Z [info]: Record Retrieval Response
+2024-06-11T19:17:47.486Z [info]: Record Retrieval Request:
+Request URL: "https://yourwebchartprac.webchartnow.com/webchart.cgi/json/R0VUL2RiL3BhdGllbnRfdGFyZ2V0cy9wYXRfaWQ9MTg="
+Endpoint: "patient_targets"
+Query By: {"pat_id":18}
+2024-06-11T19:17:47.527Z [info]: Record Update Response:
+Update Successful: "patients": pat_id = 40
+2024-06-11T19:17:47.604Z [info]: Record Retrieval Response
+2024-06-11T19:17:47.605Z [info]: Record Retrieval Request:
+Request URL: "https://yourwebchartprac.webchartnow.com/webchart.cgi/json/R0VUL2RiL2luY2lkZW50cy9wYXRfaWQ9MTg="
+Endpoint: "incidents"
+Query By: {"pat_id":18}
+2024-06-11T19:17:47.723Z [info]: Record Retrieval Response
+2024-06-11T19:17:47.723Z [info]: Record Retrieval Request:
+Request URL: "https://yourwebchartprac.webchartnow.com/webchart.cgi/json/R0VUL2RiL2VuY291bnRlcl9vcmRlcnMvcGF0X2lkPTE4"
+Endpoint: "encounter_orders"
+Query By: {"pat_id":18}
+2024-06-11T19:17:47.847Z [info]: Record Retrieval Response
+2024-06-11T19:17:47.847Z [info]: Record Retrieval Request:
+Request URL: "https://yourwebchartprac.webchartnow.com/webchart.cgi/json/R0VUL2RiL2VuY291bnRlcnMvcGF0X2lkPTE4"
+Endpoint: "encounters"
+Query By: {"pat_id":18}
+2024-06-11T19:17:48.243Z [info]: Record Retrieval Response
+2024-06-11T19:17:48.243Z [info]: Record Retrieval Request:
+Request URL: "https://yourwebchartprac.webchartnow.com/webchart.cgi/json/R0VUL2RiL2VuY291bnRlcnNfY3VycmVudC9wYXRfaWQ9MTg="
+Endpoint: "encounters_current"
+Query By: {"pat_id":18}
+2024-06-11T19:17:48.361Z [info]: Record Retrieval Response
+2024-06-11T19:17:48.362Z [info]: Record Retrieval Request:
+Request URL: "https://yourwebchartprac.webchartnow.com/webchart.cgi/json/R0VUL2RiL3J4bGlzdC9wYXRfaWQ9MTg="
+Endpoint: "rxlist"
+Query By: {"pat_id":18}
+2024-06-11T19:17:48.752Z [info]: Record Retrieval Response
+2024-06-11T19:17:48.753Z [info]: Record Retrieval Request:
+Request URL: "https://yourwebchartprac.webchartnow.com/webchart.cgi/json/R0VUL2RiL3J4bGlzdF9hbGxlcmd5bGlzdC9wYXRfaWQ9MTg="
+Endpoint: "rxlist_allergylist"
+Query By: {"pat_id":18}
+2024-06-11T19:17:48.886Z [info]: Record Retrieval Response
+2024-06-11T19:17:48.886Z [info]: Record Retrieval Request:
+Request URL: "https://yourwebchartprac.webchartnow.com/webchart.cgi/json/R0VUL2RiL2luc3VyYW5jZV9wb2xpY3kvcGF0X2lkPTE4"
+Endpoint: "insurance_policy"
+Query By: {"pat_id":18}
+2024-06-11T19:17:49.018Z [info]: Record Retrieval Response
+2024-06-11T19:17:49.018Z [info]: Patient Retrieval Response (Top Records):
+Successfully collected at records associated with Patient ID: 18
+2024-06-11T19:17:49.481Z [info]: Patient (Summary/Query) AI Response:
+Failed to send a valid request to Gemini with Patient ID: 18, Model: "gemini-1.5-flash"
+2024-06-11T19:17:49.481Z [info]: Patient (Summary/Query) AI Response:
+Failed to send a valid request to Gemini with Patient ID: undefined, Model: "undefined"

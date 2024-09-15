@@ -1,0 +1,56 @@
+{
+  "dependencies": {
+    "@google/generative-ai": "^0.12.0",
+    "axios": "^1.7.2",
+    "browserify-zlib": "^0.2.0",
+    "crypto-browserify": "^3.12.0",
+    "csv-parser": "^3.0.0",
+    "csv-writer": "^1.6.0",
+    "dotenv": "^16.4.5",
+    "form-data": "^4.0.0",
+    "https-browserify": "^1.0.0",
+    "mocha": "^10.4.0",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "querystring": "^0.2.1",
+    "stream-http": "^3.2.0",
+    "vm-browserify": "^1.1.2",
+    "winston": "^3.13.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/maxklema/mie-api-tools.git"
+  },
+  "name": "@maxklema/mie-api-tools",
+  "version": "1.0.10",
+  "description": "A package designed to interact with the MIE (Medical Informatics Engineering) API seamlessly in NPM environments.",
+  "main": "index.cjs",
+  "module": "index.mjs",
+  "type": "module",
+  "scripts": {
+    "test": "npx mocha tests/mochaTests.cjs tests/mochaTests.mjs",
+    "migrations": "npx mocha tests/migrationTests.cjs",
+    "publish:npm": "npm publish",
+    "publish:github": "npm publish --registry=https://npm.pkg.github.com"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": {
+      "require": "./index.cjs",
+      "import": "./index.mjs"
+    }
+  },
+  "keywords": [
+    "api",
+    "mie",
+    "package",
+    "nodejs"
+  ],
+  "author": "Maxwell Klema",
+  "license": "MIT",
+  "devDependencies": {
+    "winston": "^3.13.0"
+  }
+}
