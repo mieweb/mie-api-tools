@@ -39,10 +39,10 @@ A package designed to interact with [MIE's](https://www.mieweb.com/) (Medical In
 ## Installation
 
 **NPM**  
-`$ npm i @maxklema/mie-api-tools`
+`$ npm i @mieweb/mie-api-tools`
 
 **Yarn**  
-`$ yarn add @maxklema/mie-api-tools`
+`$ yarn add @mieweb/mie-api-tools`
 
 **PNPM**  
 `$ pnpm add @maxklema/mie-api-tools`
