@@ -39,10 +39,10 @@ A package designed to interact with [MIE's](https://www.mieweb.com/) (Medical In
 ## Installation
 
 **NPM**  
-`$ npm i @mieweb/mie-api-tools`
+`$ npm i @maxklema/mie-api-tools`
 
 **Yarn**  
-`$ yarn add @mieweb/mie-api-tools`
+`$ yarn add @maxklema/mie-api-tools`
 
 **PNPM**  
 `$ pnpm add @maxklema/mie-api-tools`
@@ -50,11 +50,11 @@ A package designed to interact with [MIE's](https://www.mieweb.com/) (Medical In
 Once the package is installed, you can import it into your project using `require` or `import`.
 
 ```javascript
-const mie = require("@mieweb/mie-api-tools");
+const mie = require("@maxklema/mie-api-tools");
 ```
 
 ```javascript
-import mie from "@mieweb/mie-api-tools";
+import mie from "@maxklema/mie-api-tools";
 ```
 
 > **NOTE:** Default import is highly reccomended. If you want to use a named import only, you must install the appropriate global variables that will be used to make your request.
